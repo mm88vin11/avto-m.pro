@@ -1,0 +1,10 @@
+# секреты и данные сервера
+site/app/config.php
+site/app/data/*
+!site/app/data/.htaccess
+site/uploads/p/
+# сборка и проверка
+dist/
+qa-shots/
+node_modules/
+.DS_Store
