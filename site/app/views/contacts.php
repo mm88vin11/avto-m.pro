@@ -8,7 +8,7 @@ $mapUrl = 'https://yandex.ru/maps/?text=' . $mapQ;
 ?>
 <div class="wrap">
   <?= breadcrumbs([['Контакты', null]]) ?>
-  <div class="page-head"><h1 data-split><?= h($c['title']) ?></h1><p class="lead"><?= h($c['lead']) ?></p></div>
+  <div class="page-head"><h1><?= h($c['title']) ?></h1><p class="lead"><?= h($c['lead']) ?></p></div>
   <div class="contacts">
     <div class="contact-cards">
       <a class="ccard panel" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click" data-reveal><span class="ccard-ic"><?= icon('phone') ?></span><small>Телефон</small><b><?= h($s['phone']) ?></b><span class="ccard-go">Позвонить<?= icon('arrow') ?></span></a>

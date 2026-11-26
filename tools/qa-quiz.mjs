@@ -10,7 +10,7 @@ for (const [w, h, tag] of [[1440, 900, 'd'], [390, 844, 'm']]) {
   await ctx.addCookies([{ name: 'avtom_consent', value: 'necessary', url: base }]);
   const p = await ctx.newPage(); const errs = [];
   p.on('pageerror', e => errs.push(String(e))); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
-  await p.goto(base + '/'); const q = p.locator('[data-quiz]'); await q.scrollIntoViewIfNeeded(); await p.waitForTimeout(900);
+  await p.goto(base + '/podbor'); const q = p.locator('[data-quiz]'); await q.scrollIntoViewIfNeeded(); await p.waitForTimeout(900);
   await q.screenshot({ path: `${out}/${tag}-q1.png` });
   await q.locator('[data-q-cat="gazovye-upory-bagazhnika"]').click(); await p.waitForTimeout(600);
   await q.locator('[data-q-make="ford"]').click(); await p.waitForTimeout(600);

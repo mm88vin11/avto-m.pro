@@ -13,31 +13,36 @@ function page_schema($key) {
   $legal = [['title', 'text', 'Заголовок'], ['body', 'md', 'Текст', ['rows' => 26, 'hint' => 'В тексте можно использовать {org_name}, {inn}, {ogrnip}, {address}, {email}, {privacy_email}, {phone}, {site}, {date} — подставятся из «Настроек».']]];
   $s = [
     'home' => [
-      ['h', 'Первый экран'],
-      ['hero.eyebrow', 'text', 'Надпись над заголовком'], ['hero.title', 'text', 'Заголовок'], ['hero.lead', 'textarea', 'Текст'],
-      ['row', [['hero.btn1_text', 'text', 'Главная кнопка'], ['hero.btn1_url', 'text', 'Ссылка кнопки']]],
-      ['row', [['hero.btn2_text', 'text', 'Вторая кнопка'], ['hero.btn2_url', 'text', 'Ссылка второй кнопки']]],
-      ['hero.pills', 'list', 'Пункты с галочкой'],
-      ['hero.photo_id', 'photo', 'Фото на фоне', ['hint' => 'Необязательно. Без фото справа показываются карточки товаров. Фото без надписей, горизонтальное, от 1600 точек.']],
+      ['h', 'Баннер — слайды'],
+      ['p', 'Каждый слайд: надпись над заголовком, крупный заголовок, две плашки, кнопка. Фон — фото без надписей (горизонтальное, от 2400 точек). Товар — PNG на прозрачном фоне. Без фото товара берётся фото категории.'],
+      ['slides', 'repeat', 'Слайды', [['kicker', 'text', 'Надпись над заголовком'], ['title', 'text', 'Заголовок'], ['pill1', 'text', 'Плашка слева'], ['pill2', 'text', 'Плашка справа'], ['btn', 'text', 'Кнопка'], ['url', 'text', 'Ссылка кнопки'], ['cat', 'cat', 'Категория (для фото товара)'], ['bg_id', 'photo', 'Фон для компьютера'], ['bg_m_id', 'photo', 'Фон для телефона (вертикальный)'], ['img_id', 'photo', 'Товар на прозрачном фоне']]],
       ['h', 'Порядок и видимость блоков'], ['blocks', 'blocks', ''],
       ['h', 'Тексты блоков'],
+      ['search.placeholder', 'text', 'Строка поиска — подсказка'],
+      ['row', [['categories.title', 'text', 'Каталог — заголовок'], ['products.title', 'text', 'Товары — заголовок']]],
       ['row', [['picker.title', 'text', 'Подбор — заголовок'], ['picker.lead', 'text', 'Подбор — текст']]],
-      ['h', 'Квиз «Подбор за 30 секунд»'],
-      ['row', [['quiz.badge', 'text', 'Надпись-метка'], ['quiz.title', 'text', 'Заголовок']]],
-      ['quiz.lead', 'textarea', 'Текст'],
-      ['quiz.symptoms', 'repeat', 'Признаки поломки → какую категорию показать', [['text', 'text', 'Признак'], ['cat', 'cat', 'Категория']]],
-      ['h', 'Другие блоки'],
-      ['row', [['categories.title', 'text', 'Каталог — заголовок'], ['brands.title', 'text', 'Марки — заголовок']]],
-      ['row', [['products.title', 'text', 'Товары — заголовок'], ['products.lead', 'text', 'Товары — текст']]],
-      ['brands.lead', 'text', 'Марки — текст'],
-      ['howto.title', 'text', 'Как купить — заголовок'],
-      ['howto.steps', 'repeat', 'Шаги', [['title', 'text', 'Шаг'], ['text', 'textarea', 'Пояснение']]],
-      ['advantages.title', 'text', 'Преимущества — заголовок'],
-      ['advantages.items', 'repeat', 'Преимущества', [['icon', 'icon', 'Значок'], ['title', 'text', 'Заголовок'], ['text', 'textarea', 'Текст']]],
-      ['row', [['about.title', 'text', 'О компании — заголовок'], ['about.btn', 'text', 'Текст кнопки']]],
+      ['h', 'Карточки «Подбор по параметрам» и «Оставить заявку»'],
+      ['row', [['cards.params_title', 'text', 'Левая — заголовок'], ['cards.lead_title', 'text', 'Правая — заголовок']]],
+      ['row', [['cards.params_text', 'textarea', 'Левая — текст'], ['cards.lead_text', 'textarea', 'Правая — текст']]],
+      ['row', [['cards.params_btn', 'text', 'Левая — кнопка'], ['cards.lead_btn', 'text', 'Правая — кнопка']]],
+      ['cards.params_url', 'text', 'Левая — ссылка кнопки'],
+      ['row', [['cards.params_img', 'photo', 'Левая — иллюстрация (PNG без фона)'], ['cards.lead_img', 'photo', 'Правая — иллюстрация (PNG без фона)']]],
+      ['h', 'Почему выбирают'],
+      ['advantages.title', 'text', 'Заголовок'],
+      ['advantages.items', 'repeat', 'Карточки', [['icon', 'icon', 'Значок'], ['title', 'text', 'Заголовок'], ['text', 'textarea', 'Текст']]],
+      ['h', 'О компании и вопросы'],
+      ['row', [['about.title', 'text', 'О компании — заголовок'], ['about.btn', 'text', 'Текст ссылки']]],
       ['about.text', 'textarea', 'О компании — текст'],
+      ['about.photo_id', 'photo', 'Фото склада или офиса (без вывесок с текстом)'],
+      ['row', [['help.title', 'text', 'Карточка вопросов — заголовок'], ['help.text', 'text', 'Карточка вопросов — текст']]],
+      ['h', 'Другие блоки'],
+      ['row', [['brands.title', 'text', 'Марки — заголовок'], ['brands.lead', 'text', 'Марки — текст']]],
+      ['howto.title', 'text', 'Как купить — заголовок'],
+      ['howto.steps', 'repeat', 'Как купить — шаги', [['title', 'text', 'Шаг'], ['text', 'textarea', 'Пояснение']]],
       ['faq.title', 'text', 'Вопросы — заголовок'],
-      ['row', [['help.title', 'text', 'Помощь — заголовок'], ['help.text', 'text', 'Помощь — текст']]],
+      ['row', [['quiz.badge', 'text', 'Квиз — метка'], ['quiz.title', 'text', 'Квиз — заголовок']]],
+      ['quiz.lead', 'textarea', 'Квиз — текст'],
+      ['quiz.symptoms', 'repeat', 'Квиз — признаки поломки → категория', [['text', 'text', 'Признак'], ['cat', 'cat', 'Категория']]],
       ...$seo,
     ],
     'about' => [['title', 'text', 'Заголовок'], ['lead', 'textarea', 'Подзаголовок'], ['facts', 'repeat', 'Цифры', [['value', 'text', 'Число'], ['label', 'text', 'Подпись']]], ['body', 'md', 'Текст', ['rows' => 16]], ...$seo],
@@ -102,7 +107,12 @@ if (a_require_post()) {
       [$path, $type] = $f;
       $v = arr_get($in, $path);
       if ($type === 'list') $v = array_values(array_filter(array_map('trim', preg_split("~\r?\n~", (string)$v)), 'strlen'));
-      elseif ($type === 'repeat') { $v = array_values(array_filter((array)$v, fn($r) => is_array($r) && array_filter(array_map('trim', array_map('strval', $r))))); foreach ($v as &$r) $r = array_map(fn($x) => trim((string)$x), $r); unset($r); }
+      elseif ($type === 'repeat') {
+        $photoKeys = array_column(array_filter($f[3] ?? [], fn($x) => $x[1] === 'photo'), 0);
+        $v = array_values(array_filter((array)$v, function ($r) use ($photoKeys) { if (!is_array($r)) return false; foreach ($r as $k => $x) if (!in_array($k, $photoKeys, true) && trim((string)$x) !== '') return true; return false; }));
+        foreach ($v as &$r) foreach ($r as $k => $x) $r[$k] = in_array($k, $photoKeys, true) ? ((int)$x ?: null) : trim((string)$x);
+        unset($r);
+      }
       elseif ($type === 'blocks') { $out = []; foreach ((array)$v as $b) if (isset(home_block_names()[$b['id'] ?? ''])) $out[] = ['id' => $b['id'], 'on' => !empty($b['on'])]; $v = $out; }
       elseif ($type === 'photo') $v = (int)$v ?: null;
       else $v = trim(str_replace("\r", '', (string)$v));
@@ -157,7 +167,8 @@ a_head($keys[$key], '/pages');
                 echo '<div class="a-rep-card" data-rep-row draggable="true"><span class="a-drag">' . a_icon('dots') . '</span><div class="a-rep-f">';
                 foreach ($sub as [$sk, $st, $sl]) {
                   $nm = fname($path) . '[' . $i . '][' . $sk . ']'; $sv = $r[$sk] ?? '';
-                  if ($st === 'cat') { echo '<div class="a-field"><label>' . h($sl) . '</label><select name="' . h($nm) . '"><option value="">—</option>'; foreach (categories_all(false) as $cc) echo '<option value="' . h($cc['slug']) . '"' . ($sv === $cc['slug'] ? ' selected' : '') . '>' . h($cc['name']) . '</option>'; echo '</select></div>'; }
+                  if ($st === 'photo') { echo a_photo_pick($nm, (int)$sv, $sl); }
+                  elseif ($st === 'cat') { echo '<div class="a-field"><label>' . h($sl) . '</label><select name="' . h($nm) . '"><option value="">—</option>'; foreach (categories_all(false) as $cc) echo '<option value="' . h($cc['slug']) . '"' . ($sv === $cc['slug'] ? ' selected' : '') . '>' . h($cc['name']) . '</option>'; echo '</select></div>'; }
                   elseif ($st === 'icon') { echo '<div class="a-field a-field-icon"><label>' . h($sl) . '</label><select name="' . h($nm) . '">'; foreach (PAGE_ICONS as $ik => $iv) echo '<option value="' . $ik . '"' . ($sv === $ik ? ' selected' : '') . '>' . $iv . '</option>'; echo '</select></div>'; }
                   elseif ($st === 'textarea') echo '<div class="a-field"><label>' . h($sl) . '</label><textarea name="' . h($nm) . '" rows="2">' . h($sv) . '</textarea></div>';
                   else echo '<div class="a-field"><label>' . h($sl) . '</label><input name="' . h($nm) . '" value="' . h($sv) . '"></div>';

@@ -5,7 +5,7 @@ $s = site();
 ?>
 <div class="wrap">
   <?= breadcrumbs([['О компании', null]]) ?>
-  <div class="page-head"><h1 data-split><?= h($c['title']) ?></h1><p class="lead"><?= h($c['lead']) ?></p></div>
+  <div class="page-head"><h1><?= h($c['title']) ?></h1><p class="lead"><?= h($c['lead']) ?></p></div>
   <div class="about-band" data-reveal>
     <div class="about-copy"><p class="motto">«<?= h($s['tagline']) ?>»</p></div>
     <div class="about-facts"><?php foreach ($c['facts'] as $f): ?><div class="fact"><b data-count-to="<?= h($f['value']) ?>"><?= h($f['value']) ?></b><span><?= h($f['label']) ?></span></div><?php endforeach; ?></div>

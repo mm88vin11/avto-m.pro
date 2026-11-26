@@ -41,6 +41,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 <?php if ($s['yandex_verification']): ?><meta name="yandex-verification" content="<?= h($s['yandex_verification']) ?>">
 <?php endif; ?>
 <link rel="preload" href="/assets/fonts/onest-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/exo-2-cyrillic-900-italic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?= asset('css/site.css') ?>">
 <script src="<?= asset('js/site.js') ?>" defer></script>
 <script src="<?= asset('js/interactive.js') ?>" defer></script>
@@ -55,54 +56,51 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 <div class="preview-bar" role="status"><?= icon('info') ?> Предпросмотр: показан черновик. Посетители видят опубликованную версию. <a href="/admin">Вернуться в админку</a></div>
 <?php endif; ?>
 
-<div class="topbar">
-  <div class="wrap topbar-in">
-    <span class="topbar-item"><?= icon('pin') ?><?= h($s['address_short']) ?></span>
-    <span class="topbar-item"><?= icon('clock') ?><?= h($s['hours']) ?></span>
-    <nav class="topbar-nav" aria-label="Покупателям">
-      <a href="/how-to-buy"<?= $navActive('/how-to-buy') ?>>Как купить</a>
-      <a href="/partners"<?= $navActive('/partners') ?>>Сотрудничество</a>
-      <a href="mailto:<?= h($s['email']) ?>"><?= h($s['email']) ?></a>
-    </nav>
-  </div>
-</div>
-
-<header class="header" id="header">
-  <div class="wrap header-in">
-    <a class="logo" href="/" aria-label="AVTO-M — на главную"><span class="logo-img" role="img" aria-label="AVTO-M. Качество по доступной цене"></span></a>
-    <button class="btn btn-primary catalog-btn" type="button" aria-expanded="false" aria-controls="mega" data-mega>
-      <span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Каталог</span>
-    </button>
-    <form class="search" action="/search" method="get" role="search" data-search>
-      <label class="sr" for="q">Поиск по названию, артикулу или номеру</label>
-      <?= icon('search', 'search-i') ?>
-      <input id="q" name="q" type="search" placeholder="Название, артикул или номер детали" autocomplete="off" value="<?= h($_GET['q'] ?? '') ?>" aria-autocomplete="list" aria-controls="suggest" enterkeyhint="search">
-      <button class="search-go" type="submit" aria-label="Найти"><?= icon('arrow') ?></button>
-      <div class="suggest" id="suggest" role="listbox" hidden></div>
-    </form>
-    <a class="header-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><b><?= h($s['phone']) ?></b><small><?= h($s['hours_short']) ?></small></a>
-    <div class="header-actions">
-      <a class="hbtn hbtn-call" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click" aria-label="Позвонить"><?= icon('phone') ?></a>
-      <a class="hbtn" href="/compare" aria-label="Сравнение"><?= icon('compare') ?><span class="hbtn-t">Сравнить</span><span class="badge" data-count="compare" hidden>0</span></a>
-      <a class="hbtn" href="/cart" aria-label="Список запроса"><?= icon('clipboard') ?><span class="hbtn-t">Запрос</span><span class="badge" data-count="cart" hidden>0</span></a>
+<header class="hd" id="header">
+  <div class="hd-top">
+    <div class="wrap hd-top-in">
+      <a class="logo" href="/" aria-label="AVTO-M — на главную"><span class="logo-img" role="img" aria-label="AVTO-M. Качество по доступной цене"></span></a>
+      <span class="hd-note"><?= h($s['header_note']) ?></span>
+      <span class="hd-info"><?= icon('pin') ?><span><?= h($s['address_short']) ?><br><small><?= h($s['city'] === 'Балашиха' ? 'Московская область' : $s['region']) ?></small></span></span>
+      <span class="hd-info"><?= icon('clock') ?><span>Работаем ежедневно<br><small><?= h(preg_replace('~^Ежедневно\s+~u', '', $s['hours'])) ?></small></span></span>
+      <span class="hd-contacts">
+        <a class="hd-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= icon('phone') ?><?= h($s['phone']) ?></a>
+        <a class="hd-mail" href="mailto:<?= h($s['email']) ?>"><?= icon('mail') ?><?= h($s['email']) ?></a>
+      </span>
+      <a class="hd-call" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click" aria-label="Позвонить <?= h($s['phone']) ?>"><?= icon('phone') ?></a>
     </div>
   </div>
-  <div class="wrap header-nav">
-    <nav aria-label="Основное меню">
-      <a href="/podbor"<?= $navActive('/podbor') ?>><?= icon('car') ?>Подбор по авто</a>
-      <?php foreach ($cats as $c): ?><a href="/catalog/<?= h($c['slug']) ?>"<?= $navActive('/catalog/' . $c['slug']) ?>><?= h($c['name']) ?></a><?php endforeach; ?>
+  <nav class="hd-nav" aria-label="Основное меню">
+    <div class="wrap hd-nav-in">
+      <a href="/"<?= $navActive('/') ?>>Главная</a>
+      <a href="/catalog"<?= $navActive('/catalog') ?>>Продукция</a>
+      <a href="/podbor"<?= $navActive('/podbor') ?>>Подбор по авто</a>
       <a href="/about"<?= $navActive('/about') ?>>О компании</a>
       <a href="/partners"<?= $navActive('/partners') ?>>Преимущества</a>
+      <a href="/how-to-buy"<?= $navActive('/how-to-buy') ?>>Доставка и покупка</a>
       <a href="/contacts"<?= $navActive('/contacts') ?>>Контакты</a>
-    </nav>
-    <div class="garage" data-garage hidden></div>
+      <span class="garage" data-garage hidden></span>
+    </div>
+  </nav>
+  <div class="hd-bar">
+    <div class="wrap hd-bar-in">
+      <button class="hd-cat" type="button" aria-expanded="false" aria-controls="mega" data-mega><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Каталог продукции</span></button>
+      <form class="search" action="/search" method="get" role="search" data-search>
+        <label class="sr" for="q">Поиск по названию, артикулу или номеру</label>
+        <input id="q" name="q" type="search" placeholder="Поиск по названию, артикулу или номеру" autocomplete="off" value="<?= h($_GET['q'] ?? '') ?>" aria-autocomplete="list" aria-controls="suggest" enterkeyhint="search">
+        <button class="search-go" type="submit" aria-label="Найти"><?= icon('search') ?></button>
+        <div class="suggest" id="suggest" role="listbox" hidden></div>
+      </form>
+      <a class="hd-btn" href="/compare" aria-label="Сравнение"><?= icon('compare') ?><span class="hd-btn-t">Сравнить</span><span class="badge" data-count="compare" hidden>0</span></a>
+      <a class="hd-cart" href="/cart" aria-label="Корзина"><?= icon('bag') ?><span class="hd-btn-t">Корзина</span><span class="hd-cart-n" data-count-text="cart">0 товаров</span><span class="badge hd-cart-badge" data-count="cart" hidden>0</span></a>
+    </div>
   </div>
   <div class="mega" id="mega" hidden>
     <div class="wrap mega-in">
       <div class="mega-cats">
-        <p class="mega-h">Каталог</p>
+        <p class="mega-h">Каталог продукции</p>
         <?php foreach ($cats as $c): $ph = photo_row($c['photo_id']); ?>
-          <a class="mega-cat" href="/catalog/<?= h($c['slug']) ?>"><span><?= h($c['name']) ?></span><small><?= (int)$c['cnt'] ?> <?= plural($c['cnt'], 'товар', 'товара', 'товаров') ?></small><?= icon('chevron-r') ?></a>
+          <a class="mega-cat" href="/catalog/<?= h($c['slug']) ?>"><span class="mega-img"><?php if ($ph): ?><img src="<?= h(img_url($ph, 400)) ?>" alt="" loading="lazy"><?php endif; ?></span><span><?= h($c['name']) ?><small><?= (int)$c['cnt'] ?> <?= plural($c['cnt'], 'товар', 'товара', 'товаров') ?></small></span><?= icon('chevron-r') ?></a>
         <?php endforeach; ?>
         <a class="mega-cat mega-all" href="/catalog"><span>Весь каталог</span><?= icon('arrow') ?></a>
       </div>
@@ -111,8 +109,8 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
         <div class="mega-makes">
           <?php foreach (car_tree() as $mk): ?><a href="/avto/<?= h($mk['slug']) ?>"><?= h($mk['name']) ?></a><?php endforeach; ?>
         </div>
-        <a class="btn btn-soft" href="/podbor"><?= icon('car') ?>Подобрать по марке и модели</a>
-        <p class="mega-h">Марки деталей</p>
+        <a class="btn btn-primary" href="/podbor"><?= icon('car') ?>Подобрать по марке и модели</a>
+        <p class="mega-h">Производители</p>
         <div class="mega-makes">
           <?php foreach (brands_all() as $b): if (!$b['cnt']) continue; ?><a href="/brand/<?= h($b['slug']) ?>"><?= h($b['name']) ?></a><?php endforeach; ?>
         </div>
@@ -125,42 +123,39 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 <?= $content ?>
 </main>
 
-<footer class="footer">
-  <div class="wrap">
-    <div class="footer-top">
-      <div class="footer-brand">
-        <img src="/assets/img/logo-white.webp" width="200" height="68" alt="AVTO-M — Качество по доступной цене" decoding="async">
-        <p>Газовые упоры и расширительные бачки с подбором по автомобилю. Покупка на Wildberries и Ozon или по заявке.</p>
-      </div>
-      <nav class="footer-col" aria-label="Каталог">
-        <p class="footer-h">Каталог</p>
-        <?php foreach ($cats as $c): ?><a href="/catalog/<?= h($c['slug']) ?>"><?= h($c['name']) ?></a><?php endforeach; ?>
-        <a href="/podbor">Подбор по автомобилю</a>
-        <a href="/avto">Марки автомобилей</a>
-      </nav>
-      <nav class="footer-col" aria-label="Покупателям">
-        <p class="footer-h">Покупателям</p>
-        <a href="/how-to-buy">Как купить</a>
-        <a href="/cart">Список запроса</a>
-        <a href="/compare">Сравнение</a>
-        <a href="/partners">Сотрудничество</a>
-        <a href="/about">О компании</a>
-      </nav>
-      <div class="footer-col footer-contacts">
-        <p class="footer-h">Контакты</p>
-        <a class="footer-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= h($s['phone']) ?></a>
-        <a href="mailto:<?= h($s['email']) ?>"><?= h($s['email']) ?></a>
-        <span><?= h($s['address']) ?></span>
-        <span><?= h($s['hours']) ?></span>
-        <button class="btn btn-ghost-light" type="button" data-lead="question" data-title="Задать вопрос"><?= icon('chat') ?>Задать вопрос</button>
-      </div>
+<footer class="ft">
+  <div class="wrap ft-in">
+    <div class="ft-brand">
+      <img src="/assets/img/logo-white.webp" width="200" height="68" alt="AVTO-M — Качество по доступной цене" decoding="async">
+      <p><?= h($s['header_note']) ?> с подбором по автомобилю. Покупка на Wildberries и Ozon или по заявке.</p>
     </div>
-    <div class="footer-bottom">
-      <p>© <?= date('Y') ?> AVTO-M · <?= h($s['org_name']) ?> · ИНН <?= h($s['inn']) ?> · ОГРНИП <?= h($s['ogrnip']) ?></p>
-      <p>Информация на сайте не является публичной офертой. Wildberries и Ozon — товарные знаки их правообладателей.</p>
+    <nav class="ft-col" aria-label="Разделы">
+      <a href="/">Главная</a>
+      <a href="/catalog">Продукция</a>
+      <?php foreach ($cats as $c): ?><a href="/catalog/<?= h($c['slug']) ?>"><?= h($c['name']) ?></a><?php endforeach; ?>
+      <a href="/podbor">Подбор по автомобилю</a>
+    </nav>
+    <nav class="ft-col" aria-label="Покупателям">
+      <a href="/about">О компании</a>
+      <a href="/partners">Преимущества</a>
+      <a href="/how-to-buy">Доставка и покупка</a>
+      <a href="/compare">Сравнение</a>
+      <a href="/cart">Корзина</a>
+      <a href="/karta-sajta">Карта сайта</a>
+    </nav>
+    <div class="ft-col ft-contacts">
+      <a class="ft-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= icon('phone') ?><?= h($s['phone']) ?></a>
+      <a href="mailto:<?= h($s['email']) ?>"><?= icon('mail') ?><?= h($s['email']) ?></a>
+      <span><?= icon('pin') ?><?= h($s['address']) ?></span>
+      <span><?= icon('clock') ?><?= h($s['hours']) ?></span>
+    </div>
+  </div>
+  <div class="ft-bottom">
+    <div class="wrap ft-bottom-in">
+      <p>© <?= date('Y') ?> AVTO-M · <?= h($s['org_name']) ?> · ИНН <?= h($s['inn']) ?> · ОГРНИП <?= h($s['ogrnip']) ?>. Информация на сайте не является публичной офертой. Wildberries и Ozon — товарные знаки их правообладателей.</p>
       <nav aria-label="Документы">
-        <a href="/legal/privacy">Политика обработки персональных данных</a>
-        <a href="/legal/consent">Согласие на обработку данных</a>
+        <a href="/legal/privacy">Политика обработки данных</a>
+        <a href="/legal/consent">Согласие на обработку</a>
         <a href="/legal/cookies">Cookie</a>
         <a href="/legal/terms">Правовая информация</a>
         <button type="button" class="linklike" data-cookie-settings>Настройки cookie</button>
@@ -173,7 +168,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
   <a href="/"<?= $navActive('/') ?>><?= icon('home') ?><span>Главная</span></a>
   <a href="/catalog"<?= $navActive('/catalog') ?>><?= icon('catalog') ?><span>Каталог</span></a>
   <a href="/podbor"<?= $navActive('/podbor') ?>><?= icon('car') ?><span>Подбор</span></a>
-  <a href="/cart"<?= $navActive('/cart') ?>><?= icon('clipboard') ?><span>Запрос</span><b class="badge" data-count="cart" hidden>0</b></a>
+  <a href="/cart"<?= $navActive('/cart') ?>><?= icon('bag') ?><span>Корзина</span><b class="badge" data-count="cart" hidden>0</b></a>
   <button type="button" data-drawer aria-controls="drawer" aria-expanded="false"><?= icon('menu') ?><span>Ещё</span></button>
 </nav>
 
@@ -184,6 +179,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
       <a href="/catalog"><?= icon('catalog') ?>Каталог</a>
       <?php foreach ($cats as $c): ?><a class="sub" href="/catalog/<?= h($c['slug']) ?>"><?= h($c['name']) ?></a><?php endforeach; ?>
       <a href="/podbor"><?= icon('car') ?>Подбор по автомобилю</a>
+      <a href="/cart"><?= icon('bag') ?>Корзина <b class="badge" data-count="cart" hidden>0</b></a>
       <a href="/compare"><?= icon('compare') ?>Сравнение <b class="badge" data-count="compare" hidden>0</b></a>
       <a href="/how-to-buy"><?= icon('bag') ?>Как купить</a>
       <a href="/about"><?= icon('building') ?>О компании</a>

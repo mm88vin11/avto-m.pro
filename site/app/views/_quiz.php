@@ -27,7 +27,7 @@ $id = $id ?? 'quiz';
 ?>
 <div class="quiz panel" id="<?= h($id) ?>" data-quiz data-reveal>
   <div class="quiz-side">
-    <span class="quiz-badge"><?= icon('sparkle') ?><?= h($q['badge']) ?></span>
+    <span class="quiz-badge"><?= h($q['badge']) ?></span>
     <h2 class="quiz-title"><?= h($q['title']) ?></h2>
     <p class="quiz-lead"><?= h($q['lead']) ?></p>
     <ol class="quiz-steps" aria-hidden="true" data-q-dots><li></li><li></li><li></li><li></li></ol>

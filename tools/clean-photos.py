@@ -26,7 +26,8 @@ def in_zone(x, y, w, h, W, H):
     return False
 
 
-def clean(path, out_size=1800):
+def segment(path):
+    """Возвращает (изображение float, маска товара 0..1, цвет фона)."""
     img = cv2.imread(path)
     H, W = img.shape[:2]
     f = img.astype(np.float32)
@@ -61,6 +62,32 @@ def clean(path, out_size=1800):
     keep = cv2.resize(keep.astype(np.float32), (W, H), interpolation=cv2.INTER_LINEAR)
     keep = cv2.GaussianBlur(keep, (0, 0), 5)
     alpha = np.clip(soft * np.clip(keep * 1.5, 0, 1), 0, 1)
+    return f, alpha, bg, img
+
+
+def cutout(path, size=1600):
+    """Товар на прозрачном фоне (PNG RGBA), обрезан по краям."""
+    f, alpha, bg, img = segment(path)
+    # без тени: тень — тёмные полупрозрачные пиксели фона, отсекаем по яркости
+    lum = f.mean(axis=2)
+    alpha = alpha * np.clip((lum - 120) / 60, 0, 1)
+    ys, xs = np.where(alpha > 0.04)
+    y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    rgb = f[y0:y1, x0:x1]
+    # снимаем голубой оттенок фона, просвечивающий через пластик
+    a = alpha[y0:y1, x0:x1][..., None]
+    rgb = np.clip((rgb - bg * (1 - a) * 0.0), 0, 255)
+    grey = rgb.mean(axis=2, keepdims=True)
+    rgb = rgb * 0.55 + grey * 0.45
+    rgba = np.dstack([rgb, alpha[y0:y1, x0:x1] * 255]).astype(np.uint8)
+    k = size / max(rgba.shape[:2])
+    if k < 1:
+        rgba = cv2.resize(rgba, (int(rgba.shape[1] * k), int(rgba.shape[0] * k)), interpolation=cv2.INTER_AREA)
+    return rgba
+
+
+def clean(path, out_size=1800):
+    f, alpha, bg, img = segment(path)
     ys, xs = np.where(alpha > 0.05)
     y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
     prod, a = f[y0:y1, x0:x1], alpha[y0:y1, x0:x1]
@@ -107,6 +134,10 @@ def logo(img):
 
 
 files = sorted(glob.glob(os.path.join(src, '**', '*.jpg'), recursive=True))
+if os.environ.get('CUTOUT'):
+    for f in files:
+        cv2.imwrite(os.path.join(dst, os.path.splitext(os.path.basename(f))[0] + '-cut.png'), cutout(f))
+    sys.exit()
 for f in files:
     name = os.path.splitext(os.path.basename(f))[0]
     res, orig = clean(f)

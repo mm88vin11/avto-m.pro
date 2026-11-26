@@ -36,7 +36,7 @@ $viewUrl = fn($v) => $base . qs_without(['view'], $v === 'grid' ? [] : ['view' =
 <div class="wrap" id="catalog-root" data-catalog>
   <?= breadcrumbs($crumbs) ?>
   <div class="page-head">
-    <h1 data-split><?= h($h1) ?></h1>
+    <h1><?= h($h1) ?></h1>
     <?php if ($cat && $cat['intro']): ?><p class="lead"><?= h($cat['intro']) ?></p><?php endif; ?>
   </div>
 
@@ -67,7 +67,7 @@ $viewUrl = fn($v) => $base . qs_without(['view'], $v === 'grid' ? [] : ['view' =
   <div class="cat-layout">
     <aside class="filters" id="filters" aria-label="Фильтры">
       <form class="filters-form" action="<?= h($base) ?>" method="get" data-filters>
-        <div class="filters-head"><h2>Фильтры</h2><button class="icon-btn" type="button" data-close-filters aria-label="Закрыть фильтры"><?= icon('close') ?></button></div>
+        <div class="filters-head"><h2>Фильтр</h2><button class="icon-btn" type="button" data-close-filters aria-label="Закрыть фильтры"><?= icon('close') ?></button></div>
         <div class="filters-scroll">
           <input type="hidden" name="sort" value="<?= $f['sort'] === 'popular' ? '' : h($f['sort']) ?>">
           <input type="hidden" name="view" value="<?= $f['view'] === 'grid' ? '' : h($f['view']) ?>">
@@ -97,7 +97,7 @@ $viewUrl = fn($v) => $base . qs_without(['view'], $v === 'grid' ? [] : ['view' =
         </div>
         <div class="filters-foot">
           <button class="btn btn-primary btn-block" type="submit" data-apply><span>Показать <?= $n ?> <?= plural($n, 'товар', 'товара', 'товаров') ?></span></button>
-          <a class="btn btn-soft btn-block" href="<?= h($base) ?>">Сбросить фильтры</a>
+          <a class="btn btn-line btn-block" href="<?= h($base) ?>">Сбросить фильтр</a>
         </div>
       </form>
     </aside>
@@ -107,7 +107,7 @@ $viewUrl = fn($v) => $base . qs_without(['view'], $v === 'grid' ? [] : ['view' =
       <div class="toolbar">
         <button class="btn btn-soft filters-open" type="button" data-open-filters><?= icon('filter') ?><span>Фильтры</span><?php if ($activeCount): ?><b class="badge"><?= $activeCount ?></b><?php endif; ?></button>
         <p class="found"><?= $n ? 'Найдено ' . $n . ' ' . plural($n, 'товар', 'товара', 'товаров') : 'Ничего не нашли' ?></p>
-        <label class="sort"><span class="sr">Сортировка</span>
+        <label class="sort"><span class="sort-l">Сортировать:</span>
           <select data-sort>
             <?php foreach (['popular' => 'Сначала популярные', 'name' => 'По названию', 'new' => 'Сначала новые'] as $k => $v): ?>
               <option value="<?= h($base . qs_without(['sort'], $k === 'popular' ? [] : ['sort' => $k])) ?>"<?= $f['sort'] === $k ? ' selected' : '' ?>><?= $v ?></option>

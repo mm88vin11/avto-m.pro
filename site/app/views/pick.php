@@ -7,7 +7,7 @@ $attrsF = array_filter(attributes_all(), fn($a) => $a['filter'] && $a['type'] ==
 ?>
 <div class="wrap">
   <?= breadcrumbs([['Подбор', null]]) ?>
-  <div class="page-head"><h1 data-split>Подбор деталей</h1><p class="lead">Выберите автомобиль или укажите параметры детали — покажем подходящие позиции.</p></div>
+  <div class="page-head"><h1>Подбор деталей</h1><p class="lead">Выберите автомобиль или укажите параметры детали — покажем подходящие позиции.</p></div>
 
   <section class="panel pick-block" aria-labelledby="pk1">
     <div class="pick-block-h"><span class="num">1</span><div><h2 id="pk1">По автомобилю</h2><p class="muted">Модели зависят от марки, годы и кузова — от модели.</p></div></div>
@@ -32,7 +32,9 @@ $attrsF = array_filter(attributes_all(), fn($a) => $a['filter'] && $a['type'] ==
     </form>
   </section>
 
-  <?php partial('measure'); ?>
+  <div class="section"><?php partial('quiz', ['id' => 'quiz']); ?></div>
+
+  <div class="section"><?php partial('measure'); ?></div>
 
   <section class="section" aria-labelledby="pk3">
     <div class="section-head"><h2 id="pk3">Марки и модели в каталоге</h2></div>

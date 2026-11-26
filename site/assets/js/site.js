@@ -165,8 +165,9 @@
   function inCart(id) { return cart.some(function (x) { return x.id === id; }); }
   function counts(bump) {
     $$('[data-count="cart"]').forEach(function (b) { var n = cart.length; b.textContent = n; b.hidden = !n; if (bump === 'cart') { b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); } });
+    $$('[data-count-text="cart"]').forEach(function (b) { var n = cart.length; b.textContent = n + ' ' + plural(n, 'товар', 'товара', 'товаров'); });
     $$('[data-count="compare"]').forEach(function (b) { var n = cmp.length; b.textContent = n; b.hidden = !n; if (bump === 'cmp') { b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); } });
-    $$('[data-cart]').forEach(function (b) { var on = inCart(+b.getAttribute('data-cart')); b.setAttribute('aria-pressed', on ? 'true' : 'false'); var s = $('span', b); if (s) s.textContent = on ? 'В запросе' : 'В запрос'; var u = $('use', b); if (u) u.setAttribute('href', on ? '#i-check' : '#i-plus'); });
+    $$('[data-cart]').forEach(function (b) { var on = inCart(+b.getAttribute('data-cart')); b.setAttribute('aria-pressed', on ? 'true' : 'false'); var s = $('span', b); if (s) s.textContent = on ? 'В корзине' : 'В корзину'; var u = $('use', b); if (u) u.setAttribute('href', on ? '#i-check' : '#i-plus'); });
     $$('[data-compare]').forEach(function (b) { var on = cmp.indexOf(+b.getAttribute('data-compare')) >= 0; b.setAttribute('aria-pressed', on ? 'true' : 'false'); var s = $('span', b); if (s) s.textContent = on ? 'В сравнении' : 'Сравнить'; });
   }
   counts();
@@ -177,8 +178,8 @@
     var b = e.target.closest('[data-cart]');
     if (b) {
       var id = +b.getAttribute('data-cart');
-      if (inCart(id)) { cart = cart.filter(function (x) { return x.id !== id; }); toast('Убрали из запроса'); }
-      else { cart.push({ id: id, qty: 1 }); toast('Добавили в запрос', ['Открыть', '/cart']); }
+      if (inCart(id)) { cart = cart.filter(function (x) { return x.id !== id; }); toast('Убрали из корзины'); }
+      else { cart.push({ id: id, qty: 1 }); toast('Добавили в корзину', ['Открыть', '/cart']); }
       store.set('avtom-cart', cart); counts('cart'); return;
     }
     var c = e.target.closest('[data-compare]');
@@ -439,7 +440,7 @@
         return '<article class="ci" data-ci="' + p.id + '"><a class="ci-img" href="' + p.url + '">' + (p.img ? '<img src="' + p.img + '" alt="" width="110" height="110" loading="lazy">' : '') + '</a>'
           + '<div class="ci-body"><small>' + esc(p.brand) + ' · ' + esc(p.sku) + '</small><a href="' + p.url + '">' + esc(p.name) + '</a><span class="ci-compat">' + esc(p.compat) + '</span>'
           + (p.wb || p.ozon ? '<div class="mp-row" style="margin-top:8px;max-width:340px">' + (p.wb ? '<a class="btn btn-wb" style="--h:40px;font-size:14px" href="' + p.wb + '" target="_blank" rel="nofollow noopener" data-goal="mp_wb" data-mp="wb">Wildberries</a>' : '') + (p.ozon ? '<a class="btn btn-ozon" style="--h:40px;font-size:14px" href="' + p.ozon + '" target="_blank" rel="nofollow noopener" data-goal="mp_ozon" data-mp="ozon">Ozon</a>' : '') + '</div>' : '') + '</div>'
-          + '<div class="ci-side"><div class="qty" role="group" aria-label="Количество"><button type="button" data-qty="-1" aria-label="Меньше">' + icon('minus') + '</button><output>' + x.qty + '</output><button type="button" data-qty="1" aria-label="Больше">' + icon('plus') + '</button></div><button class="icon-btn ci-del" type="button" data-del aria-label="Убрать из запроса">' + icon('trash') + '</button></div></article>';
+          + '<div class="ci-side"><div class="qty" role="group" aria-label="Количество"><button type="button" data-qty="-1" aria-label="Меньше">' + icon('minus') + '</button><output>' + x.qty + '</output><button type="button" data-qty="1" aria-label="Больше">' + icon('plus') + '</button></div><button class="icon-btn ci-del" type="button" data-del aria-label="Убрать из корзины">' + icon('trash') + '</button></div></article>';
       }).join('');
       empty.hidden = true; formBox.hidden = false; syncCartForm();
     });
@@ -511,7 +512,6 @@
     es.forEach(function (en) { if (!en.isIntersecting) return; en.target.classList.add('is-in'); io.unobserve(en.target); $$('[data-count-to]', en.target).forEach(countUp); });
   }, { rootMargin: '0px 0px -8% 0px', threshold: .08 }) : null;
   function reveal(root, instant) {
-    $$('[data-split]', root).forEach(function (el) { if (!reduce) splitWords(el); });
     $$('[data-reveal], [data-split]', root).forEach(function (el) {
       if (!io || instant) { el.classList.add('is-in'); return; }
       io.observe(el);
@@ -519,6 +519,34 @@
   }
   reveal(d);
   setTimeout(function () { $$('[data-reveal]:not(.is-in), [data-split]:not(.is-in)').forEach(function (el) { var r = el.getBoundingClientRect(); if (r.top < innerHeight) el.classList.add('is-in'); }); }, 1500);
+
+
+  /* ---------- баннер-слайдер на главной ---------- */
+  var slider = $('[data-slider]');
+  if (slider) {
+    var slides = $$('.slide', slider), dotsB = $$('[data-slide]', slider), cur = 0, timer = null, MS = 6500;
+    var show = function (n) {
+      n = (n + slides.length) % slides.length; if (n === cur) return;
+      slides[cur].classList.remove('is-on'); slides[cur].setAttribute('aria-hidden', 'true');
+      $$('a', slides[cur]).forEach(function (a) { a.tabIndex = -1; });
+      cur = n;
+      slides[cur].classList.add('is-on'); slides[cur].removeAttribute('aria-hidden');
+      $$('a', slides[cur]).forEach(function (a) { a.removeAttribute('tabindex'); });
+      dotsB.forEach(function (b, i) { b.setAttribute('aria-selected', i === cur ? 'true' : 'false'); });
+      // перезапуск полоски прогресса
+      var i = $('[aria-selected="true"] i', slider); if (i) { i.style.animation = 'none'; void i.offsetWidth; i.style.animation = ''; }
+    };
+    var play = function () { stop(); if (reduce || slides.length < 2) return; slider.classList.add('is-auto'); slider.style.setProperty('--slide-ms', MS + 'ms'); timer = setInterval(function () { show(cur + 1); }, MS); };
+    var stop = function () { clearInterval(timer); timer = null; slider.classList.remove('is-auto'); };
+    dotsB.forEach(function (b) { b.addEventListener('click', function () { show(+b.getAttribute('data-slide')); play(); }); });
+    slider.addEventListener('mouseenter', stop); slider.addEventListener('mouseleave', play);
+    slider.addEventListener('focusin', stop); slider.addEventListener('focusout', play);
+    var sx = null;
+    slider.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    slider.addEventListener('touchend', function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) { show(cur + (dx < 0 ? 1 : -1)); play(); } sx = null; }, { passive: true });
+    d.addEventListener('visibilitychange', function () { if (d.hidden) stop(); else play(); });
+    play();
+  }
 
   /* ---------- первый экран: лёгкий наклон и магнит ---------- */
   var stage = $('[data-tilt]');

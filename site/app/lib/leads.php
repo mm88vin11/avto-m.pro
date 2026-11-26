@@ -4,7 +4,7 @@ if (!defined('AVTOM')) { http_response_code(404); exit; }
 function lead_kinds() {
   return [
     'availability' => 'Уточнить наличие',
-    'cart' => 'Запрос по списку',
+    'cart' => 'Заявка из корзины',
     'pick' => 'Помощь с подбором',
     'question' => 'Вопрос',
     'partner' => 'Сотрудничество',

@@ -16,7 +16,7 @@ $q = http_build_query(['make' => $make['slug'], 'model' => $model['slug']]);
 <div class="wrap">
   <?= breadcrumbs([['Марки', '/avto'], [$make['name'], '/avto/' . $make['slug']], [$model['name'], null]]) ?>
   <div class="page-head">
-    <h1 data-split>Запчасти для <?= h($name) ?></h1>
+    <h1>Запчасти для <?= h($name) ?></h1>
     <p class="lead"><?= $years ? 'Годы выпуска в каталоге: ' . h($years) . '. ' : '' ?><?= $model['bodies'] ? 'Кузова: ' . h(mb_strtolower(implode(', ', $model['bodies']))) . '. ' : '' ?>Уточните год и кузов, чтобы отсеять лишнее.</p>
   </div>
   <div class="panel picker-panel">

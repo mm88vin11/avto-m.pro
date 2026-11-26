@@ -5,105 +5,127 @@ meta('title', $c['seo_title']);
 meta('desc', $c['seo_desc']);
 meta('canonical', '/');
 meta('body_class', 'page-home');
-$hero = $c['hero'];
-$heroPh = !empty($hero['photo_id']) ? photo_row($hero['photo_id']) : null;
 $all = products_all();
-$stage = [];
-foreach ($all as $p) { if ($p['photos']) $stage[$p['category_id']] = $stage[$p['category_id']] ?? $p; }
-$stage = array_slice(array_values($stage), 0, 2);
-foreach ($all as $p) { if (count($stage) >= 3) break; if ($p['photos'] && !in_array($p, $stage, true)) $stage[] = $p; }
-?>
-<section class="hero<?= $heroPh ? ' hero-photo' : '' ?>" aria-labelledby="hero-title">
-  <div class="wrap">
-    <div class="hero-panel">
-      <?php if ($heroPh): ?><img class="hero-bg" src="<?= h(img_url($heroPh, 1400)) ?>" srcset="<?= h(img_srcset($heroPh)) ?>" sizes="100vw" alt="" fetchpriority="high"><?php endif; ?>
-      <svg class="hero-arcs" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <defs>
-          <linearGradient id="arcg" x1="0" x2="1"><stop offset="0" stop-color="#5b9bff" stop-opacity="0"/><stop offset=".45" stop-color="#7fb2ff" stop-opacity=".9"/><stop offset="1" stop-color="#2f7bff" stop-opacity="0"/></linearGradient>
-          <radialGradient id="glowg" cx=".72" cy=".45" r=".55"><stop offset="0" stop-color="#2f7bff" stop-opacity=".55"/><stop offset="1" stop-color="#2f7bff" stop-opacity="0"/></radialGradient>
-        </defs>
-        <rect width="1200" height="520" fill="url(#glowg)"/>
-        <path class="arc a1" d="M-40 430 C 220 250, 520 190, 760 210 S 1120 300, 1260 190"/>
-        <path class="arc a2" d="M-60 470 C 260 330, 560 280, 820 300 S 1140 380, 1280 300"/>
-        <path class="arc a3" d="M120 120 C 380 40, 700 30, 900 110"/>
-      </svg>
-      <div class="hero-copy">
-        <p class="eyebrow"><?= icon('sparkle') ?><?= h($hero['eyebrow']) ?></p>
-        <h1 id="hero-title" class="hero-title" data-split><?= h($hero['title']) ?></h1>
-        <p class="hero-lead"><?= h($hero['lead']) ?></p>
-        <div class="hero-btns">
-          <a class="btn btn-white btn-lg" href="<?= h($hero['btn1_url']) ?>" data-magnet><?= icon('car') ?><?= h($hero['btn1_text']) ?></a>
-          <a class="btn btn-glass btn-lg" href="<?= h($hero['btn2_url']) ?>"><?= h($hero['btn2_text']) ?><?= icon('arrow') ?></a>
-        </div>
-        <?php if (!empty($hero['pills'])): ?>
-        <ul class="hero-pills"><?php foreach ($hero['pills'] as $pl): ?><li><?= icon('check') ?><?= h($pl) ?></li><?php endforeach; ?></ul>
-        <?php endif; ?>
-      </div>
-      <?php if (!$heroPh && $stage): ?>
-      <div class="hero-stage" data-tilt aria-hidden="true">
-        <?php foreach ($stage as $i => $p): $ph = product_photo($p); ?>
-          <a class="stage-card s<?= $i ?>" href="<?= h(product_url($p)) ?>" tabindex="-1">
-            <img src="<?= h(img_url($ph, 400)) ?>" srcset="<?= h(img_url($ph, 400)) ?> 400w, <?= h(img_url($ph, 800)) ?> 800w" sizes="240px" width="400" height="533" alt="" <?= $i === 0 ? 'fetchpriority="high"' : 'loading="lazy"' ?>>
-            <span class="stage-label"><b><?= h(product_brand($p)['name'] ?? '') ?></b><?= h(product_category($p)['name'] ?? '') ?></span>
-          </a>
-        <?php endforeach; ?>
-      </div>
-      <?php endif; ?>
-    </div>
-  </div>
-</section>
-
-<?php
+$cats = categories_visible();
+$catBySlug = array_column($cats, null, 'slug');
+$catPhoto = function ($cat) use ($all) {
+  $ph = photo_row($cat['photo_id']);
+  if (!$ph) foreach ($all as $p) if ($p['category_id'] == $cat['id'] && $p['photos']) return $p['photos'][0];
+  return $ph;
+};
+$slides = array_values(array_filter($c['slides'], fn($x) => trim($x['title'] ?? '') !== ''));
 // блоки, появившиеся после публикации страницы, показываем в конце, пока владелец не расставит их в админке
 $have = array_column($c['blocks'], 'id');
-foreach (array_keys(home_block_names()) as $bn) if (!in_array($bn, $have, true)) $c['blocks'][] = ['id' => $bn, 'on' => true];
-foreach ($c['blocks'] as $blk): if (empty($blk['on'])) continue; switch ($blk['id']):
-
-case 'picker': ?>
-<section class="section section-picker" aria-labelledby="pick-title">
-  <div class="wrap">
-    <div class="panel picker-panel" data-reveal>
-      <div class="picker-head">
-        <div>
-          <h2 id="pick-title"><?= h($c['picker']['title']) ?></h2>
-          <p class="muted"><?= h($c['picker']['lead']) ?></p>
+foreach (array_keys(home_block_names()) as $bn) if (!in_array($bn, $have, true)) $c['blocks'][] = ['id' => $bn, 'on' => !in_array($bn, ['quiz', 'help'], true)];
+?>
+<section class="hero" aria-roledescription="карусель" aria-label="Главный баннер" data-slider>
+  <div class="hero-track">
+    <?php foreach ($slides as $i => $sl):
+      $bg = !empty($sl['bg_id']) ? photo_row($sl['bg_id']) : null;
+      $imgs = [];
+      if (!empty($sl['img_id']) && ($x = photo_row($sl['img_id']))) $imgs[] = $x;
+      elseif (!empty($sl['cat']) && isset($catBySlug[$sl['cat']])) { $x = $catPhoto($catBySlug[$sl['cat']]); if ($x) $imgs[] = $x; }
+      else foreach (array_slice($cats, 0, 2) as $cc) { $x = $catPhoto($cc); if ($x) $imgs[] = $x; }
+    ?>
+    <div class="slide<?= $i ? '' : ' is-on' ?><?= $bg ? ' has-bg' : '' ?>" role="group" aria-roledescription="слайд" aria-label="<?= $i + 1 ?> из <?= count($slides) ?>"<?= $i ? ' aria-hidden="true"' : '' ?>>
+      <?php $bgm = !empty($sl['bg_m_id']) ? photo_row($sl['bg_m_id']) : null; if ($bg): ?><picture><?php if ($bgm): ?><source media="(max-width: 700px)" srcset="<?= h(img_srcset($bgm)) ?>" sizes="100vw"><?php endif; ?><img class="slide-bg" src="<?= h(img_url($bg, 1400)) ?>" srcset="<?= h(img_srcset($bg)) ?>" sizes="100vw" alt="" <?= $i ? 'loading="lazy"' : 'fetchpriority="high"' ?>></picture><?php else: ?><span class="slide-scene" aria-hidden="true"></span><?php endif; ?>
+      <div class="wrap slide-in">
+        <p class="slide-kicker"><?= h($sl['kicker']) ?></p>
+        <?= $i === 0 ? '<h1 class="slide-title">' : '<p class="slide-title">' ?><?= h($sl['title']) ?><?= $i === 0 ? '</h1>' : '</p>' ?>
+        <?php if ($imgs): ?>
+        <div class="slide-art n<?= count($imgs) ?>" aria-hidden="true">
+          <?php foreach ($imgs as $k => $im): ?>
+            <img class="slide-obj o<?= $k ?><?= !empty($im['alpha']) ? ' is-cut' : '' ?>" src="<?= h(img_url($im, 800)) ?>" srcset="<?= h(img_url($im, 800)) ?> 800w, <?= h(img_url($im, 1400)) ?> 1400w" sizes="(max-width: 700px) 80vw, 560px" alt="" <?= $i ? 'loading="lazy"' : '' ?>>
+          <?php endforeach; ?>
         </div>
-        <div class="garage-inline" data-garage-inline hidden></div>
+        <?php endif; ?>
+        <?php if ($sl['pill1']): ?><span class="slide-pill p1"><?= icon('shield') ?><?= h($sl['pill1']) ?></span><?php endif; ?>
+        <?php if ($sl['pill2']): ?><span class="slide-pill p2"><?= icon('car') ?><?= h($sl['pill2']) ?></span><?php endif; ?>
+        <a class="slide-btn" href="<?= h($sl['url']) ?>"<?= $i ? ' tabindex="-1"' : '' ?>><?= h($sl['btn']) ?><?= icon('arrow') ?></a>
       </div>
-      <?php partial('picker', ['id' => 'hp', 'compact' => true]); ?>
     </div>
+    <?php endforeach; ?>
   </div>
+  <?php if (count($slides) > 1): ?>
+  <div class="hero-dots" role="tablist" aria-label="Слайды">
+    <?php foreach ($slides as $i => $sl): ?><button type="button" role="tab" aria-selected="<?= $i ? 'false' : 'true' ?>" aria-label="Слайд <?= $i + 1 ?>: <?= h($sl['title']) ?>" data-slide="<?= $i ?>"><i></i></button><?php endforeach; ?>
+  </div>
+  <?php endif; ?>
 </section>
+
+<?php foreach ($c['blocks'] as $blk): if (empty($blk['on'])) continue; switch ($blk['id']):
+
+case 'search': ?>
+<div class="wrap home-search-wrap">
+  <form class="home-search" action="/search" method="get" role="search">
+    <label class="sr" for="hq">Поиск по каталогу</label>
+    <?= icon('search') ?>
+    <input id="hq" name="q" type="search" placeholder="<?= h($c['search']['placeholder']) ?>" autocomplete="off" enterkeyhint="search">
+    <button class="btn btn-primary" type="submit">Найти</button>
+  </form>
+</div>
 <?php break;
 
-case 'categories': $cats = categories_visible(); if (!$cats) break; ?>
+case 'categories': if (!$cats) break; ?>
 <section class="section" aria-labelledby="cat-title">
   <div class="wrap">
-    <div class="section-head"><h2 id="cat-title" data-split><?= h($c['categories']['title']) ?></h2><a class="link-arrow" href="/catalog">Весь каталог<?= icon('arrow') ?></a></div>
-    <div class="cats">
-      <?php foreach ($cats as $cat):
-        $cph = photo_row($cat['photo_id']);
-        if (!$cph) foreach ($all as $p) if ($p['category_id'] == $cat['id'] && $p['photos']) { $cph = $p['photos'][0]; break; } ?>
-        <a class="cat" href="/catalog/<?= h($cat['slug']) ?>" data-reveal>
-          <span class="cat-text"><b><?= h($cat['name']) ?></b><small><?= (int)$cat['cnt'] ?> <?= plural($cat['cnt'], 'товар', 'товара', 'товаров') ?></small></span>
-          <span class="cat-img"><?php if ($cph): ?><img src="<?= h(img_url($cph, 400)) ?>" width="400" height="533" alt="" loading="lazy"><?php endif; ?></span>
-          <span class="cat-go"><?= icon('arrow') ?></span>
+    <div class="sec-head"><h2 id="cat-title"><?= h($c['categories']['title']) ?></h2><a class="pill-link" href="/catalog">Весь каталог<?= icon('arrow') ?></a></div>
+    <div class="tiles">
+      <?php foreach ($cats as $cat): $ph = $catPhoto($cat); ?>
+        <a class="tile" href="/catalog/<?= h($cat['slug']) ?>" data-reveal>
+          <span class="tile-t"><?= h($cat['name']) ?><?= icon('arrow') ?></span>
+          <span class="tile-n"><?= (int)$cat['cnt'] ?> <?= plural($cat['cnt'], 'товар', 'товара', 'товаров') ?></span>
+          <?php if ($ph): ?><img class="tile-img<?= !empty($ph['alpha']) ? ' is-cut' : '' ?>" src="<?= h(img_url($ph, 800)) ?>" width="400" height="300" alt="" loading="lazy"><?php endif; ?>
         </a>
       <?php endforeach; ?>
-      <a class="cat cat-pick" href="/podbor" data-reveal>
-        <span class="cat-text"><b>Подбор по параметрам</b><small>Длина, усилие, производитель</small></span>
-        <span class="cat-icon"><?= icon('filter') ?></span>
-        <span class="cat-go"><?= icon('arrow') ?></span>
+      <a class="tile tile-all" href="/catalog" data-reveal>
+        <span class="tile-t">Весь каталог<?= icon('arrow') ?></span>
+        <span class="tile-n"><?= count($all) ?> <?= plural(count($all), 'товар', 'товара', 'товаров') ?> с подбором по авто</span>
+        <span class="tile-stack" aria-hidden="true"><?php foreach (array_slice($cats, 0, 2) as $k => $cc): $ph = $catPhoto($cc); if ($ph): ?><img class="is-cut s<?= $k ?>" src="<?= h(img_url($ph, 400)) ?>" alt="" loading="lazy"><?php endif; endforeach; ?></span>
       </a>
     </div>
   </div>
 </section>
 <?php break;
 
-case 'quiz': ?>
-<section class="section" aria-label="Подбор за 30 секунд">
-  <div class="wrap"><?php partial('quiz', ['id' => 'quiz']); ?></div>
+case 'picker': ?>
+<section class="section" aria-labelledby="pick-title">
+  <div class="wrap">
+    <div class="panel picker-panel" data-reveal>
+      <div class="picker-head"><div><h2 id="pick-title"><?= h($c['picker']['title']) ?></h2><p class="muted"><?= h($c['picker']['lead']) ?></p></div><div class="garage-inline" data-garage-inline hidden></div></div>
+      <?php partial('picker', ['id' => 'hp', 'compact' => true]); ?>
+    </div>
+  </div>
 </section>
+<?php break;
+
+case 'cards': $cc = $c['cards']; $pi = !empty($cc['params_img']) ? photo_row($cc['params_img']) : null; $li = !empty($cc['lead_img']) ? photo_row($cc['lead_img']) : null; ?>
+<section class="section">
+  <div class="wrap duo">
+    <div class="duo-card" data-reveal>
+      <div class="duo-copy"><h2><?= h($cc['params_title']) ?></h2><p><?= h($cc['params_text']) ?></p><a class="btn btn-primary btn-lg" href="<?= h($cc['params_url']) ?>"><?= h($cc['params_btn']) ?><?= icon('arrow') ?></a></div>
+      <div class="duo-art" aria-hidden="true">
+        <?php if ($pi): ?><img src="<?= h(img_url($pi, 800)) ?>" alt="" loading="lazy"><?php else: ?>
+        <span class="duo-blob"></span>
+        <span class="sliders"><span style="--v:.38"><i></i></span><span style="--v:.62"><i></i></span><span style="--v:.3"><i></i></span></span>
+        <?php endif; ?>
+      </div>
+    </div>
+    <div class="duo-card duo-card-soft" data-reveal>
+      <div class="duo-copy"><h2><?= h($cc['lead_title']) ?></h2><p><?= h($cc['lead_text']) ?></p><button class="btn btn-white-soft btn-lg" type="button" data-lead="pick" data-title="Помощь с подбором"><?= h($cc['lead_btn']) ?><?= icon('arrow') ?></button></div>
+      <div class="duo-art" aria-hidden="true">
+        <?php if ($li): ?><img src="<?= h(img_url($li, 800)) ?>" alt="" loading="lazy"><?php else: ?>
+        <span class="duo-blob duo-blob-round"></span>
+        <svg class="bubble" viewBox="0 0 120 100"><path d="M20 12h80a14 14 0 0 1 14 14v38a14 14 0 0 1-14 14H52L30 94V78H20A14 14 0 0 1 6 64V26a14 14 0 0 1 14-14z"/><circle cx="40" cy="45" r="6"/><circle cx="60" cy="45" r="6"/><circle cx="80" cy="45" r="6"/></svg>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</section>
+<?php break;
+
+case 'quiz': ?>
+<section class="section" aria-label="Подбор за 30 секунд"><div class="wrap"><?php partial('quiz', ['id' => 'quiz']); ?></div></section>
 <?php break;
 
 case 'products':
@@ -112,9 +134,20 @@ case 'products':
   $list = array_slice($list, 0, 8); if (!$list) break; ?>
 <section class="section" aria-labelledby="prod-title">
   <div class="wrap">
-    <div class="section-head"><div><h2 id="prod-title" data-split><?= h($c['products']['title']) ?></h2><p class="muted"><?= h($c['products']['lead']) ?></p></div><a class="link-arrow" href="/catalog">Все товары<?= icon('arrow') ?></a></div>
-    <div class="grid" data-car-aware>
-      <?php foreach ($list as $p) partial('card', ['p' => $p]); ?>
+    <div class="sec-head"><h2 id="prod-title"><?= h($c['products']['title']) ?></h2><a class="pill-link" href="/catalog">Все товары<?= icon('arrow') ?></a></div>
+    <div class="grid"><?php foreach ($list as $p) partial('card', ['p' => $p]); ?></div>
+  </div>
+</section>
+<?php break;
+
+case 'advantages': ?>
+<section class="section" aria-labelledby="adv-title">
+  <div class="wrap">
+    <div class="sec-head"><h2 id="adv-title"><?= h($c['advantages']['title']) ?></h2></div>
+    <div class="why">
+      <?php foreach ($c['advantages']['items'] as $a): ?>
+        <div class="why-item" data-reveal><span class="why-ic"><?= icon($a['icon'] ?? 'check') ?></span><div><h3><?= h($a['title']) ?></h3><p><?= h($a['text']) ?></p></div></div>
+      <?php endforeach; ?>
     </div>
   </div>
 </section>
@@ -123,7 +156,7 @@ case 'products':
 case 'brands': $brands = array_filter(brands_all(), fn($b) => $b['cnt'] > 0); if (!$brands) break; ?>
 <section class="section" aria-labelledby="brand-title">
   <div class="wrap">
-    <div class="section-head"><div><h2 id="brand-title" data-split><?= h($c['brands']['title']) ?></h2><p class="muted"><?= h($c['brands']['lead']) ?></p></div></div>
+    <div class="sec-head"><h2 id="brand-title"><?= h($c['brands']['title']) ?></h2></div>
     <div class="brands">
       <?php foreach ($brands as $b): $facts = json_decode($b['facts'] ?: '[]', true); $logo = photo_row($b['logo_photo_id']); ?>
         <a class="brand-card" href="/brand/<?= h($b['slug']) ?>" data-reveal>
@@ -141,45 +174,28 @@ case 'brands': $brands = array_filter(brands_all(), fn($b) => $b['cnt'] > 0); if
 case 'howto': ?>
 <section class="section" aria-labelledby="how-title">
   <div class="wrap">
-    <div class="section-head"><h2 id="how-title" data-split><?= h($c['howto']['title']) ?></h2><a class="link-arrow" href="/how-to-buy">Подробнее<?= icon('arrow') ?></a></div>
+    <div class="sec-head"><h2 id="how-title"><?= h($c['howto']['title']) ?></h2><a class="pill-link" href="/how-to-buy">Подробнее<?= icon('arrow') ?></a></div>
     <ol class="steps">
-      <?php foreach ($c['howto']['steps'] as $i => $st): ?>
-        <li class="step" data-reveal style="--d:<?= $i * 90 ?>ms"><span class="step-n"><?= $i + 1 ?></span><h3><?= h($st['title']) ?></h3><p><?= h($st['text']) ?></p></li>
-      <?php endforeach; ?>
+      <?php foreach ($c['howto']['steps'] as $i => $st): ?><li class="step" data-reveal><span class="step-n"><?= $i + 1 ?></span><h3><?= h($st['title']) ?></h3><p><?= h($st['text']) ?></p></li><?php endforeach; ?>
     </ol>
-    <div class="mp-strip" data-reveal>
-      <span class="mp-logo mp-logo-wb">Wildberries</span><span class="mp-logo mp-logo-ozon">Ozon</span>
-      <p>Оплата, доставка в пункт выдачи и возврат — по правилам маркетплейса. Кнопки в карточках ведут сразу на нужную деталь.</p>
-    </div>
   </div>
 </section>
 <?php break;
 
-case 'advantages': ?>
-<section class="section" aria-labelledby="adv-title">
-  <div class="wrap">
-    <div class="section-head"><h2 id="adv-title" data-split><?= h($c['advantages']['title']) ?></h2></div>
-    <div class="adv">
-      <?php foreach ($c['advantages']['items'] as $i => $a): ?>
-        <div class="adv-item" data-reveal style="--d:<?= $i * 70 ?>ms"><span class="adv-ic"><?= icon($a['icon'] ?? 'check') ?></span><h3><?= h($a['title']) ?></h3><p><?= h($a['text']) ?></p></div>
-      <?php endforeach; ?>
-    </div>
-  </div>
-</section>
-<?php break;
-
-case 'about': $ab = content('about'); ?>
+case 'about': $ab = $c['about']; $aph = !empty($ab['photo_id']) ? photo_row($ab['photo_id']) : null; ?>
 <section class="section" aria-labelledby="about-title">
-  <div class="wrap">
-    <div class="about-band" data-reveal>
-      <div class="about-copy">
-        <h2 id="about-title"><?= h($c['about']['title']) ?></h2>
-        <p><?= h($c['about']['text']) ?></p>
-        <a class="btn btn-white" href="/about"><?= h($c['about']['btn']) ?><?= icon('arrow') ?></a>
-      </div>
-      <div class="about-facts">
-        <?php foreach ($ab['facts'] as $f): ?><div class="fact"><b data-count-to="<?= h($f['value']) ?>"><?= h($f['value']) ?></b><span><?= h($f['label']) ?></span></div><?php endforeach; ?>
-      </div>
+  <div class="wrap about-row">
+    <div class="about-card" data-reveal>
+      <div class="about-pic<?= $aph ? '' : ' is-empty' ?>"><?php if ($aph): ?><img src="<?= h(img_url($aph, 800)) ?>" alt="" loading="lazy"><?php else: ?><span class="logo-img logo-img-white" aria-hidden="true"></span><?php endif; ?></div>
+      <div class="about-copy"><h2 id="about-title" class="bar-title"><?= h($ab['title']) ?></h2><p><?= h($ab['text']) ?></p><a class="link-arrow" href="/about"><?= h($ab['btn']) ?><?= icon('arrow') ?></a></div>
+    </div>
+    <div class="ask-card" data-reveal>
+      <span class="ask-ic"><?= icon('chat') ?></span>
+      <h2><?= h($c['help']['title']) ?></h2>
+      <p><?= h($c['help']['text']) ?></p>
+      <a class="ask-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= h($s['phone']) ?></a>
+      <small><?= h($s['hours']) ?></small>
+      <button class="btn btn-white" type="button" data-lead="question" data-title="Задать вопрос">Связаться с нами<?= icon('chevron-r') ?></button>
     </div>
   </div>
 </section>
@@ -188,29 +204,16 @@ case 'about': $ab = content('about'); ?>
 case 'faq': $faq = content('faq')['items']; if (!$faq) break;
   jsonld(['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => array_map(fn($x) => ['@type' => 'Question', 'name' => $x['q'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $x['a']]], $faq)]); ?>
 <section class="section" aria-labelledby="faq-title">
-  <div class="wrap faq-wrap">
-    <div class="faq-side"><h2 id="faq-title" data-split><?= h($c['faq']['title']) ?></h2><p class="muted">Не нашли ответ — спросите, ответим в рабочее время.</p><button class="btn btn-soft" type="button" data-lead="question" data-title="Задать вопрос"><?= icon('chat') ?>Задать вопрос</button></div>
-    <div class="faq">
-      <?php foreach ($faq as $x): ?>
-        <details class="faq-item" data-reveal><summary><span><?= h($x['q']) ?></span><i aria-hidden="true"></i></summary><div class="faq-a"><p><?= h($x['a']) ?></p></div></details>
-      <?php endforeach; ?>
+  <div class="wrap">
+    <div class="sec-head"><h2 id="faq-title"><?= h($c['faq']['title']) ?></h2></div>
+    <div class="faq faq-2">
+      <?php foreach ($faq as $x): ?><details class="faq-item"><summary><span><?= h($x['q']) ?></span><i aria-hidden="true"></i></summary><div class="faq-a"><p><?= h($x['a']) ?></p></div></details><?php endforeach; ?>
     </div>
   </div>
 </section>
 <?php break;
 
 case 'help': ?>
-<section class="section" aria-labelledby="help-title">
-  <div class="wrap">
-    <div class="help" data-reveal>
-      <div class="help-ic" aria-hidden="true"><?= icon('chat') ?></div>
-      <div class="help-copy"><h2 id="help-title"><?= h($c['help']['title']) ?></h2><p><?= h($c['help']['text']) ?></p></div>
-      <div class="help-btns">
-        <button class="btn btn-primary btn-lg" type="button" data-lead="pick" data-title="Помощь с подбором"><?= icon('car') ?>Помогите подобрать</button>
-        <a class="btn btn-soft btn-lg" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= icon('phone') ?><?= h($s['phone']) ?></a>
-      </div>
-    </div>
-  </div>
-</section>
+<section class="section"><div class="wrap"><div class="help panel"><div class="help-copy"><h2><?= h($c['help']['title']) ?></h2><p><?= h($c['help']['text']) ?></p></div><div class="help-btns"><button class="btn btn-primary btn-lg" type="button" data-lead="pick" data-title="Помощь с подбором">Помогите подобрать</button></div></div></div></section>
 <?php break;
-endswitch; endforeach; ?>
+endswitch; endforeach;

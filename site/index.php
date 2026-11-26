@@ -43,6 +43,7 @@ try {
     case 'partners': page('partners'); break;
     case 'contacts': page('contacts'); break;
     case 'how-to-buy': page('howto'); break;
+    case 'karta-sajta': page('sitemap'); break;
     case 'legal':
       $map = ['privacy' => 'legal_privacy', 'consent' => 'legal_consent', 'cookies' => 'legal_cookies', 'terms' => 'legal_terms'];
       (count($seg) === 2 && isset($map[$seg[1]])) ? page('legal', ['key' => $map[$seg[1]], 'slug' => $seg[1]]) : not_found();

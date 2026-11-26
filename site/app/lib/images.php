@@ -43,24 +43,41 @@ function image_import($path, $origName = '') {
     elseif ($o === 8) $src = imagerotate($src, 90, 0);
     $w = imagesx($src); $h = imagesy($src);
   }
-  // прозрачность → белый фон
+  // PNG и WebP с прозрачным фоном сохраняем с прозрачностью (вырезанные товары, иллюстрации), остальное — на белом
+  $alpha = in_array($info[2], [IMAGETYPE_PNG, IMAGETYPE_WEBP], true) && image_has_alpha($src, $w, $h) && function_exists('imagewebp');
   $flat = imagecreatetruecolor($w, $h);
-  imagefill($flat, 0, 0, imagecolorallocate($flat, 255, 255, 255));
+  if ($alpha) {
+    imagealphablending($flat, false); imagesavealpha($flat, true);
+    imagefill($flat, 0, 0, imagecolorallocatealpha($flat, 0, 0, 0, 127));
+  } else imagefill($flat, 0, 0, imagecolorallocate($flat, 255, 255, 255));
   imagecopy($flat, $src, 0, 0, 0, 0, $w, $h);
   imagedestroy($src);
 
   $ext = function_exists('imagewebp') ? 'webp' : 'jpg';
   $file = date('ym') . '-' . bin2hex(random_bytes(6));
   $dir = uploads_dir();
-  foreach (IMG_WIDTHS as $tw) image_save_resized($flat, $w, $h, $tw, "$dir/$file-$tw.$ext", $ext);
+  foreach (IMG_WIDTHS as $tw) image_save_resized($flat, $w, $h, $tw, "$dir/$file-$tw.$ext", $ext, $alpha);
   image_save_resized($flat, $w, $h, 1200, "$dir/$file-og.jpg", 'jpg');
   imagedestroy($flat);
-  return q_ins('photos', ['file' => $file, 'ext' => $ext, 'w' => $w, 'h' => $h, 'orig_name' => mb_substr($origName, 0, 120), 'created_at' => now()]);
+  return q_ins('photos', ['file' => $file, 'ext' => $ext, 'w' => $w, 'h' => $h, 'alpha' => $alpha ? 1 : 0, 'orig_name' => mb_substr($origName, 0, 120), 'created_at' => now()]);
 }
 
-function image_save_resized($im, $w, $h, $tw, $dest, $ext) {
+/** Есть ли в картинке прозрачные пиксели (проверяем сетку 48×48) */
+function image_has_alpha($im, $w, $h) {
+  for ($y = 0; $y < 48; $y++) for ($x = 0; $x < 48; $x++) {
+    $c = imagecolorat($im, (int)($x * ($w - 1) / 47), (int)($y * ($h - 1) / 47));
+    if ((($c >> 24) & 0x7F) > 8) return true;
+  }
+  return false;
+}
+
+function image_save_resized($im, $w, $h, $tw, $dest, $ext, $alpha = false) {
   if ($w > $tw) { $nw = $tw; $nh = (int)round($h * $tw / $w); } else { $nw = $w; $nh = $h; }
   $dst = imagecreatetruecolor($nw, $nh);
+  if ($alpha && $ext === 'webp') {
+    imagealphablending($dst, false); imagesavealpha($dst, true);
+    imagefill($dst, 0, 0, imagecolorallocatealpha($dst, 0, 0, 0, 127));
+  } elseif ($ext === 'jpg') imagefill($dst, 0, 0, imagecolorallocate($dst, 255, 255, 255));
   imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
   if ($ext === 'webp') imagewebp($dst, $dest, 84); else { imageinterlace($dst, true); imagejpeg($dst, $dest, 86); }
   imagedestroy($dst);

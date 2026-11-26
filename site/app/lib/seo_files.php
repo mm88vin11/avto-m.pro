@@ -21,7 +21,7 @@ function sitemap_xml() {
   foreach (brands_all() as $b) if ($b['cnt']) $add('/brand/' . $b['slug'], $b['updated_at'], '0.6');
   $add('/avto', $last, '0.6');
   foreach (car_tree() as $mk) { $add('/avto/' . $mk['slug'], $last, '0.6'); foreach ($mk['models'] as $m) $add('/avto/' . $mk['slug'] . '/' . $m['slug'], $last, '0.7'); }
-  foreach (['/podbor' => '0.7', '/how-to-buy' => '0.5', '/about' => '0.5', '/partners' => '0.5', '/contacts' => '0.6', '/legal/privacy' => '0.2', '/legal/consent' => '0.2', '/legal/cookies' => '0.2', '/legal/terms' => '0.2'] as $u => $pr) $add($u, null, $pr);
+  foreach (['/podbor' => '0.7', '/how-to-buy' => '0.5', '/about' => '0.5', '/partners' => '0.5', '/contacts' => '0.6', '/karta-sajta' => '0.3', '/legal/privacy' => '0.2', '/legal/consent' => '0.2', '/legal/cookies' => '0.2', '/legal/terms' => '0.2'] as $u => $pr) $add($u, null, $pr);
   echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
   echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n";
   foreach ($urls as [$u, $m, $pr, $imgs]) {

@@ -1,7 +1,7 @@
 <?php
 if (!defined('AVTOM')) { http_response_code(404); exit; }
 
-const DB_SCHEMA_VERSION = 1;
+const DB_SCHEMA_VERSION = 2;
 
 function db() {
   static $pdo = null;
@@ -88,6 +88,11 @@ CREATE TABLE clicks (day TEXT NOT NULL, product_id INTEGER NOT NULL, mp TEXT NOT
 CREATE TABLE searches (day TEXT NOT NULL, q TEXT NOT NULL, results INTEGER NOT NULL DEFAULT 0, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (day, q));
 CREATE TABLE rate (k TEXT PRIMARY KEY, n INTEGER NOT NULL, reset_at INTEGER NOT NULL);
 SQL);
+  }
+  if ($from < 2) {
+    // v2: прозрачность у фото (вырезанные товары и иллюстрации)
+    $cols = array_column($pdo->query('PRAGMA table_info(photos)')->fetchAll(), 'name');
+    if (!in_array('alpha', $cols, true)) $pdo->exec('ALTER TABLE photos ADD COLUMN alpha INTEGER NOT NULL DEFAULT 0');
   }
   $pdo->exec('PRAGMA user_version = ' . DB_SCHEMA_VERSION);
   $pdo->commit();

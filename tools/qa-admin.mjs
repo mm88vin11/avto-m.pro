@@ -74,10 +74,10 @@ for (const p of ['/admin/pages/home', '/admin/cars', '/admin/attributes', '/admi
 step('разделы открываются');
 // страница: правка заголовка → публикация
 await page.goto(base + '/admin/pages/home');
-const t = page.locator('input[name="c[hero][title]"]'); const old = await t.inputValue();
+const t = page.locator('input[name="c[slides][0][title]"]'); const old = await t.inputValue();
 await t.fill(old + ' ✓'); await page.click('button[value=publish]'); await page.waitForSelector('.a-flash-ok');
-await ap.goto(base + '/'); console.log('  заголовок на сайте:', (await ap.locator('#hero-title').getAttribute('aria-label')) || await ap.locator('#hero-title').textContent());
-await page.goto(base + '/admin/pages/home'); await page.fill('input[name="c[hero][title]"]', old); await page.click('button[value=publish]');
+await ap.goto(base + '/'); console.log('  заголовок на сайте:', await ap.locator('h1.slide-title').textContent());
+await page.goto(base + '/admin/pages/home'); await page.fill('input[name="c[slides][0][title]"]', old); await page.click('button[value=publish]');
 step('страница опубликована и возвращена');
 // телефон
 const m = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, storageState: await ctx.storageState() });

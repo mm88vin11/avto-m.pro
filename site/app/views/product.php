@@ -37,7 +37,7 @@ jsonld($ld);
   <?= breadcrumbs(array_filter([['Каталог', '/catalog'], $cat ? [$cat['name'], '/catalog/' . $cat['slug']] : null, [$p['name'], null]])) ?>
   <div class="pp" data-pp="<?= (int)$p['id'] ?>">
     <div class="pp-head">
-      <h1 data-split><?= h($p['name']) ?></h1>
+      <h1><?= h($p['name']) ?></h1>
       <p class="pp-sub">
         <?php if ($b): ?><a href="/brand/<?= h($b['slug']) ?>"><?= h($b['name']) ?></a><span>·</span><?php endif; ?>
         Артикул <b><?= h($p['sku']) ?></b>
@@ -101,7 +101,7 @@ jsonld($ld);
       <div class="buy-btns">
         <button class="btn <?= $hasMp ? 'btn-soft' : 'btn-primary' ?> btn-lg" type="button" data-lead="availability" data-product-id="<?= (int)$p['id'] ?>" data-title="Уточнить наличие"><?= icon('chat') ?>Уточнить наличие</button>
         <div class="buy-row">
-          <button class="btn btn-soft" type="button" data-cart="<?= (int)$p['id'] ?>" aria-pressed="false"><?= icon('plus') ?><span>В запрос</span></button>
+          <button class="btn btn-soft" type="button" data-cart="<?= (int)$p['id'] ?>" aria-pressed="false"><?= icon('plus') ?><span>В корзину</span></button>
           <button class="btn btn-soft" type="button" data-compare="<?= (int)$p['id'] ?>" aria-pressed="false"><?= icon('compare') ?><span>Сравнить</span></button>
         </div>
       </div>
@@ -115,7 +115,7 @@ jsonld($ld);
         <?php if ($byMake): ?>
         <div class="table-wrap">
           <table class="ctable">
-            <thead><tr><th scope="col">Автомобиль</th><th scope="col">Годы</th><?php if ($showBodies): ?><th scope="col">Кузов</th><?php endif; ?><?php if ($showEngines): ?><th scope="col">Двигатель, л</th><?php endif; ?></tr></thead>
+            <thead><tr><th scope="col">Автомобиль</th><th scope="col">Годы</th><?php if ($showBodies): ?><th scope="col">Кузов</th><?php endif; ?><?php if ($showEngines): ?><th scope="col">Модификация, л</th><?php endif; ?></tr></thead>
             <tbody>
               <?php foreach ($byMake as $mk => $rows): foreach ($rows as $c): ?>
                 <tr>
@@ -177,7 +177,7 @@ jsonld($ld);
 
 <div class="buybar" data-buybar>
   <?php if ($hasMp): ?><?= mp_buttons($p) ?><?php else: ?><button class="btn btn-primary" type="button" data-lead="availability" data-product-id="<?= (int)$p['id'] ?>" data-title="Уточнить наличие"><?= icon('chat') ?>Уточнить наличие</button><?php endif; ?>
-  <button class="btn btn-soft btn-square" type="button" data-cart="<?= (int)$p['id'] ?>" aria-pressed="false" aria-label="В запрос"><?= icon('plus') ?></button>
+  <button class="btn btn-soft btn-square" type="button" data-cart="<?= (int)$p['id'] ?>" aria-pressed="false" aria-label="В корзину"><?= icon('plus') ?></button>
 </div>
 
 <div class="lightbox" data-lightbox hidden role="dialog" aria-modal="true" aria-label="Фото товара">

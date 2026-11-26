@@ -96,7 +96,9 @@
     if (add) {
       var box = add.previousElementSibling.matches('[data-repeat]') ? add.previousElementSibling : $('[data-repeat]', add.parentNode);
       var rows = $$('[data-rep-row]', box), tpl = rows[rows.length - 1].cloneNode(true), idx = Date.now();
-      $$('input, textarea, select', tpl).forEach(function (i) { i.name = i.name.replace(/\[\d+\](?=\[[^\]]+\]$)/, '[' + idx + ']'); if (i.tagName !== 'SELECT') i.value = ''; });
+      $$('input, textarea, select', tpl).forEach(function (i) { if (i.name) i.name = i.name.replace(/\[\d+\](?=\[[^\]]+\]$)/, '[' + idx + ']'); if (i.tagName !== 'SELECT' && i.type !== 'file') i.value = ''; });
+      $$('.a-photo-prev', tpl).forEach(function (p) { p.innerHTML = '<svg class="i"><use href="#i-photo"/></svg>'; });
+      $$('[data-photo-clear]', tpl).forEach(function (b) { b.hidden = true; });
       box.appendChild(tpl); var f = $('input, textarea', tpl); if (f) f.focus();
     }
     var del = e.target.closest('[data-rep-del]');
@@ -152,14 +154,17 @@
     sortable(phBox, function () { renum(); phBox.closest('form').dispatchEvent(new Event('change')); });
     phBox.addEventListener('click', function (e) { var b = e.target.closest('[data-ph-del]'); if (b) { b.closest('.a-ph').remove(); renum(); phBox.closest('form').dispatchEvent(new Event('change')); } });
   }
-  // одиночное фото (категория, марка, первый экран)
-  $$('[data-photo-pick]').forEach(function (w) {
-    var inp = $('input[type=hidden]', w), file = $('[data-photo-file]', w), prev = $('.a-photo-prev', w), clr = $('[data-photo-clear]', w);
-    file.addEventListener('change', function () {
-      if (!file.files[0]) return; prev.style.opacity = '.4';
-      upload(file.files[0]).then(function (r) { prev.style.opacity = ''; if (!r.ok) { toast(r.error); return; } inp.value = r.id; prev.innerHTML = '<img src="' + r.url + '" alt="">'; clr.hidden = false; w.closest('form').dispatchEvent(new Event('change')); });
-      file.value = '';
-    });
-    clr.addEventListener('click', function () { inp.value = ''; prev.innerHTML = '<svg class="i"><use href="#i-photo"/></svg>'; clr.hidden = true; w.closest('form').dispatchEvent(new Event('change')); });
+  // одиночное фото (категория, марка, баннер) — через делегирование, работает и в добавленных строках
+  d.addEventListener('change', function (e) {
+    var file = e.target.closest('[data-photo-file]'); if (!file || !file.files[0]) return;
+    var w = file.closest('[data-photo-pick]'), inp = $('input[type=hidden]', w), prev = $('.a-photo-prev', w), clr = $('[data-photo-clear]', w);
+    prev.style.opacity = '.4';
+    upload(file.files[0]).then(function (r) { prev.style.opacity = ''; if (!r.ok) { toast(r.error); return; } inp.value = r.id; prev.innerHTML = '<img src="' + r.url + '" alt="">'; clr.hidden = false; w.closest('form').dispatchEvent(new Event('change')); });
+    file.value = '';
+  });
+  d.addEventListener('click', function (e) {
+    var clr = e.target.closest('[data-photo-clear]'); if (!clr) return;
+    var w = clr.closest('[data-photo-pick]');
+    $('input[type=hidden]', w).value = ''; $('.a-photo-prev', w).innerHTML = '<svg class="i"><use href="#i-photo"/></svg>'; clr.hidden = true; w.closest('form').dispatchEvent(new Event('change'));
   });
 })();

@@ -13,7 +13,7 @@ if ($make) {
 ?>
 <div class="wrap">
   <?= breadcrumbs($make ? [['Марки', '/avto'], [$make['name'], null]] : [['Марки автомобилей', null]]) ?>
-  <div class="page-head"><h1 data-split><?= $make ? 'Запчасти для ' . h($make['name']) : 'Марки автомобилей' ?></h1><p class="lead">Выберите модель — покажем детали, которые к ней подходят.</p></div>
+  <div class="page-head"><h1><?= $make ? 'Запчасти для ' . h($make['name']) : 'Марки автомобилей' ?></h1><p class="lead">Выберите модель — покажем детали, которые к ней подходят.</p></div>
   <div class="makes">
     <?php foreach ($tree as $mk): ?>
       <div class="make panel" data-reveal>

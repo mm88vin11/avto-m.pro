@@ -16,7 +16,7 @@ $hidden = $hidden ?? [];
 <?php if (empty($embedded)): ?><form class="picker <?= !empty($compact) ? 'picker-row' : '' ?>" action="<?= h($action) ?>" method="get" data-picker><?php else: ?><div class="picker picker-col" data-picker><?php endif; ?>
   <?php foreach ($hidden as $k => $v): ?><input type="hidden" name="<?= h($k) ?>" value="<?= h($v) ?>"><?php endforeach; ?>
   <div class="field sel">
-    <label for="<?= $id ?>-make">Марка</label>
+    <label for="<?= $id ?>-make">Марка автомобиля</label>
     <select id="<?= $id ?>-make" name="make" data-pk="make">
       <option value="">Выберите марку</option>
       <?php foreach ($tree as $mk): ?><option value="<?= h($mk['slug']) ?>"<?= $curMake === $mk['slug'] ? ' selected' : '' ?>><?= h($mk['name']) ?></option><?php endforeach; ?>
@@ -44,7 +44,7 @@ $hidden = $hidden ?? [];
     </select>
   </div>
   <div class="field sel">
-    <label for="<?= $id ?>-engine">Двигатель</label>
+    <label for="<?= $id ?>-engine">Модификация</label>
     <select id="<?= $id ?>-engine" name="engine" data-pk="engine"<?= $curModel && $curModel['engines'] ? '' : ' disabled' ?>>
       <option value="">Любой</option>
       <?php if ($curModel): foreach ($curModel['engines'] as $e): ?><option value="<?= h($e) ?>"<?= ($car['engine'] ?? '') === $e ? ' selected' : '' ?>><?= h($e) ?> л</option><?php endforeach; endif; ?>

@@ -30,20 +30,23 @@ function seed_all(PDO $pdo) {
   /* --- фото --- */
   $photo = function ($name) {
     $f = APP_DIR . '/seed/photos/' . $name . '.jpg';
+    if (!is_file($f)) $f = APP_DIR . '/seed/photos/' . $name . '.png';
     if (!is_file($f)) return null;
-    try { return image_import($f, $name . '.jpg'); } catch (Throwable $e) { log_err('seed photo ' . $name . ': ' . $e->getMessage()); return null; }
+    try { return image_import($f, basename($f)); } catch (Throwable $e) { log_err('seed photo ' . $name . ': ' . $e->getMessage()); return null; }
   };
 
-  /* --- категории --- */
+  /* --- категории (фото — вырезанный товар на прозрачном фоне для плиток каталога) --- */
+  $cutStrut = $photo('strut-pair');
+  $cutTank = $photo('tank-av11001');
   $catStrut = $ins('categories', ['slug' => 'gazovye-upory-bagazhnika', 'name' => 'Газовые упоры багажника', 'h1' => 'Газовые упоры крышки багажника',
     'intro' => 'Продаются комплектом из двух штук. Подбор по марке, модели, году выпуска и кузову.',
     'description' => "Газовый упор поднимает крышку багажника плавно и без усилий, держит её открытой и не даёт резко захлопнуться. Если крышка перестала держаться или опускается сама — упоры пора менять, причём сразу оба.\n\nЧтобы подобрать упоры, важен кузов: у седана, хэтчбека и универсала одной модели упоры разной длины и силы. Проверьте оригинальный номер или выберите автомобиль в подборе.",
-    'sort' => 10, 'published' => 1, 'seo_title' => 'Газовые упоры багажника — купить комплект с подбором по авто',
+    'photo_id' => $cutStrut, 'sort' => 10, 'published' => 1, 'seo_title' => 'Газовые упоры багажника — купить комплект с подбором по авто',
     'seo_desc' => 'Газовые упоры крышки багажника LIFTAUTOPRO комплектом из двух штук. Подбор по марке, модели, году и кузову. Купить на Wildberries и Ozon.', 'updated_at' => $t]);
   $catTank = $ins('categories', ['slug' => 'rasshiritelnye-bachki', 'name' => 'Расширительные бачки', 'h1' => 'Расширительные бачки системы охлаждения',
     'intro' => 'Бачки AUTOPLASTIC с утолщёнными стенками. Подбор по марке, модели, году и двигателю.',
     'description' => "Расширительный бачок принимает лишнюю охлаждающую жидкость, когда она нагревается и расширяется. Со временем пластик стареет: появляются трещины у креплений, бачок вздувается и подтекает.\n\nБачки AUTOPLASTIC сделаны с утолщёнными стенками — они дольше служат в местах крепления и лучше держат давление в системе.",
-    'sort' => 20, 'published' => 1, 'seo_title' => 'Расширительные бачки — купить с подбором по авто',
+    'photo_id' => $cutTank, 'sort' => 20, 'published' => 1, 'seo_title' => 'Расширительные бачки — купить с подбором по авто',
     'seo_desc' => 'Расширительные бачки AUTOPLASTIC для Ford, Volvo, Mazda и Renault. Утолщённые стенки, производство — Россия. Купить на Wildberries и Ozon.', 'updated_at' => $t]);
   $ins('categories', ['slug' => 'gazovye-upory-kapota', 'name' => 'Газовые упоры капота', 'h1' => 'Газовые упоры капота', 'intro' => 'Подбор по марке, модели и году выпуска.', 'description' => '', 'sort' => 30, 'published' => 1, 'updated_at' => $t]);
 
