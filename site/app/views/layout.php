@@ -43,6 +43,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 <link rel="preload" href="/assets/fonts/onest-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?= asset('css/site.css') ?>">
 <script src="<?= asset('js/site.js') ?>" defer></script>
+<script src="<?= asset('js/interactive.js') ?>" defer></script>
 <?php foreach (array_merge([org_jsonld(), ['@context' => 'https://schema.org', '@type' => 'WebSite', 'url' => site_url('/'), 'name' => 'AVTO-M', 'inLanguage' => 'ru', 'potentialAction' => ['@type' => 'SearchAction', 'target' => site_url('/search?q={q}'), 'query-input' => 'required name=q']]], $M['jsonld'] ?? []) as $ld): ?>
 <script type="application/ld+json"><?= json_encode($ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?></script>
 <?php endforeach; ?>

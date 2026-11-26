@@ -21,9 +21,20 @@ return [
       'photo_id' => null,
     ],
     'blocks' => [
-      ['id' => 'picker', 'on' => true], ['id' => 'categories', 'on' => true], ['id' => 'products', 'on' => true],
+      ['id' => 'picker', 'on' => true], ['id' => 'categories', 'on' => true], ['id' => 'quiz', 'on' => true], ['id' => 'products', 'on' => true],
       ['id' => 'brands', 'on' => true], ['id' => 'howto', 'on' => true], ['id' => 'advantages', 'on' => true],
       ['id' => 'about', 'on' => true], ['id' => 'faq', 'on' => true], ['id' => 'help', 'on' => true],
+    ],
+    'quiz' => [
+      'badge' => 'Подбор за 30 секунд',
+      'title' => 'Не знаете, что искать? Ответьте на пару вопросов',
+      'lead' => 'Покажем детали, которые подходят к вашей машине. Можно начать с признаков поломки или с номера со старой детали.',
+      'symptoms' => [
+        ['text' => 'Крышка багажника не держится или опускается сама', 'cat' => 'gazovye-upory-bagazhnika'],
+        ['text' => 'Крышку стало тяжело поднимать, особенно в мороз', 'cat' => 'gazovye-upory-bagazhnika'],
+        ['text' => 'Уходит охлаждающая жидкость, на бачке трещины или потёки', 'cat' => 'rasshiritelnye-bachki'],
+        ['text' => 'Бачок помутнел, вздулся или треснул у креплений', 'cat' => 'rasshiritelnye-bachki'],
+      ],
     ],
     'picker' => ['title' => 'Ваш автомобиль', 'lead' => 'Выберите марку, модель и год — покажем детали, которые подходят.'],
     'categories' => ['title' => 'Каталог'],

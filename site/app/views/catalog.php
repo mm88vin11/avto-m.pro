@@ -147,6 +147,8 @@ $viewUrl = fn($v) => $base . qs_without(['view'], $v === 'grid' ? [] : ['view' =
     </section>
   </div>
 
+  <?php if ($cat && !$filtered): ?><div class="section"><?php partial('measure', ['catId' => $cat['id']]); ?></div><?php endif; ?>
+
   <?php if ($cat && $cat['description'] && !$filtered): ?>
   <section class="seo-text panel"><div class="prose"><?= md($cat['description']) ?></div></section>
   <?php endif; ?>

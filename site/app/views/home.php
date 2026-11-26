@@ -53,7 +53,11 @@ foreach ($all as $p) { if (count($stage) >= 3) break; if ($p['photos'] && !in_ar
   </div>
 </section>
 
-<?php foreach ($c['blocks'] as $blk): if (empty($blk['on'])) continue; switch ($blk['id']):
+<?php
+// блоки, появившиеся после публикации страницы, показываем в конце, пока владелец не расставит их в админке
+$have = array_column($c['blocks'], 'id');
+foreach (array_keys(home_block_names()) as $bn) if (!in_array($bn, $have, true)) $c['blocks'][] = ['id' => $bn, 'on' => true];
+foreach ($c['blocks'] as $blk): if (empty($blk['on'])) continue; switch ($blk['id']):
 
 case 'picker': ?>
 <section class="section section-picker" aria-labelledby="pick-title">
@@ -93,6 +97,12 @@ case 'categories': $cats = categories_visible(); if (!$cats) break; ?>
       </a>
     </div>
   </div>
+</section>
+<?php break;
+
+case 'quiz': ?>
+<section class="section" aria-label="Подбор за 30 секунд">
+  <div class="wrap"><?php partial('quiz', ['id' => 'quiz']); ?></div>
 </section>
 <?php break;
 

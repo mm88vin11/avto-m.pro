@@ -32,6 +32,8 @@ $attrsF = array_filter(attributes_all(), fn($a) => $a['filter'] && $a['type'] ==
     </form>
   </section>
 
+  <?php partial('measure'); ?>
+
   <section class="section" aria-labelledby="pk3">
     <div class="section-head"><h2 id="pk3">Марки и модели в каталоге</h2></div>
     <div class="makes">

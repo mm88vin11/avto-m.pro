@@ -22,6 +22,11 @@ function page_schema($key) {
       ['h', 'Порядок и видимость блоков'], ['blocks', 'blocks', ''],
       ['h', 'Тексты блоков'],
       ['row', [['picker.title', 'text', 'Подбор — заголовок'], ['picker.lead', 'text', 'Подбор — текст']]],
+      ['h', 'Квиз «Подбор за 30 секунд»'],
+      ['row', [['quiz.badge', 'text', 'Надпись-метка'], ['quiz.title', 'text', 'Заголовок']]],
+      ['quiz.lead', 'textarea', 'Текст'],
+      ['quiz.symptoms', 'repeat', 'Признаки поломки → какую категорию показать', [['text', 'text', 'Признак'], ['cat', 'cat', 'Категория']]],
+      ['h', 'Другие блоки'],
       ['row', [['categories.title', 'text', 'Каталог — заголовок'], ['brands.title', 'text', 'Марки — заголовок']]],
       ['row', [['products.title', 'text', 'Товары — заголовок'], ['products.lead', 'text', 'Товары — текст']]],
       ['brands.lead', 'text', 'Марки — текст'],
@@ -152,7 +157,8 @@ a_head($keys[$key], '/pages');
                 echo '<div class="a-rep-card" data-rep-row draggable="true"><span class="a-drag">' . a_icon('dots') . '</span><div class="a-rep-f">';
                 foreach ($sub as [$sk, $st, $sl]) {
                   $nm = fname($path) . '[' . $i . '][' . $sk . ']'; $sv = $r[$sk] ?? '';
-                  if ($st === 'icon') { echo '<div class="a-field a-field-icon"><label>' . h($sl) . '</label><select name="' . h($nm) . '">'; foreach (PAGE_ICONS as $ik => $iv) echo '<option value="' . $ik . '"' . ($sv === $ik ? ' selected' : '') . '>' . $iv . '</option>'; echo '</select></div>'; }
+                  if ($st === 'cat') { echo '<div class="a-field"><label>' . h($sl) . '</label><select name="' . h($nm) . '"><option value="">—</option>'; foreach (categories_all(false) as $cc) echo '<option value="' . h($cc['slug']) . '"' . ($sv === $cc['slug'] ? ' selected' : '') . '>' . h($cc['name']) . '</option>'; echo '</select></div>'; }
+                  elseif ($st === 'icon') { echo '<div class="a-field a-field-icon"><label>' . h($sl) . '</label><select name="' . h($nm) . '">'; foreach (PAGE_ICONS as $ik => $iv) echo '<option value="' . $ik . '"' . ($sv === $ik ? ' selected' : '') . '>' . $iv . '</option>'; echo '</select></div>'; }
                   elseif ($st === 'textarea') echo '<div class="a-field"><label>' . h($sl) . '</label><textarea name="' . h($nm) . '" rows="2">' . h($sv) . '</textarea></div>';
                   else echo '<div class="a-field"><label>' . h($sl) . '</label><input name="' . h($nm) . '" value="' . h($sv) . '"></div>';
                 }

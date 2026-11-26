@@ -111,6 +111,7 @@ function home_block_names() {
   return [
     'picker' => 'Подбор по автомобилю',
     'categories' => 'Каталог',
+    'quiz' => 'Квиз «Подбор за 30 секунд»',
     'products' => 'Товары',
     'brands' => 'Наши марки',
     'howto' => 'Как купить',

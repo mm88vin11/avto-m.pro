@@ -157,6 +157,7 @@
     });
   }
   renderGarage();
+  window.avtomGarage = renderGarage;
   d.addEventListener('click', function (e) { if (e.target.closest('[data-garage-clear]')) { store.set('avtom-car', null); renderGarage(); toast('Автомобиль забыт'); } });
 
   /* ---------- список запроса и сравнение ---------- */
@@ -169,6 +170,8 @@
     $$('[data-compare]').forEach(function (b) { var on = cmp.indexOf(+b.getAttribute('data-compare')) >= 0; b.setAttribute('aria-pressed', on ? 'true' : 'false'); var s = $('span', b); if (s) s.textContent = on ? 'В сравнении' : 'Сравнить'; });
   }
   counts();
+  window.avtomCounts = counts;
+  window.avtomToast = toast;
   window.addEventListener('storage', function () { cart = store.get('avtom-cart', []); cmp = store.get('avtom-cmp', []); counts(); });
   d.addEventListener('click', function (e) {
     var b = e.target.closest('[data-cart]');
@@ -324,7 +327,7 @@
           var keepOpen = filters && filters.classList.contains('is-open');
           root.replaceWith(fresh); root = fresh; filters = $('#filters'); backdrop = $('.filters-backdrop');
           if (keepOpen) openFilters();
-          bindCatalog(fresh); counts(); reveal(fresh, true); d.title = doc.title;
+          bindCatalog(fresh); counts(); reveal(fresh, true); d.title = doc.title; d.dispatchEvent(new CustomEvent('avtom:swap', { detail: fresh }));
         };
         if (d.startViewTransition && !reduce) d.startViewTransition(swap); else swap();
         if (push) history.pushState({ catalog: 1 }, '', url);

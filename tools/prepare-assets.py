@@ -88,11 +88,13 @@ og.save(IMG / 'og-default.jpg', quality=88, optimize=True)
 
 # 4. Фото для начального наполнения (единый формат 900×1200, jpg)
 for f in sorted(SRC.iterdir()):
-    if f.name.startswith(('lap-', 'av-')):
+    if f.name.startswith(('lap-', 'av-')) and f.suffix in ('.png', '.jpg', '.webp'):
         im = Image.open(f).convert('RGB')
         if f.name.startswith('lap-'):  # у исходников упоров тёмная кромка по краю — срезаем 8 точек
             im = im.crop((8, 8, im.width - 8, im.height - 8))
-        if im.size != (900, 1200):
+        if f.name.startswith('lap-') and im.size != (900, 1200):
             im = im.resize((900, 1200), Image.LANCZOS)
+        elif max(im.size) > 1800:
+            im.thumbnail((1800, 1800), Image.LANCZOS)
         im.save(SEED / (f.stem + '.jpg'), quality=90, optimize=True)
 print('ok')
