@@ -14,19 +14,20 @@ function page_schema($key) {
   $s = [
     'home' => [
       ['h', 'Баннер — слайды'],
-      ['p', 'Слайд: заголовок (тёмно-синий), строка под ним (синяя), текст, три коротких преимущества, кнопка. Картинка справа — PNG на прозрачном фоне; без неё берётся фото категории. Фон — светлая картинка без надписей (необязательно).'],
-      ['slides', 'repeat', 'Слайды', [['title', 'text', 'Заголовок'], ['sub', 'text', 'Строка под заголовком'], ['text', 'textarea', 'Текст'], ['chips', 'textarea', 'Преимущества-плашки (каждое с новой строки, до трёх)'], ['btn', 'text', 'Кнопка'], ['url', 'text', 'Ссылка кнопки'], ['cat', 'cat', 'Категория (для картинки)'], ['img_id', 'photo', 'Товар на прозрачном фоне'], ['bg_id', 'photo', 'Фон для компьютера'], ['bg_m_id', 'photo', 'Фон для телефона']]],
+      ['p', 'Слайд: цвет, заголовок, строка под ним, короткий текст и одна-две кнопки. Картинка справа — PNG на прозрачном фоне (машина, деталь); без неё берётся фото категории. Фоновое фото необязательно — без него слайд залит выбранным цветом.'],
+      ['slides', 'repeat', 'Слайды', [['theme', 'sel', 'Цвет слайда', ['blue' => 'Синий', 'light' => 'Голубой', 'navy' => 'Тёмно-синий', 'white' => 'Белый']], ['title', 'text', 'Заголовок'], ['sub', 'text', 'Строка под заголовком'], ['text', 'textarea', 'Текст'], ['chips', 'textarea', 'Плашки (необязательно, каждая с новой строки, до трёх)'], ['btn', 'text', 'Кнопка'], ['url', 'text', 'Ссылка кнопки'], ['btn2', 'text', 'Вторая кнопка (необязательно)'], ['url2', 'text', 'Ссылка второй кнопки'], ['cat', 'cat', 'Категория (для картинки)'], ['img_id', 'photo', 'Картинка на прозрачном фоне'], ['bg_id', 'photo', 'Фоновое фото для компьютера'], ['bg_m_id', 'photo', 'Фоновое фото для телефона']]],
       ['h', 'Порядок и видимость блоков'], ['blocks', 'blocks', ''],
       ['h', 'Подбор, каталог, товары'],
       ['row', [['picker.title', 'text', 'Подбор — заголовок'], ['picker.lead', 'text', 'Подбор — текст']]],
       ['row', [['categories.title', 'text', 'Каталог — заголовок'], ['products.title', 'text', 'Товары — заголовок']]],
-      ['h', 'Две карточки: подбор и заявка'],
+      ['categories.pick_img', 'photo', 'Плитка «Подбор по автомобилю» — картинка машины на прозрачном фоне'],
+      ['h', 'Две карточки справа от баннера: подбор и заявка'],
       ['row', [['cards.params_title', 'text', 'Подбор — заголовок'], ['cards.params_btn', 'text', 'Подбор — кнопка']]],
       ['row', [['cards.params_text', 'text', 'Подбор — текст'], ['cards.params_url', 'text', 'Подбор — ссылка']]],
-      ['cards.params_img', 'photo', 'Подбор — картинка на прозрачном фоне (необязательно, без неё — рисованные ползунки)'],
+      ['cards.params_img', 'photo', 'Подбор — 3D-картинка на прозрачном фоне'],
       ['row', [['cards.lead_title', 'text', 'Заявка — заголовок'], ['cards.lead_btn', 'text', 'Заявка — кнопка']]],
       ['cards.lead_text', 'textarea', 'Заявка — текст'],
-      ['cards.lead_img', 'photo', 'Заявка — картинка на прозрачном фоне (необязательно, без неё — рисованное облачко)'],
+      ['cards.lead_img', 'photo', 'Заявка — 3D-картинка на прозрачном фоне'],
       ['h', 'Когда пора менять'],
       ['signs.title', 'text', 'Заголовок'],
       ['signs.text', 'textarea', 'Вступление'],
@@ -57,6 +58,20 @@ function page_schema($key) {
       ['h', 'Обращение для партнёров'], ['b2b_title', 'text', 'Заголовок'], ['b2b_text', 'md', 'Текст', ['rows' => 8]], ['b2b_btn', 'text', 'Кнопка'], ...$seo],
     'contacts' => [['title', 'text', 'Заголовок'], ['lead', 'textarea', 'Подзаголовок'], ['note', 'text', 'Подсказка под часами работы'], ['p', 'Телефон, почта, адрес и часы меняются в «Настройках».'], ...$seo],
     'howto' => [['title', 'text', 'Заголовок'], ['lead', 'textarea', 'Подзаголовок'], ['body', 'md', 'Текст', ['rows' => 16]], ['p', 'Три шага вверху страницы берутся из блока «Как купить» на главной.'], ...$seo],
+    'popup' => [
+      ['p', 'Окно появляется, когда посетитель уводит курсор к закрытию вкладки (на компьютере). На телефоне — по таймеру, если включить. Одному человеку показывается не чаще выбранного срока и не показывается после отправленной заявки. Пишите только правду: реальную акцию с реальным сроком или помощь с подбором.'],
+      ['row', [['on', 'select', 'Показывать окно', ['options' => ['1' => 'Да', '0' => 'Нет']]], ['days', 'select', 'Как часто одному посетителю', ['options' => ['1' => 'Раз в день', '3' => 'Раз в 3 дня', '7' => 'Раз в неделю', '30' => 'Раз в месяц']]]]],
+      ['row', [['delay', 'select', 'Не раньше чем через', ['options' => ['0' => 'Сразу', '10' => '10 секунд на сайте', '30' => '30 секунд', '60' => '1 минуту']]], ['mobile', 'select', 'На телефоне', ['options' => ['0' => 'Не показывать', '30' => 'Через 30 секунд', '60' => 'Через 1 минуту', '120' => 'Через 2 минуты']]]]],
+      ['h', 'Содержимое'],
+      ['badge', 'text', 'Метка над заголовком (например, «Акция до 31 декабря»)'],
+      ['title', 'text', 'Заголовок'],
+      ['text', 'textarea', 'Текст'],
+      ['row', [['code', 'text', 'Промокод (необязательно — покажется с кнопкой «Скопировать»)'], ['note', 'text', 'Мелкая приписка (условия акции)']]],
+      ['row', [['btn', 'text', 'Главная кнопка'], ['action', 'select', 'Что делает главная кнопка', ['options' => ['lead' => 'Открывает форму «Перезвоните мне»', 'url' => 'Ведёт по ссылке']]]]],
+      ['url', 'text', 'Ссылка главной кнопки (если выбрано «Ведёт по ссылке»)'],
+      ['row', [['btn2', 'text', 'Вторая кнопка (необязательно)'], ['url2', 'text', 'Ссылка второй кнопки']]],
+      ['img_id', 'photo', 'Картинка на прозрачном фоне (3D-иллюстрация, подарок, деталь)'],
+    ],
     'faq' => [['items', 'repeat', 'Вопросы и ответы', [['q', 'text', 'Вопрос'], ['a', 'textarea', 'Ответ']]], ['p', 'Вопросы показываются на главной и попадают в разметку для поисковиков. Отвечайте только фактами.']],
     'legal_privacy' => array_merge($legal, $seo), 'legal_consent' => array_merge($legal, $seo), 'legal_cookies' => array_merge($legal, $seo), 'legal_terms' => array_merge($legal, $seo),
   ];
@@ -82,7 +97,7 @@ if ($key === '' || !isset($keys[$key])) {
 }
 
 $schema = page_schema($key);
-$urlMap = ['home' => '/', 'about' => '/about', 'partners' => '/partners', 'contacts' => '/contacts', 'howto' => '/how-to-buy', 'faq' => '/', 'legal_privacy' => '/legal/privacy', 'legal_consent' => '/legal/consent', 'legal_cookies' => '/legal/cookies', 'legal_terms' => '/legal/terms'];
+$urlMap = ['home' => '/', 'about' => '/about', 'partners' => '/partners', 'contacts' => '/contacts', 'howto' => '/how-to-buy', 'faq' => '/', 'popup' => '/?xpop=1', 'legal_privacy' => '/legal/privacy', 'legal_consent' => '/legal/consent', 'legal_cookies' => '/legal/cookies', 'legal_terms' => '/legal/terms'];
 
 /* ---------- история ---------- */
 if (($a[2] ?? '') === 'history') {
@@ -131,7 +146,7 @@ if (a_require_post()) {
   $walk($schema);
   if ($act === 'publish') { content_publish($key, $data); flash('Опубликовано. <a href="' . h($urlMap[$key]) . '" target="_blank">Открыть страницу</a>'); redirect('/admin/pages/' . $key); }
   draft_save('content', $key, $data);
-  if ($act === 'preview') redirect($urlMap[$key] . '?preview=1');
+  if ($act === 'preview') redirect($urlMap[$key] . (strpos($urlMap[$key], '?') ? '&' : '?') . 'preview=1');
   flash('Черновик сохранён. На сайте пока прежняя версия.');
   redirect('/admin/pages/' . $key);
 }
@@ -155,6 +170,7 @@ a_head($keys[$key], '/pages');
           $attrs = isset($o['count']) ? ' data-count="' . (int)$o['count'] . '"' : '';
           switch ($type) {
             case 'text': echo a_field(fname($path), $label, $v, ['attrs' => $attrs, 'hint' => $o['hint'] ?? '']); break;
+            case 'select': echo '<div class="a-field"><label for="f-' . h(str_replace('.', '-', $path)) . '">' . h($label) . '</label><select id="f-' . h(str_replace('.', '-', $path)) . '" name="' . h(fname($path)) . '">'; foreach ($o['options'] as $ok => $ov) echo '<option value="' . h($ok) . '"' . ((string)$v === (string)$ok ? ' selected' : '') . '>' . h($ov) . '</option>'; echo '</select>' . (!empty($o['hint']) ? '<p class="a-hint">' . h($o['hint']) . '</p>' : '') . '</div>'; break;
             case 'textarea': echo a_field(fname($path), $label, $v, ['type' => 'textarea', 'rows' => $o['rows'] ?? 3, 'attrs' => $attrs]); break;
             case 'md': echo a_field(fname($path), $label, $v, ['type' => 'textarea', 'rows' => $o['rows'] ?? 10, 'hint' => ($o['hint'] ?? '') . ' Разметка: пустая строка — абзац, «## » — подзаголовок, «- » — пункт списка, **жирный**, [текст](ссылка).']); break;
             case 'list': echo a_field(fname($path), $label, implode("\n", (array)$v), ['type' => 'textarea', 'rows' => 3, 'hint' => 'Каждый пункт — с новой строки.']); break;
@@ -174,10 +190,11 @@ a_head($keys[$key], '/pages');
               echo '<div class="a-field"><span class="a-lbl">' . h($label) . '</span><div class="a-repeat a-repeat-cards" data-repeat data-sortable-local>';
               foreach (array_merge($rows, [array_fill_keys(array_column($sub, 0), '')]) as $i => $r) {
                 echo '<div class="a-rep-card" data-rep-row draggable="true"><span class="a-drag">' . a_icon('dots') . '</span><div class="a-rep-f">';
-                foreach ($sub as [$sk, $st, $sl]) {
+                foreach ($sub as $sd) { [$sk, $st, $sl] = $sd;
                   $nm = fname($path) . '[' . $i . '][' . $sk . ']'; $sv = $r[$sk] ?? '';
                   if ($st === 'photo') { echo a_photo_pick($nm, (int)$sv, $sl); }
                   elseif ($st === 'cat') { echo '<div class="a-field"><label>' . h($sl) . '</label><select name="' . h($nm) . '"><option value="">—</option>'; foreach (categories_all(false) as $cc) echo '<option value="' . h($cc['slug']) . '"' . ($sv === $cc['slug'] ? ' selected' : '') . '>' . h($cc['name']) . '</option>'; echo '</select></div>'; }
+                  elseif ($st === 'sel') { echo '<div class="a-field"><label>' . h($sl) . '</label><select name="' . h($nm) . '">'; foreach ($sd[3] as $ok => $ov) echo '<option value="' . h($ok) . '"' . ((string)$sv === (string)$ok ? ' selected' : '') . '>' . h($ov) . '</option>'; echo '</select></div>'; }
                   elseif ($st === 'icon') { echo '<div class="a-field a-field-icon"><label>' . h($sl) . '</label><select name="' . h($nm) . '">'; foreach (PAGE_ICONS as $ik => $iv) echo '<option value="' . $ik . '"' . ($sv === $ik ? ' selected' : '') . '>' . $iv . '</option>'; echo '</select></div>'; }
                   elseif ($st === 'textarea') echo '<div class="a-field"><label>' . h($sl) . '</label><textarea name="' . h($nm) . '" rows="2">' . h($sv) . '</textarea></div>';
                   else echo '<div class="a-field"><label>' . h($sl) . '</label><input name="' . h($nm) . '" value="' . h($sv) . '"></div>';

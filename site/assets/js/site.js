@@ -259,6 +259,7 @@
   }
   $$('[data-lead-form]').forEach(bindLeadForm);
   function onLeadDone(form, id) {
+    store.set('avtom-lead-sent', Date.now());
     var modal = form.closest('dialog');
     if (modal) { $('[data-modal-body]', modal).hidden = true; var dn = $('[data-modal-done]', modal); dn.hidden = false; $('[data-done-id]', dn).textContent = id; $('button', dn).focus(); }
     else {
@@ -294,6 +295,30 @@
     if (e.target.closest('[data-modal-close]') && modal) modal.close();
   });
   if (modal) modal.addEventListener('click', function (e) { if (e.target === modal) modal.close(); });
+
+  /* ---------- окно при уходе с сайта (настраивается в админке: Страницы → Окно при уходе) ---------- */
+  var xp = $('[data-xpop]');
+  if (xp && xp.showModal) {
+    var xpForce = xp.hasAttribute('data-force'), xpDays = +xp.getAttribute('data-days') || 3, xpDelay = (+xp.getAttribute('data-delay') || 0) * 1000, xpMob = (+xp.getAttribute('data-mobile') || 0) * 1000, xpT0 = Date.now(), xpDone = false;
+    var xpCan = function () {
+      if (xpForce) return true;
+      if (xpDone || $('dialog[open]') || (cookieBox && !cookieBox.hidden)) return false;
+      if (Date.now() - xpT0 < xpDelay) return false;
+      if (Date.now() - (+store.get('avtom-xpop', 0)) < xpDays * 864e5) return false;
+      return !store.get('avtom-lead-sent', 0) || Date.now() - store.get('avtom-lead-sent', 0) > 30 * 864e5;
+    };
+    var xpShow = function () { if (!xpCan()) return; xpDone = true; xpForce = false; store.set('avtom-xpop', Date.now()); xp.showModal(); goal('xpop_show'); };
+    if (xpForce) setTimeout(xpShow, 500);
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      d.addEventListener('mouseout', function (e) { if (!e.relatedTarget && e.clientY <= 4) xpShow(); });
+    } else if (xpMob) setTimeout(xpShow, xpMob);
+    xp.addEventListener('click', function (e) {
+      if (e.target === xp || e.target.closest('[data-xpop-close]')) xp.close();
+      if (e.target.closest('[data-lead]')) xp.close();
+      var cp = e.target.closest('[data-xpop-copy]');
+      if (cp) { var code = $('[data-xpop-code]', xp).textContent; try { navigator.clipboard.writeText(code).then(function () { cp.textContent = 'Скопировано'; }); } catch (er) {} }
+    });
+  }
 
   /* ---------- каталог: фильтры ---------- */
   var filters = $('#filters'), backdrop = $('.filters-backdrop');

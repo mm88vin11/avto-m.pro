@@ -126,7 +126,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
   <div class="wrap ft-in">
     <div class="ft-brand">
       <img src="/assets/img/logo-white.webp" width="200" height="68" alt="AVTO-M — Качество по доступной цене" decoding="async">
-      <p><?= h($s['header_note']) ?> с подбором по автомобилю. Покупка на Wildberries и Ozon или по заявке.</p>
+      <p>Газовые упоры, расширительные бачки и другие автозапчасти с подбором по автомобилю. Покупка на Wildberries и Ozon или по заявке.</p>
     </div>
     <nav class="ft-col" aria-label="Разделы">
       <a href="/">Главная</a>
@@ -193,6 +193,28 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 </div>
 
 <?php partial('lead_modal'); ?>
+<?php $pp = content('popup'); $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+$force = !empty($_GET['xpop']);
+if (($pp['on'] ?? '0') === '1' && trim($pp['title'] ?? '') !== '' && ($force || !preg_match('~^/(cart|legal|lead|karta-sajta)~', $path))): $pimg = !empty($pp['img_id']) ? photo_row($pp['img_id']) : null; ?>
+<dialog class="modal xpop" aria-labelledby="xpop-title" data-xpop data-days="<?= (int)$pp['days'] ?>" data-delay="<?= (int)$pp['delay'] ?>" data-mobile="<?= (int)$pp['mobile'] ?>"<?= $force ? ' data-force' : '' ?>>
+  <div class="xpop-box">
+    <button class="icon-btn modal-close" type="button" data-xpop-close aria-label="Закрыть"><?= icon('close') ?></button>
+    <?php if ($pimg): ?><div class="xpop-art" aria-hidden="true"><img src="<?= h(img_url($pimg, 400)) ?>" srcset="<?= h(img_url($pimg, 400)) ?> 400w, <?= h(img_url($pimg, 800)) ?> 800w" sizes="220px" alt="" loading="lazy"></div><?php endif; ?>
+    <div class="xpop-copy">
+      <?php if (!empty($pp['badge'])): ?><span class="xpop-badge"><?= h($pp['badge']) ?></span><?php endif; ?>
+      <h2 id="xpop-title"><?= h($pp['title']) ?></h2>
+      <?php if (!empty($pp['text'])): ?><p class="xpop-text"><?= h($pp['text']) ?></p><?php endif; ?>
+      <?php if (!empty($pp['code'])): ?><div class="xpop-code"><span>Промокод</span><b data-xpop-code><?= h($pp['code']) ?></b><button class="btn btn-sm btn-soft" type="button" data-xpop-copy>Скопировать</button></div><?php endif; ?>
+      <div class="xpop-btns">
+        <?php if (($pp['action'] ?? 'lead') === 'url'): ?><a class="btn btn-primary btn-lg" href="<?= h($pp['url'] ?: '/catalog') ?>" data-goal="xpop_click"><?= h($pp['btn'] ?: 'Подробнее') ?><?= icon('arrow') ?></a>
+        <?php else: ?><button class="btn btn-primary btn-lg" type="button" data-lead="question" data-title="<?= h($pp['btn'] ?: 'Перезвоните мне') ?>" data-goal="xpop_click"> <?= h($pp['btn'] ?: 'Перезвоните мне') ?><?= icon('arrow') ?></button><?php endif; ?>
+        <?php if (!empty($pp['btn2'])): ?><a class="btn btn-soft btn-lg" href="<?= h($pp['url2'] ?: '/catalog') ?>"><?= h($pp['btn2']) ?></a><?php endif; ?>
+      </div>
+      <?php if (!empty($pp['note'])): ?><p class="xpop-note"><?= h($pp['note']) ?></p><?php endif; ?>
+    </div>
+  </div>
+</dialog>
+<?php endif; ?>
 
 <div class="cookie" id="cookie" hidden role="dialog" aria-live="polite" aria-label="Файлы cookie">
   <p>Мы используем cookie, чтобы сайт работал. Аналитику «Яндекс Метрики» включим только с вашего согласия. <a href="/legal/cookies">Подробнее</a></p>
