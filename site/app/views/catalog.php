@@ -109,7 +109,7 @@ $viewUrl = fn($v) => $base . qs_without(['view'], $v === 'grid' ? [] : ['view' =
         <p class="found"><?= $n ? 'Найдено ' . $n . ' ' . plural($n, 'товар', 'товара', 'товаров') : 'Ничего не нашли' ?></p>
         <label class="sort"><span class="sort-l">Сортировать:</span>
           <select data-sort>
-            <?php foreach (['popular' => 'Сначала популярные', 'name' => 'По названию', 'new' => 'Сначала новые'] as $k => $v): ?>
+            <?php foreach (['popular' => 'По популярности', 'name' => 'По названию', 'new' => 'Сначала новые'] as $k => $v): ?>
               <option value="<?= h($base . qs_without(['sort'], $k === 'popular' ? [] : ['sort' => $k])) ?>"<?= $f['sort'] === $k ? ' selected' : '' ?>><?= $v ?></option>
             <?php endforeach; ?>
           </select>

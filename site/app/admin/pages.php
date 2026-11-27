@@ -14,20 +14,14 @@ function page_schema($key) {
   $s = [
     'home' => [
       ['h', 'Баннер — слайды'],
-      ['p', 'Каждый слайд: надпись над заголовком, крупный заголовок, две плашки, кнопка. Фон — фото без надписей (горизонтальное, от 2400 точек). Товар — PNG на прозрачном фоне. Без фото товара берётся фото категории.'],
-      ['slides', 'repeat', 'Слайды', [['kicker', 'text', 'Надпись над заголовком'], ['title', 'text', 'Заголовок'], ['pill1', 'text', 'Плашка слева'], ['pill2', 'text', 'Плашка справа'], ['btn', 'text', 'Кнопка'], ['url', 'text', 'Ссылка кнопки'], ['cat', 'cat', 'Категория (для фото товара)'], ['bg_id', 'photo', 'Фон для компьютера'], ['bg_m_id', 'photo', 'Фон для телефона (вертикальный)'], ['img_id', 'photo', 'Товар на прозрачном фоне']]],
+      ['p', 'Слайд: заголовок (тёмно-синий), строка под ним (синяя), текст, кнопка. Картинка справа — PNG на прозрачном фоне; без неё берётся фото категории. Фон — светлая картинка без надписей (необязательно), деталь справа ложится поверх фона.'],
+      ['slides', 'repeat', 'Слайды', [['title', 'text', 'Заголовок'], ['sub', 'text', 'Строка под заголовком'], ['text', 'textarea', 'Текст'], ['btn', 'text', 'Кнопка'], ['url', 'text', 'Ссылка кнопки'], ['cat', 'cat', 'Категория (для картинки)'], ['img_id', 'photo', 'Товар на прозрачном фоне'], ['bg_id', 'photo', 'Фон для компьютера'], ['bg_m_id', 'photo', 'Фон для телефона']]],
+      ['side.photo_id', 'photo', 'Фото в боковой колонке (вертикальное, необязательно)'],
       ['h', 'Порядок и видимость блоков'], ['blocks', 'blocks', ''],
       ['h', 'Тексты блоков'],
-      ['search.placeholder', 'text', 'Строка поиска — подсказка'],
       ['row', [['categories.title', 'text', 'Каталог — заголовок'], ['products.title', 'text', 'Товары — заголовок']]],
       ['row', [['picker.title', 'text', 'Подбор — заголовок'], ['picker.lead', 'text', 'Подбор — текст']]],
-      ['h', 'Карточки «Подбор по параметрам» и «Оставить заявку»'],
-      ['row', [['cards.params_title', 'text', 'Левая — заголовок'], ['cards.lead_title', 'text', 'Правая — заголовок']]],
-      ['row', [['cards.params_text', 'textarea', 'Левая — текст'], ['cards.lead_text', 'textarea', 'Правая — текст']]],
-      ['row', [['cards.params_btn', 'text', 'Левая — кнопка'], ['cards.lead_btn', 'text', 'Правая — кнопка']]],
-      ['cards.params_url', 'text', 'Левая — ссылка кнопки'],
-      ['row', [['cards.params_img', 'photo', 'Левая — иллюстрация (PNG без фона)'], ['cards.lead_img', 'photo', 'Правая — иллюстрация (PNG без фона)']]],
-      ['h', 'Почему выбирают'],
+      ['h', 'Преимущества (боковая колонка)'],
       ['advantages.title', 'text', 'Заголовок'],
       ['advantages.items', 'repeat', 'Карточки', [['icon', 'icon', 'Значок'], ['title', 'text', 'Заголовок'], ['text', 'textarea', 'Текст']]],
       ['h', 'О компании и вопросы'],
@@ -109,7 +103,9 @@ if (a_require_post()) {
       if ($type === 'list') $v = array_values(array_filter(array_map('trim', preg_split("~\r?\n~", (string)$v)), 'strlen'));
       elseif ($type === 'repeat') {
         $photoKeys = array_column(array_filter($f[3] ?? [], fn($x) => $x[1] === 'photo'), 0);
-        $v = array_values(array_filter((array)$v, function ($r) use ($photoKeys) { if (!is_array($r)) return false; foreach ($r as $k => $x) if (!in_array($k, $photoKeys, true) && trim((string)$x) !== '') return true; return false; }));
+        // строка пустая, если не заполнено ни одно текстовое поле (значок и категория выбраны всегда — их не считаем)
+        $textKeys = array_column(array_filter($f[3] ?? [], fn($x) => in_array($x[1], ['text', 'textarea'], true)), 0);
+        $v = array_values(array_filter((array)$v, function ($r) use ($textKeys) { if (!is_array($r)) return false; foreach ($textKeys as $k) if (trim((string)($r[$k] ?? '')) !== '') return true; return false; }));
         foreach ($v as &$r) foreach ($r as $k => $x) $r[$k] = in_array($k, $photoKeys, true) ? ((int)$x ?: null) : trim((string)$x);
         unset($r);
       }

@@ -539,6 +539,7 @@
     var play = function () { stop(); if (reduce || slides.length < 2) return; slider.classList.add('is-auto'); slider.style.setProperty('--slide-ms', MS + 'ms'); timer = setInterval(function () { show(cur + 1); }, MS); };
     var stop = function () { clearInterval(timer); timer = null; slider.classList.remove('is-auto'); };
     dotsB.forEach(function (b) { b.addEventListener('click', function () { show(+b.getAttribute('data-slide')); play(); }); });
+    $$('[data-slide-step]', slider).forEach(function (b) { b.addEventListener('click', function () { show(cur + +b.getAttribute('data-slide-step')); play(); }); });
     slider.addEventListener('mouseenter', stop); slider.addEventListener('mouseleave', play);
     slider.addEventListener('focusin', stop); slider.addEventListener('focusout', play);
     var sx = null;

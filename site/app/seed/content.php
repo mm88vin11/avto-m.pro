@@ -16,14 +16,15 @@ return [
       'photo_id' => null,
     ],
     'slides' => [
-      ['kicker' => 'На твою машину', 'title' => 'Автозапчасти', 'pill1' => 'Упоры LIFTAUTOPRO с гарантией производителя 1 год', 'pill2' => 'Подбор по марке, модели и году выпуска', 'btn' => 'Подобрать по марке', 'url' => '/podbor', 'cat' => '', 'bg_id' => null, 'bg_m_id' => null, 'img_id' => null],
-      ['kicker' => 'Для крышки багажника', 'title' => 'Газовые упоры', 'pill1' => 'Продаются комплектом из двух штук', 'pill2' => 'Работают от −45 до +60 °C', 'btn' => 'Смотреть упоры', 'url' => '/catalog/gazovye-upory-bagazhnika', 'cat' => 'gazovye-upory-bagazhnika', 'bg_id' => null, 'bg_m_id' => null, 'img_id' => null],
-      ['kicker' => 'AUTOPLASTIC', 'title' => 'Расширительные бачки', 'pill1' => 'Утолщённые стенки', 'pill2' => 'Производство — Россия', 'btn' => 'Смотреть бачки', 'url' => '/catalog/rasshiritelnye-bachki', 'cat' => 'rasshiritelnye-bachki', 'bg_id' => null, 'bg_m_id' => null, 'img_id' => null],
+      ['title' => 'Газовые упоры', 'sub' => 'для крышки багажника', 'text' => 'LIFTAUTOPRO — комплект из двух упоров. Гарантия производителя 1 год.', 'btn' => 'Смотреть упоры', 'url' => '/catalog/gazovye-upory-bagazhnika', 'cat' => 'gazovye-upory-bagazhnika', 'bg_id' => null, 'bg_m_id' => null, 'img_id' => null],
+      ['title' => 'Расширительные бачки', 'sub' => 'с утолщёнными стенками', 'text' => 'AUTOPLASTIC для Ford, Volvo, Mazda и Renault. Производство — Россия.', 'btn' => 'Смотреть бачки', 'url' => '/catalog/rasshiritelnye-bachki', 'cat' => 'rasshiritelnye-bachki', 'bg_id' => null, 'bg_m_id' => null, 'img_id' => null],
+      ['title' => 'Подбор', 'sub' => 'по вашему автомобилю', 'text' => 'Выберите марку, модель и год — покажем детали, которые подходят.', 'btn' => 'Подобрать', 'url' => '/podbor', 'cat' => '', 'bg_id' => null, 'bg_m_id' => null, 'img_id' => null],
     ],
+    'side' => ['photo_id' => null],
     'blocks' => [
-      ['id' => 'search', 'on' => true], ['id' => 'categories', 'on' => true], ['id' => 'picker', 'on' => true], ['id' => 'cards', 'on' => true],
-      ['id' => 'products', 'on' => true], ['id' => 'advantages', 'on' => true], ['id' => 'brands', 'on' => true], ['id' => 'howto', 'on' => true],
-      ['id' => 'about', 'on' => true], ['id' => 'faq', 'on' => true], ['id' => 'quiz', 'on' => false], ['id' => 'help', 'on' => false],
+      ['id' => 'picker', 'on' => true], ['id' => 'advantages', 'on' => true],
+      ['id' => 'categories', 'on' => true], ['id' => 'products', 'on' => true], ['id' => 'about', 'on' => true],
+      ['id' => 'brands', 'on' => true], ['id' => 'howto', 'on' => true], ['id' => 'faq', 'on' => true], ['id' => 'quiz', 'on' => false],
     ],
     'quiz' => [
       'badge' => 'Подбор за 30 секунд',
@@ -38,7 +39,7 @@ return [
     ],
     'search' => ['placeholder' => 'Поиск по каталогу: название, артикул или номер детали'],
     'picker' => ['title' => 'Ваш автомобиль', 'lead' => 'Выберите марку, модель и год выпуска.'],
-    'categories' => ['title' => 'Каталог запчастей'],
+    'categories' => ['title' => 'Каталог продукции'],
     'cards' => [
       'params_title' => 'Подбор по параметрам', 'params_text' => 'Быстро найдём подходящие запчасти для вашего автомобиля', 'params_btn' => 'Подобрать', 'params_url' => '/podbor', 'params_img' => null,
       'lead_title' => 'Оставить заявку', 'lead_text' => 'Не уверены, что подойдёт? Оставьте заявку — мы свяжемся и поможем с подбором', 'lead_btn' => 'Оставить заявку', 'lead_img' => null,
@@ -54,7 +55,7 @@ return [
       ],
     ],
     'advantages' => [
-      'title' => 'Почему выбирают AVTO-M',
+      'title' => 'Преимущества',
       'items' => [
         ['icon' => 'shield', 'title' => 'Проверенное качество', 'text' => 'Работаем с проверенными производителями и контролируем закупку'],
         ['icon' => 'truck', 'title' => 'Доставка по России', 'text' => 'Через Wildberries и Ozon — в пункт выдачи рядом с домом'],

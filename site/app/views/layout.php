@@ -41,7 +41,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 <?php if ($s['yandex_verification']): ?><meta name="yandex-verification" content="<?= h($s['yandex_verification']) ?>">
 <?php endif; ?>
 <link rel="preload" href="/assets/fonts/onest-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/assets/fonts/exo-2-cyrillic-900-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/montserrat-cyrillic-800-italic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?= asset('css/site.css') ?>">
 <script src="<?= asset('js/site.js') ?>" defer></script>
 <script src="<?= asset('js/interactive.js') ?>" defer></script>
@@ -73,13 +73,12 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
   <nav class="hd-nav" aria-label="Основное меню">
     <div class="wrap hd-nav-in">
       <a href="/"<?= $navActive('/') ?>>Главная</a>
-      <a href="/catalog"<?= $navActive('/catalog') ?>>Продукция</a>
+      <a href="/catalog"<?= $navActive('/catalog') ?>>Продукция<?= icon('chevron') ?></a>
       <a href="/podbor"<?= $navActive('/podbor') ?>>Подбор по авто</a>
       <a href="/about"<?= $navActive('/about') ?>>О компании</a>
       <a href="/partners"<?= $navActive('/partners') ?>>Преимущества</a>
       <a href="/how-to-buy"<?= $navActive('/how-to-buy') ?>>Доставка и покупка</a>
       <a href="/contacts"<?= $navActive('/contacts') ?>>Контакты</a>
-      <span class="garage" data-garage hidden></span>
     </div>
   </nav>
   <div class="hd-bar">
@@ -91,6 +90,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
         <button class="search-go" type="submit" aria-label="Найти"><?= icon('search') ?></button>
         <div class="suggest" id="suggest" role="listbox" hidden></div>
       </form>
+      <span class="garage" data-garage hidden></span>
       <a class="hd-btn" href="/compare" aria-label="Сравнение"><?= icon('compare') ?><span class="hd-btn-t">Сравнить</span><span class="badge" data-count="compare" hidden>0</span></a>
       <a class="hd-cart" href="/cart" aria-label="Корзина"><?= icon('bag') ?><span class="hd-btn-t">Корзина</span><span class="hd-cart-n" data-count-text="cart">0 товаров</span><span class="badge hd-cart-badge" data-count="cart" hidden>0</span></a>
     </div>
