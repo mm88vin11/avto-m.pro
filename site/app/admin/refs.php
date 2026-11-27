@@ -17,7 +17,7 @@ if ($sub === 'order') {
 if ($kind === 'categories') {
   $id = $sub === 'new' ? 0 : (int)$sub;
   if ($sub !== '') {
-    $c = $id ? q_one('SELECT * FROM categories WHERE id = ?', [$id]) : ['name' => '', 'slug' => '', 'h1' => '', 'intro' => '', 'description' => '', 'photo_id' => null, 'published' => 1, 'seo_title' => '', 'seo_desc' => '', 'sort' => 100];
+    $c = $id ? q_one('SELECT * FROM categories WHERE id = ?', [$id]) : ['name' => '', 'slug' => '', 'h1' => '', 'intro' => '', 'description' => '', 'photo_id' => null, 'cover_id' => null, 'published' => 1, 'seo_title' => '', 'seo_desc' => '', 'sort' => 100];
     if (!$c) redirect('/admin/categories');
     $err = [];
     if (a_require_post()) {
@@ -28,7 +28,7 @@ if ($kind === 'categories') {
         flash('Категория удалена.'); redirect('/admin/categories');
       }
       $d = ['name' => trim($_POST['name'] ?? ''), 'slug' => trim($_POST['slug'] ?? ''), 'h1' => trim($_POST['h1'] ?? ''), 'intro' => trim($_POST['intro'] ?? ''), 'description' => trim($_POST['description'] ?? ''),
-        'photo_id' => (int)($_POST['photo_id'] ?? 0) ?: null, 'published' => !empty($_POST['published']) ? 1 : 0, 'seo_title' => trim($_POST['seo_title'] ?? ''), 'seo_desc' => trim($_POST['seo_desc'] ?? ''), 'updated_at' => now()];
+        'photo_id' => (int)($_POST['photo_id'] ?? 0) ?: null, 'cover_id' => (int)($_POST['cover_id'] ?? 0) ?: null, 'published' => !empty($_POST['published']) ? 1 : 0, 'seo_title' => trim($_POST['seo_title'] ?? ''), 'seo_desc' => trim($_POST['seo_desc'] ?? ''), 'updated_at' => now()];
       if ($d['slug'] === '') $d['slug'] = slugify($d['name']);
       if ($d['name'] === '') $err['name'] = 'Укажите название.';
       if (!preg_match('~^[a-z0-9-]+$~', $d['slug'])) $err['slug'] = 'Только латиница, цифры и дефис.';
@@ -61,6 +61,7 @@ if ($kind === 'categories') {
         </div>
         <aside class="a-edit-side">
           <section class="a-card"><?= a_photo_pick('photo_id', $c['photo_id'], 'Фото категории') ?><p class="a-hint">Пусто — возьмём фото первого товара.</p></section>
+          <section class="a-card"><?= a_photo_pick('cover_id', $c['cover_id'] ?? null, 'Обложка страницы категории') ?><p class="a-hint">Широкое фото 16:6 без надписей: деталь на машине. Заголовок ложится поверх слева. Пусто — обычный заголовок.</p></section>
           <section class="a-card a-sticky-actions">
             <?= a_check('published', 'Показывать на сайте', $c['published'], 'Категория без товаров скрыта автоматически') ?>
             <button class="a-btn a-btn-primary a-btn-block" type="submit" name="action" value="save">Сохранить</button>

@@ -13,7 +13,7 @@ meta('canonical', '/compare');
     <div class="skeleton skeleton-tall"></div>
   </div>
   <div class="empty panel" data-compare-empty hidden>
-    <div class="empty-ic" aria-hidden="true"><?= icon('compare') ?></div>
+    <?= empty_art('compare', 'compare') ?>
     <h2>Нечего сравнивать</h2>
     <p>Нажмите значок сравнения на карточках двух или больше деталей.</p>
     <div class="empty-btns"><a class="btn btn-primary" href="/catalog"><?= icon('catalog') ?>В каталог</a></div>

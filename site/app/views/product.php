@@ -35,7 +35,7 @@ jsonld($ld);
 ?>
 <div class="wrap">
   <?= breadcrumbs(array_filter([['Каталог', '/catalog'], $cat ? [$cat['name'], '/catalog/' . $cat['slug']] : null, [$p['name'], null]])) ?>
-  <div class="pp" data-pp="<?= (int)$p['id'] ?>">
+  <div class="pp" data-pp="<?= (int)$p['id'] ?>" data-name="<?= h($p['name']) ?>" data-sku="<?= h($p['sku']) ?>" data-img="<?= $ph0 ? h(img_url($ph0, 400)) : '' ?>">
     <div class="pp-head">
       <h1><?= h($p['name']) ?></h1>
       <p class="pp-sub">
@@ -166,6 +166,8 @@ jsonld($ld);
       <?php endif; ?>
     </div>
   </div>
+
+  <section class="hs" data-recent hidden aria-labelledby="recent-title"><div class="hs-head"><h2 id="recent-title">Вы смотрели</h2></div><div class="recent" data-recent-list></div></section>
 
   <?php $rel = related_products($p); if ($rel): ?>
   <section class="section" aria-labelledby="rel-title">

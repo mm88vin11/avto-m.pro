@@ -56,44 +56,33 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 <div class="preview-bar" role="status"><?= icon('info') ?> Предпросмотр: показан черновик. Посетители видят опубликованную версию. <a href="/admin">Вернуться в админку</a></div>
 <?php endif; ?>
 
-<header class="hd" id="header">
-  <div class="hd-top">
-    <div class="wrap hd-top-in">
-      <a class="logo" href="/" aria-label="AVTO-M — на главную"><span class="logo-img" role="img" aria-label="AVTO-M. Качество по доступной цене"></span></a>
-      <span class="hd-note"><?= h($s['header_note']) ?></span>
-      <span class="hd-info"><?= icon('pin') ?><span><?= h($s['address_short']) ?><br><small><?= h($s['city'] === 'Балашиха' ? 'Московская область' : $s['region']) ?></small></span></span>
-      <span class="hd-info"><?= icon('clock') ?><span>Работаем ежедневно<br><small><?= h(preg_replace('~^Ежедневно\s+~u', '', $s['hours'])) ?></small></span></span>
-      <span class="hd-contacts">
-        <a class="hd-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= icon('phone') ?><?= h($s['phone']) ?></a>
-        <a class="hd-mail" href="mailto:<?= h($s['email']) ?>"><?= icon('mail') ?><?= h($s['email']) ?></a>
-      </span>
-      <a class="hd-call" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click" aria-label="Позвонить <?= h($s['phone']) ?>"><?= icon('phone') ?></a>
-    </div>
-  </div>
-  <nav class="hd-nav" aria-label="Основное меню">
-    <div class="wrap hd-nav-in">
-      <a href="/"<?= $navActive('/') ?>>Главная</a>
-      <a href="/catalog"<?= $navActive('/catalog') ?>>Продукция<?= icon('chevron') ?></a>
-      <a href="/podbor"<?= $navActive('/podbor') ?>>Подбор по авто</a>
-      <a href="/about"<?= $navActive('/about') ?>>О компании</a>
-      <a href="/partners"<?= $navActive('/partners') ?>>Преимущества</a>
+<div class="hd-strip">
+  <div class="wrap hd-strip-in">
+    <span><?= icon('pin') ?><?= h($s['address_short']) ?></span>
+    <span><?= icon('clock') ?><?= h($s['hours']) ?></span>
+    <nav aria-label="Покупателям">
       <a href="/how-to-buy"<?= $navActive('/how-to-buy') ?>>Доставка и покупка</a>
+      <a href="/partners"<?= $navActive('/partners') ?>>Автосервисам</a>
       <a href="/contacts"<?= $navActive('/contacts') ?>>Контакты</a>
-    </div>
-  </nav>
-  <div class="hd-bar">
-    <div class="wrap hd-bar-in">
-      <button class="hd-cat" type="button" aria-expanded="false" aria-controls="mega" data-mega><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Каталог продукции</span></button>
-      <form class="search" action="/search" method="get" role="search" data-search>
-        <label class="sr" for="q">Поиск по названию, артикулу или номеру</label>
-        <input id="q" name="q" type="search" placeholder="Поиск по названию, артикулу или номеру" autocomplete="off" value="<?= h($_GET['q'] ?? '') ?>" aria-autocomplete="list" aria-controls="suggest" enterkeyhint="search">
-        <button class="search-go" type="submit" aria-label="Найти"><?= icon('search') ?></button>
-        <div class="suggest" id="suggest" role="listbox" hidden></div>
-      </form>
-      <span class="garage" data-garage hidden></span>
-      <a class="hd-btn" href="/compare" aria-label="Сравнение"><?= icon('compare') ?><span class="hd-btn-t">Сравнить</span><span class="badge" data-count="compare" hidden>0</span></a>
-      <a class="hd-cart" href="/cart" aria-label="Корзина"><?= icon('bag') ?><span class="hd-btn-t">Корзина</span><span class="hd-cart-n" data-count-text="cart">0 товаров</span><span class="badge hd-cart-badge" data-count="cart" hidden>0</span></a>
-    </div>
+      <button type="button" class="hd-callback" data-lead="question" data-title="Перезвоните мне"><?= icon('phone') ?>Перезвоните мне</button>
+    </nav>
+  </div>
+</div>
+<header class="hd" id="header">
+  <div class="wrap hd-in">
+    <a class="logo" href="/" aria-label="AVTO-M — на главную"><span class="logo-img" role="img" aria-label="AVTO-M. Качество по доступной цене"></span></a>
+    <button class="hd-cat" type="button" aria-expanded="false" aria-controls="mega" data-mega><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Каталог</span></button>
+    <form class="search" action="/search" method="get" role="search" data-search>
+      <label class="sr" for="q">Поиск по названию, артикулу или номеру</label>
+      <?= icon('search', 'search-i') ?>
+      <input id="q" name="q" type="search" placeholder="Название, артикул или номер детали" autocomplete="off" value="<?= h($_GET['q'] ?? '') ?>" aria-autocomplete="list" aria-controls="suggest" enterkeyhint="search">
+      <button class="search-go" type="submit">Найти</button>
+      <div class="suggest" id="suggest" role="listbox" hidden></div>
+    </form>
+    <a class="hd-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><b><?= h($s['phone']) ?></b><small><?= h($s['hours_short']) ?></small></a>
+    <a class="hd-ic hd-ic-call" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click" aria-label="Позвонить"><?= icon('phone') ?></a>
+    <a class="hd-ic hd-ic-cmp" href="/compare" aria-label="Сравнение"><?= icon('compare') ?><span>Сравнить</span><b class="badge" data-count="compare" hidden>0</b></a>
+    <a class="hd-ic hd-ic-cart" href="/cart" aria-label="Корзина" data-cart-target><?= icon('bag') ?><span>Корзина</span><b class="badge" data-count="cart" hidden>0</b></a>
   </div>
   <div class="mega" id="mega" hidden>
     <div class="wrap mega-in">
@@ -118,6 +107,16 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
     </div>
   </div>
 </header>
+<nav class="hd-nav" aria-label="Основное меню">
+  <div class="wrap hd-nav-in">
+    <a href="/podbor"<?= $navActive('/podbor') ?>><?= icon('car') ?>Подбор по авто</a>
+    <?php foreach ($cats as $c): ?><a href="/catalog/<?= h($c['slug']) ?>"<?= $navActive('/catalog/' . $c['slug']) ?>><?= h($c['name']) ?></a><?php endforeach; ?>
+    <a href="/about"<?= $navActive('/about') ?>>О компании</a>
+    <a href="/partners"<?= $navActive('/partners') ?>>Преимущества</a>
+    <a href="/contacts"<?= $navActive('/contacts') ?>>Контакты</a>
+    <span class="garage" data-garage hidden></span>
+  </div>
+</nav>
 
 <main id="main" tabindex="-1">
 <?= $content ?>

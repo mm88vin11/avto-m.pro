@@ -1,7 +1,7 @@
 <?php
 if (!defined('AVTOM')) { http_response_code(404); exit; }
 
-const DB_SCHEMA_VERSION = 2;
+const DB_SCHEMA_VERSION = 3;
 
 function db() {
   static $pdo = null;
@@ -93,6 +93,11 @@ SQL);
     // v2: прозрачность у фото (вырезанные товары и иллюстрации)
     $cols = array_column($pdo->query('PRAGMA table_info(photos)')->fetchAll(), 'name');
     if (!in_array('alpha', $cols, true)) $pdo->exec('ALTER TABLE photos ADD COLUMN alpha INTEGER NOT NULL DEFAULT 0');
+  }
+  if ($from < 3) {
+    // v3: обложка категории (фото-сцена над списком товаров)
+    $cols = array_column($pdo->query('PRAGMA table_info(categories)')->fetchAll(), 'name');
+    if (!in_array('cover_id', $cols, true)) $pdo->exec('ALTER TABLE categories ADD COLUMN cover_id INTEGER');
   }
   $pdo->exec('PRAGMA user_version = ' . DB_SCHEMA_VERSION);
   $pdo->commit();

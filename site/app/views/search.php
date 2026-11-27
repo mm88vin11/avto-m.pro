@@ -23,7 +23,7 @@ $n = count($items);
     <div class="grid"><?php foreach ($items as $p) partial('card', ['p' => $p]); ?></div>
   <?php else: ?>
     <div class="empty panel">
-      <div class="empty-ic" aria-hidden="true"><?= icon('search') ?></div>
+      <?= empty_art('search', 'search') ?>
       <h2><?= $qs !== '' ? 'По запросу ничего нет' : 'Введите название, артикул или номер' ?></h2>
       <p>Ищите по модели автомобиля («Focus 2 универсал»), артикулу («LAP-10262») или оригинальному номеру детали. Пробелы и дефисы не важны.</p>
       <div class="empty-btns">

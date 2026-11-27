@@ -35,10 +35,17 @@ $viewUrl = fn($v) => $base . qs_without(['view'], $v === 'grid' ? [] : ['view' =
 ?>
 <div class="wrap" id="catalog-root" data-catalog>
   <?= breadcrumbs($crumbs) ?>
+  <?php $cover = $cat && !empty($cat['cover_id']) ? photo_row($cat['cover_id']) : null; if ($cover): ?>
+  <div class="cat-cover">
+    <img src="<?= h(img_url($cover, 1400)) ?>" srcset="<?= h(img_srcset($cover)) ?>" sizes="(max-width: 1240px) 100vw, 1240px" alt="" fetchpriority="high">
+    <div class="cat-cover-in"><h1><?= h($h1) ?></h1><?php if ($cat['intro']): ?><p class="lead"><?= h($cat['intro']) ?></p><?php endif; ?></div>
+  </div>
+  <?php else: ?>
   <div class="page-head">
     <h1><?= h($h1) ?></h1>
     <?php if ($cat && $cat['intro']): ?><p class="lead"><?= h($cat['intro']) ?></p><?php endif; ?>
   </div>
+  <?php endif; ?>
 
   <?php if (!$cat && ($cats = categories_visible())): ?>
   <nav class="chips-nav" aria-label="Категории">

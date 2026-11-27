@@ -38,6 +38,14 @@ function not_found() {
 }
 
 /** Иконка из спрайта */
+/** Иллюстрация пустого состояния: assets/img/empty/{name}.webp или .png, если файл положили; иначе значок. */
+function empty_art($name, $icon) {
+  foreach (['webp', 'png'] as $ext) {
+    $f = '/assets/img/empty/' . $name . '.' . $ext;
+    if (is_file(WEB_DIR . $f)) return '<img class="empty-art" src="' . h($f) . '?v=' . filemtime(WEB_DIR . $f) . '" alt="" width="240" height="180" loading="lazy">';
+  }
+  return '<div class="empty-ic" aria-hidden="true">' . icon($icon) . '</div>';
+}
 function icon($name, $cls = '') { return '<svg class="i ' . h($cls) . '" aria-hidden="true" focusable="false"><use href="#i-' . h($name) . '"/></svg>'; }
 
 function breadcrumbs(array $items) {

@@ -11,7 +11,7 @@ meta('body_class', 'page-cart');
     <section class="cart-list" aria-label="Детали в корзине">
       <div class="cart-items" data-cart-items><div class="skeleton"></div><div class="skeleton"></div></div>
       <div class="empty panel" data-cart-empty hidden>
-        <div class="empty-ic" aria-hidden="true"><?= icon('clipboard') ?></div>
+        <?= empty_art('cart', 'clipboard') ?>
         <h2>Корзина пока пуста</h2>
         <p>Добавляйте детали кнопкой «В корзину» в каталоге — они сохранятся, даже если закрыть страницу.</p>
         <div class="empty-btns"><a class="btn btn-primary" href="/catalog"><?= icon('catalog') ?>В каталог</a><a class="btn btn-soft" href="/podbor"><?= icon('car') ?>Подбор по авто</a></div>

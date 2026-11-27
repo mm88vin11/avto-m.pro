@@ -36,19 +36,24 @@ function seed_all(PDO $pdo) {
   };
 
   /* --- категории (фото — вырезанный товар на прозрачном фоне для плиток каталога) --- */
-  $cutStrut = $photo('strut-pair');
-  $cutTank = $photo('tank-av11001');
+  // плитки — детали на прозрачном фоне, обложки — фото-сцены (иллюстрации категорий, не фото конкретных товаров)
+  $cutStrut = $photo('gen-banner-strut-pair') ?: $photo('strut-pair');
+  $cutTank = $photo('gen-banner-tank') ?: $photo('tank-av11001');
+  $coverTail = $photo('gen-cat-tailgate');
+  $coverHood = $photo('gen-cat-hood');
+  $photoBrackets = $photo('gen-cat-brackets');
   $catStrut = $ins('categories', ['slug' => 'gazovye-upory-bagazhnika', 'name' => 'Газовые упоры багажника', 'h1' => 'Газовые упоры крышки багажника',
     'intro' => 'Продаются комплектом из двух штук. Подбор по марке, модели, году выпуска и кузову.',
     'description' => "Газовый упор поднимает крышку багажника плавно и без усилий, держит её открытой и не даёт резко захлопнуться. Если крышка перестала держаться или опускается сама — упоры пора менять, причём сразу оба.\n\nЧтобы подобрать упоры, важен кузов: у седана, хэтчбека и универсала одной модели упоры разной длины и силы. Проверьте оригинальный номер или выберите автомобиль в подборе.",
-    'photo_id' => $cutStrut, 'sort' => 10, 'published' => 1, 'seo_title' => 'Газовые упоры багажника — купить комплект с подбором по авто',
+    'photo_id' => $cutStrut, 'cover_id' => $coverTail, 'sort' => 10, 'published' => 1, 'seo_title' => 'Газовые упоры багажника — купить комплект с подбором по авто',
     'seo_desc' => 'Газовые упоры крышки багажника LIFTAUTOPRO комплектом из двух штук. Подбор по марке, модели, году и кузову. Купить на Wildberries и Ozon.', 'updated_at' => $t]);
   $catTank = $ins('categories', ['slug' => 'rasshiritelnye-bachki', 'name' => 'Расширительные бачки', 'h1' => 'Расширительные бачки системы охлаждения',
     'intro' => 'Бачки AUTOPLASTIC с утолщёнными стенками. Подбор по марке, модели, году и двигателю.',
     'description' => "Расширительный бачок принимает лишнюю охлаждающую жидкость, когда она нагревается и расширяется. Со временем пластик стареет: появляются трещины у креплений, бачок вздувается и подтекает.\n\nБачки AUTOPLASTIC сделаны с утолщёнными стенками — они дольше служат в местах крепления и лучше держат давление в системе.",
     'photo_id' => $cutTank, 'sort' => 20, 'published' => 1, 'seo_title' => 'Расширительные бачки — купить с подбором по авто',
     'seo_desc' => 'Расширительные бачки AUTOPLASTIC для Ford, Volvo, Mazda и Renault. Утолщённые стенки, производство — Россия. Купить на Wildberries и Ozon.', 'updated_at' => $t]);
-  $ins('categories', ['slug' => 'gazovye-upory-kapota', 'name' => 'Газовые упоры капота', 'h1' => 'Газовые упоры капота', 'intro' => 'Подбор по марке, модели и году выпуска.', 'description' => '', 'sort' => 30, 'published' => 1, 'updated_at' => $t]);
+  $ins('categories', ['slug' => 'gazovye-upory-kapota', 'name' => 'Газовые упоры капота', 'h1' => 'Газовые упоры капота', 'intro' => 'Подбор по марке, модели и году выпуска.', 'description' => '', 'cover_id' => $coverHood, 'sort' => 30, 'published' => 1, 'updated_at' => $t]);
+  $ins('categories', ['slug' => 'krepleniya-i-nakonechniki', 'name' => 'Крепления и наконечники', 'h1' => 'Крепления и наконечники для газовых упоров', 'intro' => 'Кронштейны, шаровые пальцы и наконечники.', 'description' => '', 'photo_id' => $photoBrackets, 'sort' => 40, 'published' => 1, 'updated_at' => $t]);
 
   /* --- марки --- */
   $logoPlast = $photo('logo-autoplastic');
@@ -137,4 +142,16 @@ function seed_all(PDO $pdo) {
       if ($id) $pdo->prepare('INSERT INTO product_photos (product_id, photo_id, sort, alt) VALUES (?, ?, ?, ?)')->execute([$pid, $id, $i, $name . ($i ? ', фото ' . ($i + 1) : '')]);
     }
   }
+
+  /* --- главная: картинки баннера и блоков --- */
+  $home = content_defaults('home');
+  $ids = ['single' => $photo('gen-banner-strut-single'), 'tank' => $photo('gen-banner-tank'), 'combo' => $photo('gen-banner-combo'),
+    'bg' => $photo('gen-banner-bg-desktop'), 'bgm' => $photo('gen-banner-bg-mobile'), 'side' => $photo('gen-side-hood')];
+  $map = ['gazovye-upory-bagazhnika' => 'single', 'rasshiritelnye-bachki' => 'tank', '' => 'combo'];
+  foreach ($home['slides'] as &$sl) { $sl['img_id'] = $ids[$map[$sl['cat']] ?? 'combo']; $sl['bg_id'] = $ids['bg']; $sl['bg_m_id'] = $ids['bgm']; }
+  unset($sl);
+  $home['about']['photo_id'] = $ids['side'];
+  $home['about']['photo2_id'] = $coverTail;
+  $home['signs']['photo_id'] = $coverHood;
+  $pdo->prepare('REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, ?)')->execute(['content.home', json_encode($home, JSON_UNESCAPED_UNICODE), $t]);
 }

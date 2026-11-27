@@ -1,289 +1,128 @@
-# Изображения для сайта AVTO-M в стиле примеров IMG_1667 и IMG_1668
+# Пакет графики AVTO-M — одним заходом
 
-Стиль сайта — светлый каталог автозапчастей: белые карточки, голубой баннер, синие кнопки, реалистичные фото деталей. Ниже — каждая нужная картинка: зачем она, размер, имя файла, куда загрузить в админке и подробный промпт для ChatGPT.
+Это единое задание на всю графику сайта: один стиль, один чат, один стартовый промпт. Вы вставляете **один** большой промпт в ChatGPT. Дальше пишете только «Дальше», и он по очереди делает все картинки серии в одном свете и цвете.
 
-Сайт **работает и без этих картинок**: сейчас стоят детали, вырезанные из реальных фото заказчика. Картинки делают сайт ближе к примерам — с фото в карточках категорий, как на IMG_1667.
-
----
-
-## Как генерировать, чтобы получилось ровно и в одном стиле
-
-1. **Всё делайте в одном чате ChatGPT.** Так свет, цвет и ракурсы получатся одинаковыми. Первым сообщением вставьте «Общий стиль» (ниже) и дождитесь ответа.
-2. **Картинки на прозрачном фоне.** В промпте есть строка `Transparent background, PNG with alpha channel`. Если фон всё равно белый или в «шахматку» нарисованную — напишите: *«Фон должен быть по-настоящему прозрачным, без нарисованной шахматки. Пересохрани как PNG с альфа-каналом»*.
-3. **Скачивайте PNG**, не JPG и не WEBP.
-4. **Проверьте по чек-листу** в конце, затем загрузите в админку. Сайт сам уменьшит и сожмёт файл, прозрачность сохранится.
-5. Если результат не нравится — не начинайте заново, а уточняйте в том же чате: *«Сделай деталь крупнее, на 85 % кадра»*, *«Убери надпись на корпусе»*, *«Свет мягче, без бликов на штоке»*.
-
-**Чего нельзя генерировать:**
-- **Фото конкретных товаров** (LAP-10262, AV-11001 и т. д.) для их карточек. Нейросеть меняет длину, крепления и патрубки — покупатель получит не то, что видел. Это нарушение прав потребителя. Для карточек товаров — только реальные фото (раздел 7).
-- **Логотипы** AVTO-M, LIFTAUTOPRO, AUTOPLASTIC, Wildberries, Ozon и надписи на деталях. На примере IMG_1667 на упоре написано «AUTO-M GAS SPRING» — это нужно делать на реальном товаре, а не рисовать.
-- **Фото «нашего офиса» или «нашего склада»**, которых не существует.
+Что уже есть и стоит на сайте (из вашего архива, 10 штук): фон баннера для компьютера и для телефона, упор, пара упоров, бачок, упор с бачком, плитки «капот», «багажник» и «крепления», фото «упор под капотом». Их не переделываем: новая серия должна выглядеть как их продолжение.
 
 ---
 
-## Общий стиль — вставить первым сообщением
+## 1. Что получится в итоге
 
-```
-I will ask you to create a series of images for an online auto parts catalog (gas struts for car hoods and tailgates, coolant expansion tanks, brackets and ball studs).
-Keep ONE consistent style across the whole series:
+| № | Файл | Формат ChatGPT | Где на сайте | Куда загрузить |
+|---|------|----------------|--------------|----------------|
+| 1 | `banner-car.png` | 1536×1024, прозрачный фон | 3-й слайд баннера «Подбор по вашему автомобилю» | Страницы → Главная → Слайды → 3-й → «Товар на прозрачном фоне» |
+| 2 | `cover-tanks.png` | 1536×1024, фон есть | Обложка раздела «Расширительные бачки» | Категории → Расширительные бачки → «Обложка страницы» |
+| 3 | `cover-hood.png` | 1536×1024, фон есть | Обложка раздела «Упоры капота» (когда появятся товары) | Категории → Упоры капота → «Обложка страницы» |
+| 4 | `card-params.png` | 1024×1024, прозрачный | Карточка «Подбор по параметрам» на главной | Страницы → Главная → «Подбор — картинка» |
+| 5 | `card-lead.png` | 1024×1024, прозрачный | Карточка «Оставить заявку» на главной | Страницы → Главная → «Заявка — картинка» |
+| 6 | `empty-cart.png` | 1024×1024, прозрачный | Пустая корзина | Файл → папка `assets/img/empty/` на хостинге, имя `cart.png` |
+| 7 | `empty-search.png` | 1024×1024, прозрачный | «Ничего не нашли» в поиске | `assets/img/empty/search.png` |
+| 8 | `empty-compare.png` | 1024×1024, прозрачный | Пустое сравнение | `assets/img/empty/compare.png` |
+| 9 | `empty-404.png` | 1024×1024, прозрачный | Страница 404 | `assets/img/empty/404.png` |
+| 10 | `tile-template.png` | 1536×1024, прозрачный | Плитка любой новой категории | Категории → нужная → «Фото категории» |
 
-STYLE
-- Photorealistic, like professional e-commerce product photography for a premium auto parts store.
-- Bright, clean and fresh look. Soft, even studio daylight from the upper left, gentle fill light from the right, soft natural shadows, no harsh glare.
-- Color palette of the website: white, very light blue (#EEF3FB, #E3EDFF), sky blue (#1D6FE8), deep navy (#0C2F78). Car paint and backgrounds should stay within cool white, silver, light grey and blue tones.
-- Materials must look real: black powder-coated steel tube, polished chrome piston rod with subtle reflections, black plastic end fittings, translucent milky-white polypropylene for tanks.
-- Ultra sharp focus on the part, high detail, no noise, no film grain, no artistic filters, no fantasy elements.
+Сайт работает и без этих картинок: где их нет, стоят нарисованные кодом ползунки, облачко, значки и обычный заголовок. Картинки 4–9 — «вишенка», а 1–3 заметно усиливают первый экран и разделы.
 
-STRICT RULES FOR EVERY IMAGE
-- No text, letters, numbers, labels, stickers, barcodes, logos, brand badges, emblems, watermarks or signatures anywhere — not on the parts, not on the car, not in the background.
-- No license plates (or a completely blank plate area).
-- Parts must look like real, physically correct automotive parts: a gas strut has exactly one cylinder, one rod and two end fittings; no extra hoses, no melted or bent shapes.
-- Do not add people or hands unless I ask.
-
-Reply "OK" and wait for my first request.
-```
+Файлы 6–9 сайт подхватывает сам, если положить их в папку `site/assets/img/empty/` (на хостинге — `assets/img/empty/`) с именами `cart`, `search`, `compare`, `404` (`.png` или `.webp`). Админка для них не нужна.
 
 ---
 
-## 1. Баннер на главной: деталь справа на прозрачном фоне
+## 2. Стартовый промпт — вставить в новый чат ChatGPT целиком
 
-На примере IMG_1667 справа в баннере — крупный газовый упор по диагонали. На сайте баннер светло-голубой, деталь кладётся поверх.
+```
+You are the art director and 3D artist for AVTO-M, an online catalog of car parts: gas struts for car tailgates and hoods, and coolant expansion tanks. You will produce a SERIES of 10 images, one per message. After each image I will write "Дальше" (next) — then make the next image in the list. If I write a correction, redo the current image only.
 
-Загружать: **Админка → Страницы → Главная → «Баннер — слайды» → поле «Товар на прозрачном фоне»** нужного слайда.
-Размер: **1536×1024** (горизонталь), прозрачный фон.
+SERIES STYLE — identical for every image:
+- Photorealistic 3D product render, studio quality, like premium auto parts catalog key visuals (Bosch, Stabilus, Yandex Market promo).
+- Light, airy palette: white, very light blue (#EEF3FC), cornflower blue accents (#0A5CFF), deep navy (#0C2F78) only in small details. No dark or moody scenes.
+- Lighting: large softbox from top-left, gentle fill from the right, soft contact shadow under objects. No harsh specular blowouts.
+- Materials: gas strut body = matte black powder-coated steel; piston rod = polished chrome with a soft reflection; end fittings = black plastic ball sockets. Coolant tank = semi-translucent milky-white polypropylene with a black screw cap and short hose spigots. Plastic UI objects = glossy white with rounded edges and blue elements.
+- Camera: 3/4 view, slightly from above, 50–85 mm lens look, no fisheye distortion.
+- ABSOLUTELY NO TEXT, letters, numbers, logos, brand names, labels, stickers, watermarks or license plates anywhere in the image. Plain surfaces only.
+- No people, no hands, no faces.
+- Transparent-background images: real alpha channel PNG, no painted checkerboard, no white box, object fills 80–90% of the frame with even margins, nothing cropped at the edges.
 
-### 1.1 Один крупный газовый упор (слайд «Газовые упоры»)
-Файл: `banner-strut-single.png`
-```
-Create a hero product image: ONE automotive gas strut (gas spring) for a car tailgate, shown large and diagonal, going from the lower left to the upper right at about 20 degrees, filling about 90% of the image width.
-Details: a glossy black powder-coated steel cylinder (about 60% of the length) with a thin black rubber seal ring at the end, then a polished chrome piston rod with crisp reflections, black plastic eyelet end fittings on both ends with round metal bushings.
-Camera: three-quarter view, slightly from above, product photography lens, everything in sharp focus.
-Lighting: bright soft studio light from the upper left, a soft cool-blue rim light along the top edge of the cylinder, a gentle realistic shadow falling down-right.
-No text or markings on the cylinder.
-Isolated object. Transparent background, PNG with alpha channel. 1536x1024.
+THE LIST:
+
+1) banner-car — 1536x1024, TRANSPARENT background.
+A modern white compact crossover (generic design, no real brand, no badges, no plate), 3/4 rear view, tailgate fully open, two black gas struts clearly visible holding the tailgate. Clean studio render, soft shadow under the wheels. The car must look generic and friendly, not a specific model.
+
+2) cover-tanks — 1536x1024, WITH background (wide cover, the left 45% will be covered by a heading).
+Close-up inside a clean modern engine bay: a milky-white coolant expansion tank with black cap in sharp focus on the RIGHT third of the frame. The LEFT 45% is calm and softly out of focus (dark grey engine cover and soft blue-grey tones) so white text can sit on top. Daylight, light-blue cold color grading consistent with the series, no dirt, no visible text on any part.
+
+3) cover-hood — 1536x1024, WITH background, same composition rules as #2.
+A silver car with an open hood photographed from the front-right, one black hood gas strut with chrome rod in sharp focus on the RIGHT third. Left 45% calm and softly out of focus. Bright daylight, light-blue grading.
+
+4) card-params — 1024x1024, TRANSPARENT background.
+A floating glossy white rounded-square panel, tilted about -6 degrees, with three horizontal slider tracks; each track has a cornflower-blue filled part and a round white knob with a blue ring, knobs at different positions (60%, 35%, 75%). Soft blue ambient shadow under the panel. Minimal, like a 3D app icon. No text or numbers.
+
+5) card-lead — 1024x1024, TRANSPARENT background.
+A glossy white 3D speech bubble with a thick navy outline and three navy dots inside, slightly tilted, and a small cornflower-blue 3D phone handset peeking from behind its lower right side. Soft shadow. Same plastic material as #4.
+
+6) empty-cart — 1024x1024, TRANSPARENT background.
+An empty 3D shopping basket made of glossy white plastic with cornflower-blue handles, slightly tilted, with soft shadow. Friendly and calm, not cartoonish.
+
+7) empty-search — 1024x1024, TRANSPARENT background.
+A 3D magnifying glass with a white handle and blue ring, lying diagonally over a single black gas strut with chrome rod. The lens shows a slightly magnified part of the rod. Soft shadow.
+
+8) empty-compare — 1024x1024, TRANSPARENT background.
+Minimalist 3D balance scales in glossy white with blue details; on each pan lies a small black gas strut. The scales are balanced. Soft shadow.
+
+9) empty-404 — 1024x1024, TRANSPARENT background.
+A glossy white and cornflower-blue 3D traffic cone next to a single black gas strut lying on the ground, as if a part fell off the road. Calm, a little humorous, no text, no numbers.
+
+10) tile-template — 1536x1024, TRANSPARENT background.
+A pair of black gas struts with chrome rods lying parallel at a 35-degree diagonal, bottom-right to top-left, the lower ends slightly cropped by the bottom-right corner of the frame (this is intentional for a catalog tile). Same light as the rest. This image is a template: later I may ask you to replace the struts with another part keeping exactly this angle, crop and light.
+
+Start with image 1 now.
 ```
 
-### 1.2 Пара упоров (слайд «Газовые упоры», вариант)
-Файл: `banner-strut-pair.png`
-```
-Same style and lighting as the previous image: a PAIR of identical automotive tailgate gas struts lying parallel and diagonal (lower left to upper right), slightly overlapping in depth, the front one fully visible, the back one about 15% smaller and slightly higher.
-Black cylinders, polished chrome rods, black plastic eyelet end fittings, no markings.
-Soft realistic shadow under each strut.
-Transparent background, PNG with alpha channel. 1536x1024.
-```
+После каждой картинки пишите **«Дальше»**. Если что-то не так, уточняйте в том же чате, не начиная заново:
 
-### 1.3 Расширительный бачок (слайд «Расширительные бачки»)
-Файл: `banner-tank.png`
-```
-Same series style: a car coolant expansion tank, translucent milky-white polypropylene with visible wall thickness, a threaded neck with a black screw cap, two small hose outlets on the side, a mounting bracket molded into the body.
-Three-quarter view from slightly above, rotated about 15 degrees, filling about 75% of the image.
-Bright soft studio light, a subtle cool-blue rim light, the plastic should look slightly translucent with soft internal light scattering, a gentle shadow under it.
-No text, no embossed letters or numbers, no "MAX/MIN" marks.
-Transparent background, PNG with alpha channel. 1536x1024.
-```
+- «Фон должен быть по-настоящему прозрачным, без шахматки. Пересохрани как PNG с альфа-каналом».
+- «Убери надпись/значок с детали».
+- «Объект крупнее, на 85 % кадра, отступы ровные».
+- «Свет мягче, как на предыдущей картинке».
+- «Сделай левую половину спокойнее и темнее, на ней будет заголовок» (для обложек 2–3).
 
-### 1.4 Композиция «упор + бачок» (слайд «Подбор по автомобилю»)
-Файл: `banner-combo.png`
-```
-Same series style: a composition of one black gas strut with a chrome rod lying diagonally in the back, and a translucent milky-white coolant expansion tank with a black cap standing in front of it on the right.
-Both parts in sharp focus, realistic scale relative to each other, soft studio light from the upper left, soft shadows, gentle blue rim light.
-No text, no markings.
-Transparent background, PNG with alpha channel. 1536x1024.
-```
+Для новой категории в будущем, в том же чате: *«Сделай как картинку 10, но вместо упоров — [например: шаровые наконечники упоров, пара]. Тот же угол, обрез и свет»*.
 
 ---
 
-## 2. Баннер: светлый фон (необязательно)
+## 3. Проверка перед загрузкой (30 секунд на картинку)
 
-Сейчас фон баннера нарисован кодом: голубой градиент с диагональными бликами, как на IMG_1667. Можно заменить фотографическим.
-Загружать: поле **«Фон для компьютера»** слайда (и «Фон для телефона» — второй вариант).
-Текст сайта стоит слева, деталь — справа, поэтому **левая половина фона — спокойная и светлая**.
+1. Нет ни одной буквы, цифры, логотипа и номерного знака, даже мелких.
+2. У «прозрачных» картинок фон действительно прозрачный: откройте файл в браузере на тёмной вкладке, белого прямоугольника быть не должно.
+3. Деталь не обрезана по краям (кроме картинки 10 — там обрез задуман).
+4. У упора гладкий цилиндр, шток хромированный, на концах шарнирные наконечники, без лишних рычагов.
+5. У обложек 2–3 левая часть спокойная, заголовок на ней будет читаться.
 
-### 2.1 Фон для компьютера
-Файл: `banner-bg-desktop.png`, **1536×1024** (сайт покажет центральную горизонтальную полосу — главное держите посередине по высоте).
-```
-Abstract light background for a website banner of an auto parts store, horizontal 1536x1024.
-Very light blue to white gradient (#F7FAFF on the left to #CDDCFB on the right), with two or three soft diagonal translucent white light streaks and a smooth flowing light-blue wave shape across the lower right, like clean glossy glass or brushed light.
-Left half: calm, almost plain, very light — text will be placed there.
-Right half: slightly richer light blue with soft glow — a product will be placed there.
-No objects, no cars, no parts, no text, no logos. Smooth, premium, minimal.
-```
-
-### 2.2 Фон для телефона
-Файл: `banner-bg-mobile.png`, **1024×1536** (вертикаль).
-```
-Same abstract light blue background as the previous image, but vertical 1024x1536: top 45% calm and very light (for text), bottom part with soft diagonal light streaks and a gentle light-blue glow (a product will be placed there). No objects, no text.
-```
+Загружайте PNG как есть: сайт сам уменьшит картинки, сделает версии для телефона и сохранит прозрачность.
 
 ---
 
-## 3. Карточки «Каталог продукции» — фото как на IMG_1667
+## 4. Что нельзя генерировать — нужны реальные фото
 
-На примере в карточках категорий реальные сцены: открытый капот с упором, открытый багажник и т. д. Это иллюстрации **категорий**, а не фото конкретных товаров, поэтому их можно генерировать.
+Это требование закона о защите прав потребителей и наших правил: покупатель должен видеть тот товар, который получит.
 
-Загружать: **Админка → Категории → категория → «Фото категории»**.
-Размер: **1536×1024** (сайт обрежет до 4:3 по центру — главное держите в центре).
-**Обычный фон**, не прозрачный — это фото.
+**Фото товаров LIFTAUTOPRO.** Сейчас у двух упоров (LAP-10993, LAP-10965) нет фото, на сайте стоит заглушка «Фото скоро появится». Как снять самим за 15 минут:
+- Белый лист ватмана на столе у окна, дневной свет, без вспышки.
+- Комплект — два упора рядом, по диагонали, как на картинке 10. Телефон держать горизонтально, сверху под углом 30–45°.
+- 3–4 кадра: комплект целиком; наконечник крупно; шток крупно; упор рядом с рулеткой (видна длина).
+- Если на корпусе есть наклейка LIFTAUTOPRO, её можно и нужно показать: это реальный товар.
+- Загрузить в админке: Товары → нужный → Фото. Белый фон сайт оставит белым.
 
-### 3.1 Газовые упоры капота
-Файл: `cat-hood.png`
-```
-Photorealistic close-up photo of an open car hood of a modern silver hatchback, shot from the front-left side at the height of the engine bay.
-The hood is raised and held by a black gas strut with a chrome rod clearly visible in the foreground (sharp focus), the engine bay is clean and modern but softly out of focus.
-Bright overcast daylight outdoors, soft shadows, cool neutral colors, a light blurred background with sky and greenery.
-No brand emblems on the car, no text, no logos, no license plate.
-4:3 composition with the gas strut in the center, 1536x1024.
-```
+**Фото «О компании».** Реальные снимки склада или пункта выдачи в Балашихе: полки с коробками, упаковка заказа, проверка упора. Без лиц, если сотрудники не дали согласия. Без вывесок с текстом крупным планом. 2 фото, горизонтальные. Загрузить: Страницы → Главная → «О компании» → Фото 1 и 2.
 
-### 3.2 Газовые упоры багажника
-Файл: `cat-tailgate.png`
-```
-Photorealistic photo from the rear-left side of a modern silver hatchback with its tailgate fully open.
-The left tailgate gas strut (black cylinder, chrome rod) is in sharp focus in the foreground, the empty clean trunk and the raised tailgate are visible, the rest softly out of focus.
-Bright soft daylight, cool neutral tones, light blurred background.
-No emblems, no badges, no text, no license plate (rear bumper area plain).
-4:3 composition, strut in the center, 1536x1024.
-```
-
-### 3.3 Пневмоупоры для универсала
-Файл: `cat-wagon.png`
-```
-Photorealistic photo of a modern white station wagon with the rear tailgate open, seen from the rear three-quarter angle.
-Both tailgate gas struts are visible, the nearest one in sharp focus. Clean empty cargo area.
-Bright soft daylight, light neutral background (blurred parking area with greenery).
-No emblems, no badges, no text, no license plate.
-4:3 composition, 1536x1024.
-```
-
-### 3.4 Расширительные бачки
-Файл: `cat-tank-engine.png`
-```
-Photorealistic close-up of a clean modern car engine bay: a translucent milky-white coolant expansion tank with a black screw cap is in sharp focus in the center, pink coolant visible through the plastic at a normal level, hoses attached.
-The rest of the engine bay is softly out of focus, clean, dark grey and black plastics.
-Bright soft daylight from above, cool neutral tones.
-No text, no labels, no MAX/MIN marks, no brand logos on engine covers.
-4:3 composition, 1536x1024.
-```
-
-### 3.5 Крепления и наконечники
-Файл: `cat-brackets.png`
-```
-Photorealistic e-commerce product photo on a very light grey-blue seamless studio background (#EEF3FB):
-a black powder-coated steel L-shaped mounting bracket with two round holes, next to it two chrome ball studs with threaded ends, a small black plastic ball-socket end fitting and a metal washer, neatly arranged on a diagonal.
-Soft studio light from the upper left, soft realistic shadows, sharp focus.
-No text, no labels.
-4:3 composition, 1536x1024.
-```
-
-### 3.6 Подбор по параметрам
-Файл: `cat-params.png`
-На сайте поверх этой картинки уже стоит значок фильтра в белом квадрате (как на IMG_1667), поэтому **правый нижний угол оставьте пустым**.
-```
-Photorealistic e-commerce photo on a very light blue seamless background (#E3EDFF):
-one black gas strut with a chrome rod lying diagonally from the lower left to the upper right, next to a steel tape measure partly extended along it (the tape has NO numbers or text, plain yellow tape with simple tick marks only).
-Soft studio light, soft shadows, sharp focus.
-Keep the lower right corner empty and calm.
-No text, no numbers, no logos.
-4:3 composition, 1536x1024.
-```
-
-### 3.7 Для будущих категорий (по презентации заказчика)
-Тот же шаблон, что в 3.5, — меняется только предмет:
-```
-Photorealistic e-commerce product photo on a very light grey-blue seamless studio background (#EEF3FB): {ПРЕДМЕТ}, neatly arranged on a diagonal, soft studio light from the upper left, soft realistic shadows, sharp focus. No text, no labels, no logos. 4:3 composition, 1536x1024.
-```
-
-| Категория | Файл | {ПРЕДМЕТ} |
-|---|---|---|
-| Бачки омывателя | `cat-washer.png` | `a translucent white windshield washer fluid reservoir with a blue cap and a small electric pump attached` |
-| Комплекты фильтров для ТО | `cat-filters.png` | `a car service filter kit: a dark blue oil filter, a white pleated air filter panel and a cabin filter, arranged together` |
-| Стойки стабилизатора | `cat-links.png` | `a pair of car stabilizer link rods with ball joints, black rubber boots and nuts` |
-| Тормозные диски и колодки | `cat-brakes.png` | `a ventilated steel brake disc with a pair of brake pads leaning against it` |
+**Логотип.** Нужен векторный файл (SVG, PDF или AI) от того, кто рисовал логотип. Сейчас на сайте логотип, аккуратно вырезанный из присланных картинок: на экране он чёткий, а для печати и вывески нужен вектор.
 
 ---
 
-## 4. Фото в боковой колонке главной (как на IMG_1667 слева)
+## 5. Как это легло в дизайн
 
-На примере под меню «Каталог продукции» — вертикальное фото упора под капотом.
-Загружать: **Админка → Страницы → Главная → «Фото в боковой колонке»**.
-Размер: **1024×1536** (вертикаль), обычный фон.
-Файл: `side-hood.png`
-```
-Vertical photorealistic close-up: a raised car hood held by a black gas strut with a chrome rod, the strut runs diagonally through the frame and is in sharp focus.
-Below it the clean modern engine bay softly out of focus, above it a soft blurred sky. Bright soft daylight, cool neutral and light blue tones.
-No emblems, no text, no logos.
-Vertical 2:3, 1024x1536.
-```
-
----
-
-## 5. «О компании» на главной
-
-На примере — фасад здания с вывеской. Нарисованный «наш офис» — неправда о компании, так делать нельзя. Варианты:
-- **Лучше всего — реальное фото** склада, стеллажей с товаром или входа на Граничной, 36. Без людей (или с их согласия).
-- Если реального фото пока нет, можно нейтральную картинку, которая не выдаётся за «наш склад»:
-
-Загружать: **Админка → Страницы → Главная → «Фото склада или офиса»**. Размер **1536×1024**.
-```
-Photorealistic interior of a clean, bright auto parts storage room: tall light-grey metal shelves with neatly stacked plain white and kraft cardboard boxes, a few black gas struts in an open box in the foreground (soft focus), cool daylight, light blue and white color grading, shallow depth of field.
-No text, no labels on boxes, no logos, no people.
-3:2, 1536x1024.
-```
-
----
-
-## 6. Значки и иллюстрации
-
-Значки (преимущества, контакты, меню) на сайте — линейные, как на IMG_1667, и рисуются кодом. **Картинки для них не нужны.**
-
----
-
-## 7. Фото товаров — только реальные
-
-### Как снять на телефон
-- Белый лист ватмана (или фотобокс), дневной свет из окна сбоку, без вспышки.
-- Телефон на уровне детали, 2-кратный зум (меньше искажений).
-- Обязательные ракурсы: деталь целиком по диагонали; оба крепления крупно; маркировка или номер на корпусе крупно; комплект целиком (упоры — пара).
-- Вертикальный кадр 3:4, от 2000 точек по длинной стороне.
-
-### Убрать фон с реального фото в ChatGPT
-Загрузите фото и напишите:
-```
-Remove the background from this photo and make it truly transparent.
-Do NOT change, redraw, smooth, straighten or "improve" the product in any way — keep its exact shape, length, proportions, holes, threads, markings and colors.
-Keep a soft natural contact shadow only if it looks realistic, otherwise no shadow.
-Output: PNG with alpha channel, same resolution.
-```
-Обязательно сравните результат с оригиналом: если что-то изменилось (длина, форма креплений, надписи), берите оригинал.
-
----
-
-## 8. Логотипы — не генерировать
-
-LIFTAUTOPRO и AUTOPLASTIC — товарные знаки правообладателей. Нужны файлы от владельцев: SVG, PDF или PNG с прозрачным фоном. Логотип AUTOPLASTIC уже вырезан из присланных фото. Логотип AVTO-M лучше получить в векторе (SVG) — сейчас используется PNG.
-
----
-
-## Чек-лист перед загрузкой
-
-- [ ] Смотрите в 100 % масштабе: **нет букв, цифр, логотипов**, эмблем на машине, номеров (нейросеть часто дорисовывает их мелко).
-- [ ] Прозрачный фон — **настоящий**: в просмотрщике видна «шахматка» программы, а не нарисованная.
-- [ ] Вокруг вырезанных деталей **нет белой каймы**.
-- [ ] Детали **физически правильные**: у упора один цилиндр, один шток, два крепления; у бачка нет лишних патрубков.
-- [ ] Все картинки серии — **с одинаковым светом и цветом** (сделаны в одном чате).
-- [ ] Для баннера: деталь крупная и по диагонали, без обрезанных краёв.
-
-## Сводная таблица
-
-| № | Что | Файл | Размер | Фон | Куда в админке |
-|---|---|---|---|---|---|
-| 1.1 | Упор крупно | `banner-strut-single.png` | 1536×1024 | прозрачный | Страницы → Главная → слайд «Газовые упоры» → Товар |
-| 1.2 | Пара упоров | `banner-strut-pair.png` | 1536×1024 | прозрачный | то же (вариант) |
-| 1.3 | Бачок | `banner-tank.png` | 1536×1024 | прозрачный | слайд «Расширительные бачки» → Товар |
-| 1.4 | Упор + бачок | `banner-combo.png` | 1536×1024 | прозрачный | слайд «Подбор» → Товар |
-| 2.1 | Фон баннера ПК | `banner-bg-desktop.png` | 1536×1024 | светлый | каждый слайд → Фон для компьютера |
-| 2.2 | Фон баннера телефон | `banner-bg-mobile.png` | 1024×1536 | светлый | каждый слайд → Фон для телефона |
-| 3.1–3.6 | Фото категорий | `cat-*.png` | 1536×1024 | фото | Категории → Фото категории |
-| 4 | Боковое фото | `side-hood.png` | 1024×1536 | фото | Страницы → Главная → Фото в боковой колонке |
-| 5 | О компании | реальное фото | 1536×1024 | фото | Страницы → Главная → Фото склада или офиса |
-| 7 | Товары | реальные фото | 3:4, от 2000 | белый | Товары → товар → Фото |
+- Баннер: светлый голубой фон, справа деталь на прозрачном фоне. Она плавает и чуть следует за курсором. Слайды с заголовком в фирменном наклонном шрифте, как в презентации.
+- Плитки каталога: деталь «выезжает» из правого нижнего угла белой карточки, как на концепте IMG_1789.
+- Карточки «Подбор по параметрам» и «Оставить заявку» с 3D-иллюстрацией на мягком сиреневом пятне. Пятно рисует сайт, картинка — только сам объект.
+- Обложки разделов: фото на всю ширину, заголовок белым слева поверх затемнения.
+- Пустые состояния — та же серия 3D-объектов. Человек видит понятную картинку и кнопки «Что делать дальше».
+- Превью для соцсетей и мессенджеров (`og-default.jpg`) сайт уже собрал из логотипа и картинки «упор + бачок».
