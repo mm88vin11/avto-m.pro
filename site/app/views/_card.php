@@ -17,7 +17,7 @@ $hasMp = $p['wb_url'] || $p['ozon_url'];
 <article class="pc<?= $view === 'list' ? ' pc-row' : '' ?>" data-reveal data-product="<?= (int)$p['id'] ?>">
   <a class="pc-img" href="<?= h($url) ?>" tabindex="-1" aria-hidden="true">
     <?= picture($ph, $p['name'], $view === 'list' ? '220px' : '(max-width: 560px) 92vw, (max-width: 1100px) 45vw, 290px', !empty($eager)) ?>
-    <?php if ($p['badge']): ?><span class="pc-badge"><?= h($p['badge']) ?></span><?php endif; ?>
+    <?php if ($p['badge']): ?><?php $bl = mb_strtolower($p['badge']); $bc = str_contains($bl, 'нов') ? ' b-new' : (str_contains($bl, 'акци') ? ' b-sale' : (str_contains($bl, 'хит') ? ' b-hit' : '')); ?><span class="pc-badge<?= $bc ?>"><?= h($p['badge']) ?></span><?php endif; ?>
   </a>
   <button class="pc-cmp" type="button" data-compare="<?= (int)$p['id'] ?>" aria-pressed="false" aria-label="Добавить к сравнению"><?= icon('compare') ?></button>
   <div class="pc-body">

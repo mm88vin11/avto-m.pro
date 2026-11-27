@@ -58,7 +58,7 @@ try {
         try { q('INSERT INTO clicks (day, product_id, mp, n) VALUES (?, ?, ?, 1) ON CONFLICT(day, product_id, mp) DO UPDATE SET n = n + 1', [date('Y-m-d'), $id, $mp]); } catch (Throwable $e) {}
       }
       header('X-Robots-Tag: noindex, nofollow');
-      redirect($url, 302);
+      redirect(mp_tagged($url), 302);
     case 'robots.txt': require APP_DIR . '/lib/seo_files.php'; robots_txt(); break;
     case 'sitemap.xml': require APP_DIR . '/lib/seo_files.php'; sitemap_xml(); break;
     case 'site.webmanifest': require APP_DIR . '/lib/seo_files.php'; webmanifest(); break;

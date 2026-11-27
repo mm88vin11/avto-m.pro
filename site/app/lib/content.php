@@ -42,7 +42,7 @@ function site_defaults() {
     'yandex_verification' => '',
     'wb_store_url' => '',
     'ozon_store_url' => '',
-    'vk_url' => '', 'tg_url' => '', 'max_url' => '',
+    'vk_url' => '', 'tg_url' => '', 'max_url' => '', 'mp_tags' => 'utm_source=avto-m.pro&utm_medium=referral&utm_campaign=site',
     'bodies' => ['Седан', 'Хэтчбек', 'Универсал', 'Лифтбек', 'Кроссовер', 'Минивэн', 'Компактвэн', 'Фургон', 'Купе'],
     'lead_statuses' => ['new' => 'Новая', 'work' => 'В работе', 'wait' => 'Ждём клиента', 'done' => 'Выполнена', 'cancel' => 'Отменена'],
     'consent_version' => '2026-11-26',

@@ -116,7 +116,7 @@ function mp_url_ok($url, $mp) {
   foreach ($allowed as $d) if ($host === $d || substr($host, -strlen('.' . $d)) === '.' . $d) return true;
   return false;
 }
-/** Убираем рекламные и трекинговые метки из ссылки маркетплейса */
+/** Убираем служебные метки поиска маркетплейса. Метки utm_* оставляем: ими WB и Ozon считают внешний трафик продавца */
 function mp_clean($url) {
   $url = trim((string)$url);
   if ($url === '') return '';
@@ -124,10 +124,18 @@ function mp_clean($url) {
   if (!$p) return $url;
   $q = [];
   if (!empty($p['query'])) parse_str($p['query'], $q);
-  foreach (['at', 'sh', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'from', 'asb', 'asb2', 'keywords', 'targetUrl'] as $k) unset($q[$k]);
+  foreach (['at', 'sh', 'from', 'asb', 'asb2', 'keywords', 'targetUrl'] as $k) unset($q[$k]);
   $s = ($p['scheme'] ?? 'https') . '://' . ($p['host'] ?? '') . ($p['path'] ?? '');
   if ($q) $s .= '?' . http_build_query($q);
   return $s;
+}
+
+/** Метки перехода с сайта (Настройки → «Метки переходов»), если в ссылке своих меток нет */
+function mp_tagged($url) {
+  $tags = trim((string)site('mp_tags'), " ?&");
+  if ($tags === '' || preg_match('~[?&]utm_source=~', $url)) return $url;
+  parse_str($tags, $t); $t = array_filter($t, fn($v, $k) => preg_match('~^utm_(source|medium|campaign|content|term)$~', $k) && is_string($v) && $v !== '', ARRAY_FILTER_USE_BOTH);
+  return $t ? $url . (strpos($url, '?') === false ? '?' : '&') . http_build_query($t) : $url;
 }
 
 function log_err($msg) { error_log('[avtom] ' . $msg); }

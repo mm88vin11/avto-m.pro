@@ -56,33 +56,43 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 <div class="preview-bar" role="status"><?= icon('info') ?> Предпросмотр: показан черновик. Посетители видят опубликованную версию. <a href="/admin">Вернуться в админку</a></div>
 <?php endif; ?>
 
-<div class="hd-strip">
-  <div class="wrap hd-strip-in">
-    <span><?= icon('pin') ?><?= h($s['address_short']) ?></span>
-    <span><?= icon('clock') ?><?= h($s['hours']) ?></span>
-    <nav aria-label="Покупателям">
-      <a href="/how-to-buy"<?= $navActive('/how-to-buy') ?>>Доставка и покупка</a>
-      <a href="/partners"<?= $navActive('/partners') ?>>Автосервисам</a>
-      <a href="/contacts"<?= $navActive('/contacts') ?>>Контакты</a>
-      <button type="button" class="hd-callback" data-lead="question" data-title="Перезвоните мне"><?= icon('phone') ?>Перезвоните мне</button>
-    </nav>
-  </div>
-</div>
-<header class="hd" id="header">
-  <div class="wrap hd-in">
+<header class="hd" id="top">
+  <div class="wrap hd-top">
     <a class="logo" href="/" aria-label="AVTO-M — на главную"><span class="logo-img" role="img" aria-label="AVTO-M. Качество по доступной цене"></span></a>
-    <button class="hd-cat" type="button" aria-expanded="false" aria-controls="mega" data-mega><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Каталог</span></button>
+    <p class="hd-slogan"><?= h($s['header_note']) ?></p>
+    <span class="hd-info"><?= icon('pin') ?><span><?= h($s['address_short']) ?><small><?= h($s['region']) ?></small></span></span>
+    <span class="hd-info"><?= icon('clock') ?><span><?= h($s['hours']) ?><small>Перед визитом позвоните</small></span></span>
+    <div class="hd-contacts">
+      <a class="hd-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= icon('phone') ?><b><?= h($s['phone']) ?></b></a>
+      <a class="hd-mail" href="mailto:<?= h($s['email']) ?>"><?= icon('mail') ?><?= h($s['email']) ?></a>
+    </div>
+    <a class="hd-ic hd-ic-call" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click" aria-label="Позвонить"><?= icon('phone') ?></a>
+  </div>
+  <nav class="hd-nav" aria-label="Основное меню">
+    <div class="wrap hd-nav-in">
+      <a href="/"<?= $navActive('/') ?>>Главная</a>
+      <a href="/catalog"<?= $navActive('/catalog') ?>>Продукция</a>
+      <a href="/podbor"<?= $navActive('/podbor') ?>>Подбор по авто</a>
+      <a href="/about"<?= $navActive('/about') ?>>О компании</a>
+      <a href="/partners"<?= $navActive('/partners') ?>>Автосервисам</a>
+      <a href="/how-to-buy"<?= $navActive('/how-to-buy') ?>>Как купить</a>
+      <a href="/contacts"<?= $navActive('/contacts') ?>>Контакты</a>
+    </div>
+  </nav>
+</header>
+<div class="hbar" id="header">
+  <div class="wrap hbar-in">
+    <button class="hd-cat" type="button" aria-expanded="false" aria-controls="mega" data-mega><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Каталог продукции</span></button>
     <form class="search" action="/search" method="get" role="search" data-search>
       <label class="sr" for="q">Поиск по названию, артикулу или номеру</label>
       <?= icon('search', 'search-i') ?>
-      <input id="q" name="q" type="search" placeholder="Название, артикул или номер детали" autocomplete="off" value="<?= h($_GET['q'] ?? '') ?>" aria-autocomplete="list" aria-controls="suggest" enterkeyhint="search">
-      <button class="search-go" type="submit">Найти</button>
+      <input id="q" name="q" type="search" placeholder="Поиск по названию, артикулу или номеру детали" autocomplete="off" value="<?= h($_GET['q'] ?? '') ?>" aria-autocomplete="list" aria-controls="suggest" enterkeyhint="search">
+      <button class="search-go" type="submit" aria-label="Найти"><?= icon('search') ?></button>
       <div class="suggest" id="suggest" role="listbox" hidden></div>
     </form>
-    <a class="hd-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><b><?= h($s['phone']) ?></b><small><?= h($s['hours_short']) ?></small></a>
-    <a class="hd-ic hd-ic-call" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click" aria-label="Позвонить"><?= icon('phone') ?></a>
-    <a class="hd-ic hd-ic-cmp" href="/compare" aria-label="Сравнение"><?= icon('compare') ?><span>Сравнить</span><b class="badge" data-count="compare" hidden>0</b></a>
+    <a class="hd-ic hd-ic-cmp" href="/compare" aria-label="Сравнение"><?= icon('compare') ?><span>Сравнение</span><b class="badge" data-count="compare" hidden>0</b></a>
     <a class="hd-ic hd-ic-cart" href="/cart" aria-label="Корзина" data-cart-target><?= icon('bag') ?><span>Корзина</span><b class="badge" data-count="cart" hidden>0</b></a>
+    <span class="garage" data-garage hidden></span>
   </div>
   <div class="mega" id="mega" hidden>
     <div class="wrap mega-in">
@@ -106,17 +116,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
       </div>
     </div>
   </div>
-</header>
-<nav class="hd-nav" aria-label="Основное меню">
-  <div class="wrap hd-nav-in">
-    <a href="/podbor"<?= $navActive('/podbor') ?>><?= icon('car') ?>Подбор по авто</a>
-    <?php foreach ($cats as $c): ?><a href="/catalog/<?= h($c['slug']) ?>"<?= $navActive('/catalog/' . $c['slug']) ?>><?= h($c['name']) ?></a><?php endforeach; ?>
-    <a href="/about"<?= $navActive('/about') ?>>О компании</a>
-    <a href="/partners"<?= $navActive('/partners') ?>>Преимущества</a>
-    <a href="/contacts"<?= $navActive('/contacts') ?>>Контакты</a>
-    <span class="garage" data-garage hidden></span>
-  </div>
-</nav>
+</div>
 
 <main id="main" tabindex="-1">
 <?= $content ?>
