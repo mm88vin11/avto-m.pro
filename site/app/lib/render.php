@@ -5,7 +5,8 @@ $GLOBALS['META'] = [];
 
 // Встроенный скрипт в <head>. Страница всегда открывается с начала, в том числе при перезагрузке:
 // браузер сам прокрутку не восстанавливает. Для «Назад» место запоминаем сами и возвращаем до первой отрисовки.
-const JS_BOOT = "document.documentElement.classList.add('js');try{history.scrollRestoration='manual';var n=performance.getEntriesByType('navigation')[0],k='y:'+location.pathname+location.search;if(n&&n.type==='back_forward'){var y=+sessionStorage.getItem(k);if(y)addEventListener('DOMContentLoaded',function(){scrollTo(0,y)})}addEventListener('pagehide',function(){sessionStorage.setItem(k,Math.round(scrollY))})}catch(e){}";
+// Ленивые картинки помечаются загруженными (CSS проявляет их плавно) — слушатель стоит до первой картинки.
+const JS_BOOT = "document.documentElement.classList.add('js');var L=function(e){var t=e.target;if(t.tagName==='IMG')t.classList.add('is-loaded')};document.addEventListener('load',L,true);document.addEventListener('error',L,true);try{history.scrollRestoration='manual';var n=performance.getEntriesByType('navigation')[0],k='y:'+location.pathname+location.search;if(n&&n.type==='back_forward'){var y=+sessionStorage.getItem(k);if(y)addEventListener('DOMContentLoaded',function(){scrollTo(0,y)})}addEventListener('pagehide',function(){sessionStorage.setItem(k,Math.round(scrollY))})}catch(e){}";
 function js_boot_hash() { return "'sha256-" . base64_encode(hash('sha256', JS_BOOT, true)) . "'"; }
 
 function site_headers() {

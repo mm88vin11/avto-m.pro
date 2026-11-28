@@ -145,14 +145,10 @@ function seed_all(PDO $pdo) {
 
   /* --- главная: картинки баннера и блоков --- */
   $home = content_defaults('home');
-  $car = $photo('tile-car');
   $home['slides'] = seed_banner_slides($photo);
   $home['cards']['params_img'] = $photo('tile-params');
   $home['cards']['lead_img'] = $photo('tile-lead');
-  $home['categories']['pick_img'] = $car;
-  $home['about']['photo_id'] = $photo('photo-side-hood');
-  $home['about']['photo2_id'] = $coverTail;
-  $home['signs']['photo_id'] = $photo('photo-hood') ?: $coverHood;
+  // плитка «Подбор по автомобилю» — 3D-машина из «Картинок сайта»; фото машины с открытым багажником не ставим
   $tanksCover = $photo('cover-tanks');
   $pop = content_defaults('popup'); $pop['img_id'] = $home['cards']['lead_img'];
   $pdo->prepare('REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, ?)')->execute(['content.popup', json_encode($pop, JSON_UNESCAPED_UNICODE), $t]);
@@ -226,3 +222,47 @@ function seed_upgrade_2611() {
     setting_save('content.home', $home);
   }
 }
+
+/**
+ * Правки 28.11: короче тексты главной, баннер листается раз в 3 секунды, блок «Когда пора менять» уходит с главной
+ * (остаётся в админке). Меняем только то, что совпадает со старым стартовым текстом, — правки владельца не трогаем.
+ */
+function seed_upgrade_2811() {
+  $fix = function ($key, callable $fn) {
+    $saved = setting_raw('content.' . $key);
+    if (is_array($saved)) setting_save('content.' . $key, $fn($saved));
+    $d = q_val("SELECT data FROM drafts WHERE entity = 'content' AND entity_id = ?", [$key]);
+    if ($d && is_array($dd = json_decode($d, true))) q("UPDATE drafts SET data = ? WHERE entity = 'content' AND entity_id = ?", [json_encode($fn($dd), JSON_UNESCAPED_UNICODE), $key]);
+  };
+  $was = function (&$arr, $path, $old, $new) {
+    $ref = &$arr; foreach (explode('.', $path) as $p) { if (!is_array($ref) || !array_key_exists($p, $ref)) return; $ref = &$ref[$p]; }
+    if ($ref === $old) $ref = $new;
+  };
+  $fix('home', function ($h) use ($was) {
+    if (!isset($h['slider_sec'])) $h['slider_sec'] = '3';
+    $was($h, 'cards.params_text', 'По марке, модели и году — или по длине и усилию', 'По длине и усилию');
+    $was($h, 'cards.lead_text', 'Не уверены, что подойдёт? Перезвоним и поможем', 'Перезвоним и подберём');
+    $was($h, 'picker.lead', 'Выберите марку, модель и год выпуска — покажем подходящие детали.', 'Покажем детали, которые подходят');
+    $was($h, 'quiz.title', 'Не знаете, что искать? Ответьте на пару вопросов', 'Не знаете, что искать?');
+    $was($h, 'quiz.lead', 'Покажем детали, которые подходят к вашей машине. Можно начать с признаков поломки или с номера со старой детали.', 'Ответьте на пару вопросов.');
+    $was($h, 'about.text', 'AVTO-M продаёт автозапчасти для автовладельцев и автосервисов: газовые упоры, расширительные бачки, крепления, а дальше — новые категории. Наш принцип простой: качественная деталь не должна стоить дорого. Работаем напрямую с производителями и помогаем с подбором.', 'Продаём автозапчасти для автовладельцев и автосервисов. Работаем напрямую с производителями, поэтому держим доступную цену и отвечаем за качество.');
+    if (!empty($h['blocks'])) foreach ($h['blocks'] as &$b) if (($b['id'] ?? '') === 'signs') $b['on'] = false;
+    unset($b);
+    // фото машины с открытым багажником в плитке подбора заменяется 3D-машиной
+    $pi = (int)($h['categories']['pick_img'] ?? 0);
+    if ($pi && in_array(q_val('SELECT orig_name FROM photos WHERE id = ?', [$pi]), ['tile-car.png', 'gen3-car.png'], true)) $h['categories']['pick_img'] = null;
+    return $h;
+  });
+  $fix('legal_cookies', function ($c) {
+    if (isset($c['body'])) $c['body'] = str_replace(
+      ['Карта на странице контактов загружается только после нажатия кнопки «Показать карту». После этого «Яндекс Карты» могут установить свои cookie.', 'Он подключается, только если вы нажали «Разрешить» в окне о cookie.'],
+      ['На странице «Контакты» встроена карта сервиса «Яндекс Карты» (ООО «Яндекс»), чтобы было видно, как нас найти. Карта загружается, когда вы открываете эту страницу, и может установить свои cookie.', 'Он подключается, только если вы нажали «Принять» в плашке о cookie.'],
+      $c['body']);
+    return $c;
+  });
+  $fix('about', function ($a) use ($was) {
+    $was($a, 'lead', 'AVTO-M продаёт автозапчасти и автотовары для автовладельцев и профессионалов. Девиз — «Качество по доступной цене».', 'Продаём автозапчасти и автотовары для автовладельцев и автосервисов.');
+    return $a;
+  });
+}
+

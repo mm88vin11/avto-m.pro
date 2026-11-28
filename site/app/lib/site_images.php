@@ -15,6 +15,9 @@ function site_image_slots() {
       'favicon' => ['Значок сайта (вкладка браузера, ярлык на телефоне)', '/assets/icons/icon-512.png', 'favicon', 'PNG на прозрачном фоне, квадрат от 512×512; маленькие размеры сделаются сами'],
       'og' => ['Превью ссылки в мессенджерах и соцсетях', '/assets/img/og-default.jpg', 'og', 'Картинка 1200×630 (обрежется по центру до этих пропорций)'],
     ],
+    'Блок «О компании»' => [
+      'about-building' => ['Здание магазина (главная и страница «О компании»)', '/assets/img/about/building.webp', 'wide', 'PNG на прозрачном фоне, ширина от 1200 точек'],
+    ],
     '3D-значки (преимущества, карточки, сотрудничество)' => [
       'ui-shield' => $icon('shield', 'Щит — гарантия, качество'),
       'ui-truck' => $icon('truck', 'Грузовик — доставка'),
@@ -81,7 +84,7 @@ function site_image_save($key, $path) {
   if (!$info || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) throw new RuntimeException('Нужен файл JPG, PNG или WebP.');
   if (filesize($path) > IMG_MAX_BYTES) throw new RuntimeException('Файл больше 20 МБ.');
   [$w, $h] = $info;
-  $min = ['logo' => 200, 'favicon' => 128, 'og' => 600, 'icon' => 96, 'art' => 200][$kind];
+  $min = ['logo' => 200, 'favicon' => 128, 'og' => 600, 'icon' => 96, 'art' => 200, 'wide' => 600][$kind];
   if (max($w, $h) < $min) throw new RuntimeException("Картинка слишком маленькая — нужно хотя бы $min точек по большей стороне.");
   @ini_set('memory_limit', '512M');
   $src = $info[2] === IMAGETYPE_JPEG ? @imagecreatefromjpeg($path) : ($info[2] === IMAGETYPE_PNG ? @imagecreatefrompng($path) : @imagecreatefromwebp($path));
@@ -125,7 +128,7 @@ function site_image_save($key, $path) {
     foreach ([16, 32, 48] as $i => $s) { $ico .= pack('CCCCvvVV', $s, $s, 0, 0, 1, 32, strlen($blobs[$i]), $off); $off += strlen($blobs[$i]); $data .= $blobs[$i]; }
     file_put_contents("$dir/$base-ico.ico", $ico . $data);
   } else {
-    $max = ['logo' => 880, 'icon' => 256, 'art' => 480][$kind];
+    $max = ['logo' => 880, 'icon' => 256, 'art' => 480, 'wide' => 1400][$kind];
     $k = min(1, $max / max($w, $h));
     $nw = max(1, (int)round($w * $k)); $nh = max(1, (int)round($h * $k));
     $dst = imagecreatetruecolor($nw, $nh);
@@ -156,3 +159,13 @@ function site_image_forget($key) {
   $stem = preg_replace('~\.(png|webp|jpg)$~', '', $map[$key]);
   foreach (glob(site_images_dir() . '/' . $stem . '*') ?: [] as $f) @unlink($f);
 }
+
+/** srcset для картинки оформления: у файла по умолчанию есть уменьшенная копия «-760» */
+function site_img_srcset($key) {
+  $u = site_img($key);
+  $path = strtok($u, '?');
+  $small = preg_replace('~\.webp$~', '-760.webp', $path);
+  if ($small !== $path && is_file(WEB_DIR . $small)) return $small . ' 760w, ' . $u . ' 1400w';
+  return '';
+}
+

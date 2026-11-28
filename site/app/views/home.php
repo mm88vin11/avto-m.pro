@@ -25,20 +25,22 @@ foreach (array_keys(home_block_names()) as $bn) if (!in_array($bn, $have, true))
 $blkOn = []; foreach ($c['blocks'] as $bb) $blkOn[$bb['id']] = !empty($bb['on']);
 $cc = $c['cards']; $pi = !empty($cc['params_img']) ? photo_row($cc['params_img']) : null; $li = !empty($cc['lead_img']) ? photo_row($cc['lead_img']) : null;
 $pimg = !empty($c['categories']['pick_img']) ? photo_row($c['categories']['pick_img']) : null;
-$sph = !empty($c['about']['photo2_id']) ? photo_row($c['about']['photo2_id']) : (!empty($c['signs']['photo_id']) ? photo_row($c['signs']['photo_id']) : null);
-$ab = $c['about']; $ap = !empty($ab['photo_id']) ? photo_row($ab['photo_id']) : (!empty($ab['photo2_id']) ? photo_row($ab['photo2_id']) : null);
+$sec = (int)($c['slider_sec'] ?? 3);
+// плитка каталога: картинка, название в две строки, одна короткая подпись — у всех плиток одинаковая высота
+$tile = function ($tag, $attrs, $title, $sub, $pic) {
+  return '<' . $tag . ' class="cc" ' . $attrs . '><span class="cc-pic">' . $pic . '</span><span class="cc-t">' . h($title) . '</span><span class="cc-n">' . h($sub) . '</span></' . $tag . '>';
+};
+$tileImg = fn($ph, $w = 400) => $ph ? '<img class="' . (!empty($ph['alpha']) ? 'is-cut' : 'is-photo') . '" src="' . h(img_url($ph, $w)) . '" srcset="' . h(img_url($ph, 400)) . ' 400w, ' . h(img_url($ph, 800)) . ' 800w" sizes="(max-width: 599px) 45vw, 200px" alt="" loading="lazy" decoding="async">' : '';
 ?>
 <div class="wrap hm">
   <aside class="hm-side" aria-label="Каталог и помощь">
     <nav class="sb-cat" aria-label="Каталог продукции">
-      <p class="sb-cat-h"><?= icon('list') ?>Каталог продукции</p>
       <ul>
         <?php foreach ($cats as $cat): ?><li><a href="/catalog/<?= h($cat['slug']) ?>"><span><?= h($cat['name']) ?></span><small><?= (int)$cat['cnt'] ?></small><?= icon('chevron-r') ?></a></li><?php endforeach; ?>
         <li><a href="/podbor"><span>Подбор по автомобилю</span><?= icon('chevron-r') ?></a></li>
         <li><a href="/catalog"><span>Весь каталог</span><?= icon('chevron-r') ?></a></li>
       </ul>
     </nav>
-    <?php if ($sph): ?><a class="sb-photo" href="<?= h($c['signs']['url'] ?: '/podbor') ?>"><img src="<?= h(img_url($sph, 800)) ?>" srcset="<?= h(img_url($sph, 400)) ?> 400w, <?= h(img_url($sph, 800)) ?> 800w" sizes="290px" alt="Открытый капот держит газовый упор" loading="lazy"></a><?php endif; ?>
     <?php if (!empty($blkOn['advantages'])): ?>
     <section class="sb-adv" aria-labelledby="sb-adv-t">
       <h2 class="sb-h" id="sb-adv-t">Преимущества</h2>
@@ -46,7 +48,7 @@ $ab = $c['about']; $ap = !empty($ab['photo_id']) ? photo_row($ab['photo_id']) : 
     </section>
     <?php endif; ?>
     <section class="sb-help" aria-labelledby="sb-help-t">
-      <img class="sb-help-art" src="<?= h(site_img('ui-support')) ?>" alt="" width="96" height="96" loading="lazy">
+      <img class="sb-help-art" src="<?= h(site_img('ui-support')) ?>" alt="" width="84" height="84" loading="lazy">
       <h2 id="sb-help-t">Есть вопросы?</h2>
       <p><?= h($c['help']['text']) ?></p>
       <a class="sb-help-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= h($s['phone']) ?></a>
@@ -57,7 +59,7 @@ $ab = $c['about']; $ap = !empty($ab['photo_id']) ? photo_row($ab['photo_id']) : 
   <div class="hm-main">
   <?php if ($slides): $n = count($slides); $allBanners = !array_filter($slides, fn($x) => empty($x['banner_id'])); ?>
   <?php if (!empty($slides[0]['banner_id'])): ?><h1 class="sr"><?= h($c['seo_h1'] ?: 'Автозапчасти с подбором по автомобилю') ?></h1><?php endif; ?>
-  <div class="bnr<?= $allBanners ? ' is-banners' : '' ?>" role="region" aria-roledescription="карусель" aria-label="Предложения магазина" data-slider>
+  <div class="bnr<?= $allBanners ? ' is-banners' : '' ?>" role="region" aria-roledescription="карусель" aria-label="Предложения магазина" data-slider style="--sec: <?= max(1, $sec) ?>s"<?= $sec ? '' : ' data-manual' ?>>
     <div class="bnr-view">
       <div class="bnr-track" data-slider-track aria-live="off">
       <?php foreach ($slides as $i => $sl):
@@ -107,49 +109,17 @@ $ab = $c['about']; $ap = !empty($ab['photo_id']) ? photo_row($ab['photo_id']) : 
   <?php endif; ?>
 
   <?php if (!empty($blkOn['categories']) || !empty($blkOn['cards'])): ?>
-  <section class="hm-sec" aria-labelledby="cat-title">
+  <section class="hm-cats" aria-labelledby="cat-title">
     <div class="sec-h"><h2 id="cat-title"><?= h($c['categories']['title']) ?></h2><a class="pill-link" href="/catalog">Весь каталог<?= icon('arrow') ?></a></div>
     <div class="cc-grid">
-      <?php if (!empty($blkOn['categories'])): foreach ($cats as $k => $cat): $ph = $catPhoto($cat); ?>
-      <a class="cc" href="/catalog/<?= h($cat['slug']) ?>" data-reveal style="--d:<?= $k * 60 ?>ms">
-        <span class="cc-t"><?= h($cat['name']) ?></span>
-        <span class="cc-n"><?= (int)$cat['cnt'] ?> <?= plural($cat['cnt'], 'товар', 'товара', 'товаров') ?></span>
-        <span class="cc-pic"><?php if ($ph): ?><img class="<?= !empty($ph['alpha']) ? 'is-cut' : 'is-photo' ?>" src="<?= h(img_url($ph, 800)) ?>" alt="" loading="lazy"><?php endif; ?></span>
-        <span class="cc-btn">Узнать подробнее<?= icon('chevron-r') ?></span>
-      </a>
-      <?php endforeach; ?>
-      <a class="cc" href="/podbor" data-reveal style="--d:<?= count($cats) * 60 ?>ms">
-        <span class="cc-t">Подбор по автомобилю</span>
-        <span class="cc-n">Марка, модель, год — покажем, что подходит</span>
-        <span class="cc-pic"><?php if ($pimg): ?><img class="is-cut" src="<?= h(img_url($pimg, 800)) ?>" alt="" loading="lazy"><?php else: ?><?= icon('car') ?><?php endif; ?></span>
-        <span class="cc-btn">Подобрать<?= icon('chevron-r') ?></span>
-      </a>
-      <?php endif; ?>
-      <?php if (!empty($blkOn['cards'])): ?>
-      <a class="cc" href="<?= h($cc['params_url']) ?>" data-reveal style="--d:<?= (count($cats) + 1) * 60 ?>ms">
-        <span class="cc-t"><?= h($cc['params_title']) ?></span>
-        <span class="cc-n"><?= h($cc['params_text']) ?></span>
-        <span class="cc-pic"><?php if ($pi): ?><img class="is-cut" src="<?= h(img_url($pi, 400)) ?>" srcset="<?= h(img_url($pi, 400)) ?> 400w, <?= h(img_url($pi, 800)) ?> 800w" sizes="200px" alt="" loading="lazy"><?php else: ?><?= icon('filter') ?><?php endif; ?></span>
-        <span class="cc-btn"><?= h($cc['params_btn']) ?><?= icon('chevron-r') ?></span>
-      </a>
-      <button class="cc cc-lead" type="button" data-lead="pick" data-title="Помощь с подбором" data-reveal style="--d:<?= (count($cats) + 2) * 60 ?>ms">
-        <span class="cc-t"><?= h($cc['lead_title']) ?></span>
-        <span class="cc-n"><?= h($cc['lead_text']) ?></span>
-        <span class="cc-pic"><?php if ($li): ?><img class="is-cut" src="<?= h(img_url($li, 400)) ?>" srcset="<?= h(img_url($li, 400)) ?> 400w, <?= h(img_url($li, 800)) ?> 800w" sizes="200px" alt="" loading="lazy"><?php else: ?><?= icon('chat') ?><?php endif; ?></span>
-        <span class="cc-btn"><?= h($cc['lead_btn']) ?><?= icon('chevron-r') ?></span>
-      </button>
-      <?php endif; ?>
-    </div>
-  </section>
-  <?php endif; ?>
-
-  <?php if (!empty($blkOn['about'])): ?>
-  <section class="hm-sec ab5" aria-labelledby="about-title" data-reveal>
-    <?php if ($ap): ?><div class="ab5-pic"><img src="<?= h(img_url($ap, 800)) ?>" srcset="<?= h(img_srcset($ap)) ?>" sizes="(max-width: 899px) 100vw, 380px" alt="" loading="lazy"></div><?php endif; ?>
-    <div class="ab5-copy">
-      <h2 id="about-title"><?= h($ab['title']) ?></h2>
-      <p><?= h($ab['text']) ?></p>
-      <a class="btn btn-primary" href="/about"><?= h($ab['btn']) ?><?= icon('chevron-r') ?></a>
+      <?php if (!empty($blkOn['categories'])):
+        foreach ($cats as $cat) echo $tile('a', 'href="/catalog/' . h($cat['slug']) . '"', $cat['name'], $cat['cnt'] . ' ' . plural($cat['cnt'], 'товар', 'товара', 'товаров'), $tileImg($catPhoto($cat)));
+        echo $tile('a', 'href="/podbor"', 'Подбор по автомобилю', 'Марка, модель, год', $pimg ? $tileImg($pimg) : '<span class="cc-3d">' . icon3d('car', 160) . '</span>');
+      endif;
+      if (!empty($blkOn['cards'])) {
+        echo $tile('a', 'href="' . h($cc['params_url']) . '"', $cc['params_title'], $cc['params_text'], $pi ? $tileImg($pi) : '<span class="cc-3d">' . icon3d('filter', 160) . '</span>');
+        echo $tile('button', 'type="button" data-lead="pick" data-title="Помощь с подбором"', $cc['lead_title'], $cc['lead_text'], $li ? $tileImg($li) : '<span class="cc-3d">' . icon3d('chat', 160) . '</span>');
+      } ?>
     </div>
   </section>
   <?php endif; ?>
@@ -159,51 +129,61 @@ $ab = $c['about']; $ap = !empty($ab['photo_id']) ? photo_row($ab['photo_id']) : 
 <?php foreach ($c['blocks'] as $blk): if (empty($blk['on'])) continue; switch ($blk['id']):
 
 case 'picker': ?>
-<section class="wrap pick2" aria-labelledby="pick-title">
-  <div class="pick2-card" data-reveal>
-    <div class="pick2-head">
-      <span class="pick2-ic" aria-hidden="true"><?= icon('car') ?></span>
-      <div><h2 id="pick-title"><?= h($c['picker']['title']) ?></h2><p><?= h($c['picker']['lead']) ?></p></div>
-      <div class="garage-inline" data-garage-inline hidden></div>
-    </div>
-    <?php partial('picker', ['id' => 'hp', 'compact' => true]); ?>
+<section class="wrap band band-soft pick2" aria-labelledby="pick-title">
+  <div class="pick2-head">
+    <span class="pick2-ic" aria-hidden="true"><?= icon3d('car', 56) ?></span>
+    <div><h2 id="pick-title"><?= h($c['picker']['title']) ?></h2><p><?= h($c['picker']['lead']) ?></p></div>
+    <div class="garage-inline" data-garage-inline hidden></div>
   </div>
+  <?php partial('picker', ['id' => 'hp', 'compact' => true]); ?>
 </section>
 <?php break;
 
-case 'categories': case 'cards': case 'advantages': case 'about': /* в верхней сетке и боковой колонке */ break;
+case 'categories': case 'cards': /* в верхней сетке */ break;
+
+case 'advantages': /* на компьютере — в левой колонке, на телефоне — здесь */ ?>
+<section class="wrap band band-adv" aria-labelledby="adv-title">
+  <div class="sec-h"><h2 id="adv-title"><?= h($c['advantages']['title']) ?></h2></div>
+  <ul class="adv2"><?php foreach ($c['advantages']['items'] as $a): ?><li><span class="adv2-ic"><?= icon3d($a['icon'] ?? 'check', 48) ?></span><b><?= h($a['title']) ?></b><small><?= h($a['text']) ?></small></li><?php endforeach; ?></ul>
+</section>
+<?php break;
+
+case 'about': $ab = $c['about']; $bset = site_img_srcset('about-building'); ?>
+<section class="wrap band about2" aria-labelledby="about-title">
+  <div class="about2-copy">
+    <h2 id="about-title"><?= h($ab['title']) ?></h2>
+    <p class="about2-motto"><?= h($s['tagline']) ?></p>
+    <p class="about2-text"><?= h($ab['text']) ?></p>
+    <a class="btn btn-primary" href="/about"><?= h($ab['btn']) ?><?= icon('chevron-r') ?></a>
+  </div>
+  <div class="about2-pic"><img src="<?= h(site_img('about-building')) ?>"<?= $bset ? ' srcset="' . h($bset) . '" sizes="(max-width: 899px) 92vw, 640px"' : '' ?> width="1400" height="731" alt="Магазин AVTO-M" loading="lazy" decoding="async"></div>
+</section>
+<?php break;
 
 case 'products':
   $list = array_values($all);
   usort($list, fn($a, $b) => [($b['wb_url'] || $b['ozon_url']) ? 1 : 0, $b['photos'] ? 1 : 0, -$a['sort']] <=> [($a['wb_url'] || $a['ozon_url']) ? 1 : 0, $a['photos'] ? 1 : 0, -$b['sort']]);
   $list = array_slice($list, 0, 8); if (!$list) break; ?>
-<section class="wrap hs" aria-labelledby="prod-title">
-  <div class="hs-head"><h2 id="prod-title"><?= h($c['products']['title']) ?></h2><a class="pill-link" href="/catalog">Все товары<?= icon('arrow') ?></a></div>
-  <div class="grid"><?php foreach ($list as $p) partial('card', ['p' => $p]); ?></div>
+<section class="wrap band" aria-labelledby="prod-title">
+  <div class="sec-h"><h2 id="prod-title"><?= h($c['products']['title']) ?></h2><a class="pill-link" href="/catalog">Все товары<?= icon('arrow') ?></a></div>
+  <div class="grid grid-home"><?php foreach ($list as $p) partial('card', ['p' => $p]); ?></div>
 </section>
 <?php break;
 
-case 'signs': $sg = $c['signs']; $sph = !empty($sg['photo_id']) ? photo_row($sg['photo_id']) : null; ?>
-<section class="wrap hs" aria-labelledby="signs-title">
-  <div class="signs" data-reveal>
-    <?php if ($sph): ?><div class="signs-pic"><img src="<?= h(img_url($sph, 800)) ?>" srcset="<?= h(img_srcset($sph)) ?>" sizes="(max-width: 900px) 100vw, 520px" alt="Открытый капот, крышку держит газовый упор" loading="lazy"></div><?php endif; ?>
-    <div class="signs-copy">
-      <h2 id="signs-title"><?= h($sg['title']) ?></h2>
-      <p class="signs-lead"><?= h($sg['text']) ?></p>
-      <ol class="signs-list"><?php foreach ($sg['items'] as $i => $it): ?><li><span class="signs-n"><?= $i + 1 ?></span><span><b><?= h($it['title']) ?></b><?= h($it['text']) ?></span></li><?php endforeach; ?></ol>
-      <?php if (!empty($sg['note'])): ?><p class="signs-note"><?= icon('info') ?><?= h($sg['note']) ?></p><?php endif; ?>
-      <div class="signs-btns"><a class="btn btn-primary btn-lg" href="<?= h($sg['url']) ?>"><?= h($sg['btn']) ?><?= icon('arrow') ?></a><a class="btn btn-soft btn-lg" href="/podbor#quiz">Подбор за 30 секунд</a></div>
-    </div>
-  </div>
+case 'signs': $sg = $c['signs']; ?>
+<section class="wrap band" aria-labelledby="signs-title">
+  <div class="sec-h"><h2 id="signs-title"><?= h($sg['title']) ?></h2></div>
+  <ol class="signs-list"><?php foreach ($sg['items'] as $i => $it): ?><li><span class="signs-n"><?= $i + 1 ?></span><span><b><?= h($it['title']) ?></b><?= h($it['text']) ?></span></li><?php endforeach; ?></ol>
+  <div class="band-btns"><a class="btn btn-primary" href="<?= h($sg['url']) ?>"><?= h($sg['btn']) ?><?= icon('arrow') ?></a></div>
 </section>
 <?php break;
 
 case 'brands': $brands = array_filter(brands_all(), fn($b) => $b['cnt'] > 0); if (!$brands) break; ?>
-<section class="wrap hs" aria-labelledby="brand-title">
-  <div class="hs-head"><h2 id="brand-title"><?= h($c['brands']['title']) ?></h2></div>
+<section class="wrap band" aria-labelledby="brand-title">
+  <div class="sec-h"><h2 id="brand-title"><?= h($c['brands']['title']) ?></h2></div>
   <div class="brands">
     <?php foreach ($brands as $b): $facts = json_decode($b['facts'] ?: '[]', true); $logo = photo_row($b['logo_photo_id']); ?>
-      <a class="brand-card" href="/brand/<?= h($b['slug']) ?>" data-reveal>
+      <a class="brand-card" href="/brand/<?= h($b['slug']) ?>">
         <span class="brand-mark"><?php if ($logo): ?><img src="<?= h(img_url($logo, 400)) ?>" alt="<?= h($b['name']) ?>" loading="lazy"><?php else: ?><?= h($b['name']) ?><?php endif; ?></span>
         <span class="brand-tag"><?= h($b['tagline']) ?></span>
         <?php if ($facts): ?><span class="brand-facts"><?php foreach (array_slice($facts, 0, 4) as [$k, $v]): ?><span><small><?= h($k) ?></small><b><?= h(preg_replace("~ (°|мм|Н|лет|год|мл)\b~u", "\u{00A0}$1", $v)) ?></b></span><?php endforeach; ?></span><?php endif; ?>
@@ -215,26 +195,38 @@ case 'brands': $brands = array_filter(brands_all(), fn($b) => $b['cnt'] > 0); if
 <?php break;
 
 case 'howto': ?>
-<section class="wrap hs" aria-labelledby="how-title">
-  <div class="hs-head"><h2 id="how-title"><?= h($c['howto']['title']) ?></h2><a class="pill-link" href="/how-to-buy">Подробнее<?= icon('arrow') ?></a></div>
-  <ol class="steps"><?php foreach ($c['howto']['steps'] as $i => $st): ?><li class="step" data-reveal><span class="step-n"><?= $i + 1 ?></span><h3><?= h($st['title']) ?></h3><p><?= h($st['text']) ?></p></li><?php endforeach; ?></ol>
+<section class="wrap band" aria-labelledby="how-title">
+  <div class="sec-h"><h2 id="how-title"><?= h($c['howto']['title']) ?></h2><a class="pill-link" href="/how-to-buy">Подробнее<?= icon('arrow') ?></a></div>
+  <ol class="steps"><?php foreach ($c['howto']['steps'] as $i => $st): ?><li class="step"><span class="step-n"><?= $i + 1 ?></span><h3><?= h($st['title']) ?></h3><p><?= h($st['text']) ?></p></li><?php endforeach; ?></ol>
 </section>
 <?php break;
 
 case 'faq': $faq = content('faq')['items']; if (!$faq) break;
   jsonld(['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => array_map(fn($x) => ['@type' => 'Question', 'name' => $x['q'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $x['a']]], $faq)]); ?>
-<section class="wrap hs" aria-labelledby="faq-title">
-  <div class="hs-head"><h2 id="faq-title"><?= h($c['faq']['title']) ?></h2></div>
-  <div class="faq faq-2"><?php foreach ($faq as $x): ?><details class="faq-item"><summary><span><?= h($x['q']) ?></span><i aria-hidden="true"></i></summary><div class="faq-a"><p><?= h($x['a']) ?></p></div></details><?php endforeach; ?></div>
+<section class="wrap band" aria-labelledby="faq-title">
+  <div class="sec-h"><h2 id="faq-title"><?= h($c['faq']['title']) ?></h2></div>
+  <?php partial('faq', ['items' => $faq]); ?>
 </section>
 <?php break;
 
 case 'quiz': ?>
-<section class="wrap hs"><?php partial('quiz', ['id' => 'quiz']); ?></section>
+<section class="wrap band band-flat"><?php partial('quiz', ['id' => 'quiz']); ?></section>
 <?php break;
 endswitch; endforeach; ?>
 
-<section class="wrap hs" data-recent hidden aria-labelledby="recent-title">
-  <div class="hs-head"><h2 id="recent-title">Вы смотрели</h2></div>
+<section class="wrap band band-help" aria-labelledby="help-m-title">
+  <img src="<?= h(site_img('ui-support')) ?>" alt="" width="84" height="84" loading="lazy">
+  <div>
+    <h2 id="help-m-title">Есть вопросы?</h2>
+    <p><?= h($c['help']['text']) ?></p>
+  </div>
+  <div class="band-btns">
+    <a class="btn btn-white" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= icon('phone') ?><?= h($s['phone']) ?></a>
+    <button class="btn btn-glass" type="button" data-lead="question" data-title="Задать вопрос">Написать нам</button>
+  </div>
+</section>
+
+<section class="wrap band" data-recent hidden aria-labelledby="recent-title">
+  <div class="sec-h"><h2 id="recent-title">Вы смотрели</h2></div>
   <div class="recent" data-recent-list></div>
 </section>

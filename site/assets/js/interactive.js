@@ -297,18 +297,20 @@
     if (b.getAttribute('aria-pressed') !== 'true') return; // убрали из корзины — без анимации
     var card = b.closest('[data-product]');
     var src = (card && $('img', card)) || $('.gal-slide.is-on img') || $('.q-card img');
-    var target = [$('.hd-ic-cart')].filter(visible)[0];
+    var target = [$('.hd-ic-cart'), $('.tabbar [data-cart-target]')].filter(visible)[0];
     if (!src || !target || !src.animate) return;
     var r1 = src.getBoundingClientRect(), r2 = target.getBoundingClientRect();
     var fly = d.createElement('img'); fly.className = 'fly'; fly.src = src.currentSrc || src.src; fly.alt = '';
-    var size = 80; fly.style.left = (r1.left + r1.width / 2 - size / 2) + 'px'; fly.style.top = (r1.top + r1.height / 2 - size / 2) + 'px';
+    var size = 72; fly.style.left = (r1.left + r1.width / 2 - size / 2) + 'px'; fly.style.top = (r1.top + r1.height / 2 - size / 2) + 'px';
     d.body.appendChild(fly);
     var dx = r2.left + r2.width / 2 - (r1.left + r1.width / 2), dy = r2.top + r2.height / 2 - (r1.top + r1.height / 2);
-    var anim = fly.animate([
-      { transform: 'translate(0,0) scale(1)', opacity: 1 },
-      { transform: 'translate(' + dx * .5 + 'px,' + (dy * .5 - 80) + 'px) scale(.7)', opacity: 1, offset: .55 },
-      { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.18)', opacity: .2 }
-    ], { duration: 720, easing: 'cubic-bezier(.5,0,.3,1)' });
+    // дуга: сначала чуть вверх, потом к корзине; по пути картинка уменьшается
+    var lift = Math.min(120, Math.abs(dy) * .35 + 40), frames = [];
+    for (var i = 0; i <= 12; i++) {
+      var t = i / 12, x = dx * t, y = dy * t - lift * 4 * t * (1 - t), k = 1 - .78 * t * t;
+      frames.push({ transform: 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) scale(' + k.toFixed(3) + ')', opacity: t < .85 ? 1 : 1 - (t - .85) / .15 * .8 });
+    }
+    var anim = fly.animate(frames, { duration: 760, easing: 'cubic-bezier(.45,0,.25,1)' });
     anim.onfinish = function () { if (fly.parentNode) fly.parentNode.removeChild(fly); target.classList.remove('is-bump'); void target.offsetWidth; target.classList.add('is-bump'); };
   });
 

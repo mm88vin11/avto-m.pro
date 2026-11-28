@@ -8,6 +8,7 @@ $u = admin_user();
 if ($sec === 'settings') {
   $s = site();
   $fields = [
+    'Тексты шапки и подвала' => [['tagline', 'Девиз', 'Качество по доступной цене'], ['header_note', 'Подпись рядом с логотипом в шапке'], ['footer_text', 'Текст под логотипом в подвале']],
     'Контакты на сайте' => [['phone', 'Телефон'], ['email', 'Почта на сайте'], ['hours', 'Часы работы — полностью', 'Ежедневно с 9:00 до 18:00'], ['hours_short', 'Часы работы — коротко', 'Пн–Вс 9:00–18:00'], ['hours_open', 'Открываемся (для поисковиков)', '09:00'], ['hours_close', 'Закрываемся', '18:00']],
     'Адрес' => [['address', 'Адрес полностью'], ['address_short', 'Адрес коротко (в шапке)'], ['region', 'Регион'], ['city', 'Город'], ['street', 'Улица и дом'], ['map_query', 'Адрес для Яндекс Карт', 'Как найти точку в поиске Яндекс Карт']],
     'Реквизиты и документы' => [['org_name', 'Продавец полностью'], ['org_short', 'Коротко'], ['inn', 'ИНН'], ['ogrnip', 'ОГРНИП'], ['legal_address', 'Адрес для документов', 'Пусто — берётся адрес выше'], ['privacy_email', 'Почта для вопросов о персональных данных', 'Пусто — почта на сайте'], ['consent_version', 'Дата редакции документов', 'Меняйте, когда правите политику: дата попадёт в документы и в согласия заявок']],
@@ -167,6 +168,6 @@ if ($sec === 'history') {
 if ($sec === 'help') {
   a_head('Инструкция', '/help');
   $md = is_file(APP_DIR . '/ADMIN_GUIDE.md') ? file_get_contents(APP_DIR . '/ADMIN_GUIDE.md') : 'Инструкция не найдена.';
-  echo '<div class="a-page-head"><div><h1>Инструкция</h1><p class="a-muted">Как пользоваться панелью управления.</p></div></div><article class="a-card a-prose">' . md(preg_replace('~^# .*\n~', '', $md)) . '</article>';
+  echo '<div class="a-page-head"><div><h1>Инструкция</h1><p class="a-muted">Как пользоваться панелью управления.</p></div><div class="a-head-btns"><a class="a-btn a-btn-soft" href="/admin/help?tour=1">Пройти обучение ещё раз</a></div></div><article class="a-card a-prose">' . md(preg_replace('~^# .*\n~', '', $md)) . '</article>';
   a_foot(); return;
 }

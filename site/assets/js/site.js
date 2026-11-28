@@ -27,13 +27,16 @@
   function goal(name, params) { try { if (window.ym && mid) window.ym(+mid, 'reachGoal', name, params || {}); } catch (e) {} }
   window.avtomGoal = goal;
   function setConsent(v) { d.cookie = 'avtom_consent=' + v + '; path=/; max-age=31536000; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : ''); consent = v; }
-  var cookieBox = $('#cookie');
-  if (!consent && cookieBox) setTimeout(function () { cookieBox.hidden = false; }, 900);
+  // плашка cookie встроена в нижнюю панель: появляется снизу, после выбора уезжает обратно под панель
+  var cookieBox = $('#cookie'), cookieT;
+  function cookieShow() { if (!cookieBox) return; clearTimeout(cookieT); cookieBox.classList.remove('is-out'); cookieBox.hidden = false; cookieBox.classList.add('is-in'); }
+  function cookieHide() { if (!cookieBox || cookieBox.hidden) return; cookieBox.classList.remove('is-in'); cookieBox.classList.add('is-out'); cookieT = setTimeout(function () { cookieBox.hidden = true; }, reduce ? 0 : 520); }
+  if (!consent && cookieBox) setTimeout(cookieShow, 1200);
   if (consent === 'all') metrika();
   d.addEventListener('click', function (e) {
     var b = e.target.closest('[data-cookie]');
-    if (b) { setConsent(b.getAttribute('data-cookie')); cookieBox.hidden = true; if (consent === 'all') metrika(); }
-    if (e.target.closest('[data-cookie-settings]')) { cookieBox.hidden = false; }
+    if (b) { setConsent(b.getAttribute('data-cookie')); cookieHide(); if (consent === 'all') metrika(); }
+    if (e.target.closest('[data-cookie-settings]')) cookieShow();
     var g = e.target.closest('[data-goal]');
     if (g) goal(g.getAttribute('data-goal'), g.getAttribute('data-mp') ? { mp: g.getAttribute('data-mp') } : null);
   });
@@ -46,18 +49,43 @@
   } catch (e) {}
 
   /* ---------- тост ---------- */
-  var toastEl = $('#toast'), toastT;
+  var toastEl = $('#toast'), toastT, toastT2;
   function toast(msg, link) {
     if (!toastEl) return;
-    toastEl.innerHTML = icon('check-circle') + '<span>' + esc(msg) + '</span>' + (link ? ' <a href="' + link[1] + '">' + esc(link[0]) + '</a>' : '');
-    toastEl.hidden = false; toastEl.style.animation = 'none'; void toastEl.offsetWidth; toastEl.style.animation = '';
-    clearTimeout(toastT); toastT = setTimeout(function () { toastEl.hidden = true; }, 3200);
+    clearTimeout(toastT); clearTimeout(toastT2);
+    toastEl.innerHTML = icon('check-circle') + '<span>' + esc(msg) + '</span>' + (link ? '<a href="' + link[1] + '">' + esc(link[0]) + '</a>' : '');
+    toastEl.classList.remove('is-out'); toastEl.hidden = false; toastEl.style.animation = 'none'; void toastEl.offsetWidth; toastEl.style.animation = '';
+    toastT = setTimeout(function () { toastEl.classList.add('is-out'); toastT2 = setTimeout(function () { toastEl.hidden = true; }, 320); }, 3000);
   }
 
-  /* ---------- шапка: тень, когда страница прокручена ---------- */
-  var header = $('#header');
-  var onScroll = function () { if (header) header.classList.toggle('is-scrolled', window.scrollY > 4); };
-  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  /* ---------- шапка ----------
+     Прокрутили вниз — шапка уезжает (на компьютере остаётся строка «Каталог продукции» с поиском, на телефоне
+     прячется целиком). Чтобы вернуть её, достаточно немного прокрутить вверх — на 48 px, а не на любой случайный
+     сдвиг пальца. Пока открыто меню, подсказки поиска или фокус в поиске, шапка не прячется. */
+  var head = $('[data-head]'), headTop = head && $('.hd', head);
+  var lastY = window.scrollY, upRun = 0, headHidden = false, headTick = false;
+  function headShift() { return headTop && headTop.offsetHeight ? headTop.offsetHeight : 0; }
+  function setHead(hide) {
+    if (hide === headHidden) return;
+    headHidden = hide;
+    head.style.setProperty('--head-shift', headShift() + 'px');
+    head.classList.toggle('is-hidden', hide);
+  }
+  function onScroll() {
+    headTick = false;
+    var y = Math.max(0, window.scrollY), dy = y - lastY; lastY = y;
+    head.classList.toggle('is-scrolled', y > 4);
+    var busy = html.classList.contains('menu-on') || (d.activeElement && d.activeElement.closest && d.activeElement.closest('[data-search]'));
+    if (busy || y < head.offsetHeight + 24) { upRun = 0; setHead(false); return; }
+    if (dy > 0) { upRun = 0; if (y > head.offsetHeight + 80) setHead(true); }
+    else if (dy < 0) { upRun -= dy; if (upRun > 48) setHead(false); }
+  }
+  if (head) {
+    window.addEventListener('scroll', function () { if (!headTick) { headTick = true; requestAnimationFrame(onScroll); } }, { passive: true });
+    window.addEventListener('resize', function () { if (headHidden) head.style.setProperty('--head-shift', headShift() + 'px'); }, { passive: true });
+    head.addEventListener('focusin', function () { setHead(false); });
+    onScroll();
+  }
 
   /* ---------- боковое меню: на компьютере выезжает слева («Каталог продукции»), на телефоне справа (кнопка меню) ---------- */
   var menu = $('#menu'), menuPanel = menu && $('.drawer-panel', menu), menuFrom = null, menuT;
@@ -98,7 +126,7 @@
     function hide() { box.hidden = true; idx = -1; input.setAttribute('aria-expanded', 'false'); }
     function mark(t, q) { var w = q.trim().split(/\s+/)[0]; if (!w || w.length < 2) return esc(t); var i = t.toLowerCase().indexOf(w.toLowerCase()); return i < 0 ? esc(t) : esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + w.length)) + '</mark>' + esc(t.slice(i + w.length)); }
     function render(r, q) {
-      var h = '';
+      var h = r.fixed ? '<p class="sg-fix">Искали «' + esc(r.fixed) + '»</p>' : (r.fuzzy && r.items.length ? '<p class="sg-fix">Похожие результаты</p>' : '');
       if (r.models && r.models.length) { h += '<p class="sg-h">Автомобили</p>'; r.models.forEach(function (m) { h += '<a class="sg-item" role="option" href="' + m.url + '"><span class="sg-ph" style="display:grid;place-items:center;color:#0a5cff">' + icon('car') + '</span><span><b>' + mark(m.name, q) + '</b><small>Все детали для модели</small></span></a>'; }); }
       if (r.items.length) { h += '<p class="sg-h">Товары</p>'; r.items.forEach(function (p) { h += '<a class="sg-item" role="option" href="' + p.url + '">' + (p.img ? '<img src="' + p.img + '" alt="" width="48" height="48">' : '<span class="sg-ph"></span>') + '<span><b>' + mark(p.name, q) + '</b><small>' + esc(p.sku) + ' · ' + esc(p.compat) + '</small></span></a>'; }); }
       if (!r.items.length && !(r.models || []).length) h = '<p class="sg-empty">Ничего не нашли. Попробуйте артикул, номер детали или модель автомобиля.</p>';
@@ -487,10 +515,15 @@
       if (!cart.length) { renderCart(); return; }
       box.innerHTML = cart.map(function (x) {
         var p = byId[x.id];
-        return '<article class="ci" data-ci="' + p.id + '"><a class="ci-img" href="' + p.url + '">' + (p.img ? '<img src="' + p.img + '" alt="" width="110" height="110" loading="lazy">' : '') + '</a>'
-          + '<div class="ci-body"><small>' + esc(p.brand) + ' · ' + esc(p.sku) + '</small><a href="' + p.url + '">' + esc(p.name) + '</a><span class="ci-compat">' + esc(p.compat) + '</span>'
-          + (p.wb || p.ozon ? '<div class="mp-row" style="margin-top:8px;max-width:340px">' + (p.wb ? '<a class="btn btn-wb" style="--h:40px;font-size:14px" href="' + p.wb + '" target="_blank" rel="nofollow noopener" data-goal="mp_wb" data-mp="wb">Wildberries</a>' : '') + (p.ozon ? '<a class="btn btn-ozon" style="--h:40px;font-size:14px" href="' + p.ozon + '" target="_blank" rel="nofollow noopener" data-goal="mp_ozon" data-mp="ozon">Ozon</a>' : '') + '</div>' : '') + '</div>'
-          + '<div class="ci-side"><div class="qty" role="group" aria-label="Количество"><button type="button" data-qty="-1" aria-label="Меньше">' + icon('minus') + '</button><output>' + x.qty + '</output><button type="button" data-qty="1" aria-label="Больше">' + icon('plus') + '</button></div><button class="icon-btn ci-del" type="button" data-del aria-label="Убрать из корзины">' + icon('trash') + '</button></div></article>';
+        var mp = (p.wb ? '<a class="btn btn-wb" href="' + p.wb + '" target="_blank" rel="nofollow noopener" data-goal="mp_wb" data-mp="wb">Wildberries</a>' : '')
+          + (p.ozon ? '<a class="btn btn-ozon" href="' + p.ozon + '" target="_blank" rel="nofollow noopener" data-goal="mp_ozon" data-mp="ozon">Ozon</a>' : '');
+        return '<article class="ci" data-ci="' + p.id + '">'
+          + '<a class="ci-img" href="' + p.url + '">' + (p.img ? '<img src="' + p.img + '" alt="" width="96" height="96">' : '') + '</a>'
+          + '<div class="ci-body"><small>' + esc(p.brand) + ' · ' + esc(p.sku) + '</small><a class="ci-name" href="' + p.url + '">' + esc(p.name) + '</a>'
+          + (p.price ? '<b class="ci-price">от ' + esc(p.price) + '</b>' : '') + '<span class="ci-compat">' + esc(p.compat) + '</span></div>'
+          + '<div class="ci-foot">' + (mp ? '<div class="ci-mp">' + mp + '</div>' : '<span class="ci-note">Наличие уточнит менеджер</span>')
+          + '<div class="ci-side"><div class="qty" role="group" aria-label="Количество"><button type="button" data-qty="-1" aria-label="Меньше">' + icon('minus') + '</button><output>' + x.qty + '</output><button type="button" data-qty="1" aria-label="Больше">' + icon('plus') + '</button></div>'
+          + '<button class="icon-btn ci-del" type="button" data-del aria-label="Убрать из корзины">' + icon('trash') + '</button></div></div></article>';
       }).join('');
       empty.hidden = true; formBox.hidden = false; syncCartForm();
     });
@@ -541,10 +574,6 @@
     var od = $('[data-only-diff]'); if (od) od.addEventListener('change', function () { cmpBox.classList.toggle('cmp-only-diff', od.checked); });
   }
 
-  /* ---------- карта по кнопке ---------- */
-  var map = $('[data-map]');
-  if (map) $('[data-map-load]', map).addEventListener('click', function () { var f = d.createElement('iframe'); f.src = map.getAttribute('data-map'); f.title = 'Карта: как нас найти'; f.loading = 'lazy'; f.setAttribute('allowfullscreen', ''); map.innerHTML = ''; map.appendChild(f); goal('map_open'); });
-
   /* ---------- появление, маска заголовков, счётчики ---------- */
   function splitWords(el) {
     if (el.__split) return; el.__split = 1;
@@ -572,6 +601,35 @@
   }
   reveal(d);
 
+
+  /* ---------- вопросы и ответы ----------
+     Открыт один ответ: открываем новый — предыдущий закрывается. Высота меняется плавно, а вопрос, на который нажали,
+     остаётся на месте экрана: пока соседний ответ сворачивается выше, страница докручивается на ту же величину. */
+  $$('[data-faq]').forEach(function (faq) {
+    var items = $$('details', faq);
+    function animate(det, open) {
+      var a = $('.faq-a', det);
+      if (reduce || !a.animate) { det.open = open; return; }
+      if (open) det.open = true;
+      var h = a.scrollHeight;
+      a.style.overflow = 'hidden';
+      var an = a.animate(open ? [{ height: '0px', opacity: 0 }, { height: h + 'px', opacity: 1 }] : [{ height: h + 'px', opacity: 1 }, { height: '0px', opacity: 0 }], { duration: 360, easing: 'cubic-bezier(.16,1,.3,1)' });
+      an.onfinish = function () { a.style.overflow = ''; if (!open) det.open = false; };
+    }
+    items.forEach(function (det) {
+      $('summary', det).addEventListener('click', function (e) {
+        e.preventDefault();
+        var opening = !det.open, sum = this, top0 = sum.getBoundingClientRect().top, t0 = performance.now();
+        if (opening) items.forEach(function (o) { if (o !== det && o.open) animate(o, false); });
+        animate(det, opening);
+        (function keep() {
+          var dy = sum.getBoundingClientRect().top - top0;
+          if (Math.abs(dy) > .5) window.scrollBy(0, dy);
+          if (performance.now() - t0 < 420) requestAnimationFrame(keep);
+        })();
+      });
+    });
+  });
 
   /* ---------- карусель баннеров на главной ----------
      Лента слайдов двигается transform'ом. Полоски под баннером показывают, сколько слайдов и сколько осталось до следующего:

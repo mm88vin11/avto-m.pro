@@ -167,7 +167,7 @@ jsonld($ld);
     </div>
   </div>
 
-  <section class="hs" data-recent hidden aria-labelledby="recent-title"><div class="hs-head"><h2 id="recent-title">Вы смотрели</h2></div><div class="recent" data-recent-list></div></section>
+  <section class="band" data-recent hidden aria-labelledby="recent-title"><div class="sec-h"><h2 id="recent-title">Вы смотрели</h2></div><div class="recent" data-recent-list></div></section>
 
   <?php $rel = related_products($p); if ($rel): ?>
   <section class="section" aria-labelledby="rel-title">

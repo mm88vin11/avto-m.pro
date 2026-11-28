@@ -16,19 +16,13 @@ $mapUrl = 'https://yandex.ru/maps/?text=' . $mapQ;
       <a class="ccard panel" href="<?= h($routeUrl) ?>" target="_blank" rel="noopener" data-goal="route_click" data-reveal><span class="ccard-ic"><?= icon('pin') ?></span><small>Адрес</small><b><?= h($s['address']) ?></b><span class="ccard-go">Маршрут в Яндекс Картах<?= icon('external') ?></span></a>
       <div class="ccard panel" data-reveal><span class="ccard-ic"><?= icon('clock') ?></span><small>Часы работы</small><b><?= h($s['hours']) ?></b><span class="ccard-note"><?= h($c['note']) ?></span></div>
     </div>
-    <div class="map panel" data-map="https://yandex.ru/map-widget/v1/?text=<?= h($mapQ) ?>&amp;z=16">
-      <div class="map-ph">
-        <span class="map-pin" aria-hidden="true"><?= icon('pin') ?></span>
-        <p><b><?= h($s['address_short']) ?></b><br>Карта загрузится с сервиса «Яндекс Карты».</p>
-        <div class="map-btns">
-          <button class="btn btn-primary" type="button" data-map-load><?= icon('route') ?>Показать карту</button>
-          <a class="btn btn-soft" href="<?= h($mapUrl) ?>" target="_blank" rel="noopener">Открыть в Яндекс Картах<?= icon('external') ?></a>
-        </div>
-      </div>
+    <div class="map panel">
+      <iframe src="https://yandex.ru/map-widget/v1/?text=<?= h($mapQ) ?>&amp;z=16" title="Карта: <?= h($s['address_short']) ?>" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <a class="map-open" href="<?= h($mapUrl) ?>" target="_blank" rel="noopener"><?= icon('external') ?>Открыть в Яндекс Картах</a>
     </div>
     <section class="panel contact-form" aria-labelledby="cf-title">
       <h2 id="cf-title">Напишите нам</h2>
-      <p class="muted">Спросите о наличии, совместимости или условиях для сервисов — ответим в рабочее время.</p>
+      <p class="muted">Ответим в рабочее время.</p>
       <?php partial('lead_form', ['kind' => 'question', 'id' => 'ctf', 'withCar' => true, 'btn' => 'Отправить', 'commentLabel' => 'Вопрос']); ?>
     </section>
     <section class="panel requisites" aria-labelledby="rq-title">

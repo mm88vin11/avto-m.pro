@@ -335,6 +335,31 @@ function product_search_text($p) {
 }
 /** id товаров, подходящих под запрос: все слова запроса (начало слова) или совпадение кода артикула/номера */
 function search_ids($q) {
+  return search_resolve($q)[0];
+}
+
+/**
+ * Поиск с поправками. Сначала ищем как написано. Если ничего нет — пробуем по очереди:
+ * запрос, набранный не в той раскладке («egjh» → «упор», «ащкв» → «ford»), латиницу вместо кириллицы («upor», «bachok»)
+ * и опечатку в одну-две буквы («уппр» → «упор»). Возвращает [id товаров, запрос, по которому нашли].
+ */
+function search_resolve($q) {
+  $q = trim((string)$q);
+  if ($q === '') return [[], $q, 'exact'];
+  $ids = search_exact($q);
+  if ($ids) return [$ids, $q, 'exact'];
+  foreach (search_variants($q) as $v) {
+    if ($v === '' || search_norm($v) === search_norm($q)) continue;
+    $ids = search_exact($v);
+    if ($ids) return [$ids, $v, 'fixed'];
+  }
+  $ids = search_fuzzy($q);
+  if ($ids) return [$ids, $q, 'fuzzy'];
+  foreach (search_variants($q) as $v) if ($ids = search_fuzzy($v)) return [$ids, $v, 'fuzzy'];
+  return [[], $q, 'exact'];
+}
+
+function search_exact($q) {
   $qn = search_norm($q);
   $code = norm_code($q);
   if ($qn === '' && $code === '') return [];
@@ -351,6 +376,57 @@ function search_ids($q) {
     if ($hit) $ids[] = $p['id'];
   }
   return $ids;
+}
+
+/** Варианты запроса: другая раскладка клавиатуры и транслитерация */
+function search_variants($q) {
+  $en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>~';
+  $ru = 'йцукенгшщзхъфывапролджэячсмитьбюёЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁ';
+  $enA = str_split($en); $ruA = mb_str_split($ru);
+  $toRu = array_combine($enA, $ruA); $toEn = array_combine($ruA, $enA);
+  $out = [];
+  $out[] = strtr($q, $toRu);                       // набрали русское слово в английской раскладке
+  $out[] = strtr($q, $toEn);                       // и наоборот
+  $out[] = search_translit($q);                    // написали по-русски латиницей
+  return array_values(array_unique(array_filter($out, fn($v) => $v !== $q)));
+}
+function search_translit($q) {
+  $map = ['shch' => 'щ', 'sch' => 'щ', 'yo' => 'ё', 'zh' => 'ж', 'kh' => 'х', 'ts' => 'ц', 'ch' => 'ч', 'sh' => 'ш', 'yu' => 'ю', 'ya' => 'я', 'ye' => 'е',
+    'a' => 'а', 'b' => 'б', 'v' => 'в', 'g' => 'г', 'd' => 'д', 'e' => 'е', 'z' => 'з', 'i' => 'и', 'y' => 'ы', 'j' => 'й', 'k' => 'к', 'l' => 'л', 'm' => 'м',
+    'n' => 'н', 'o' => 'о', 'p' => 'п', 'r' => 'р', 's' => 'с', 't' => 'т', 'u' => 'у', 'f' => 'ф', 'h' => 'х', 'c' => 'к', 'w' => 'в', 'x' => 'кс', 'q' => 'к'];
+  return strtr(mb_strtolower($q), $map);
+}
+
+/** Поиск с опечатками: каждое слово запроса (от 4 букв) может отличаться от слова товара на одну букву, длинное — на две */
+function search_fuzzy($q) {
+  $words = array_filter(explode(' ', search_norm($q)), fn($w) => mb_strlen($w) >= 3);
+  if (!$words) return [];
+  $ids = [];
+  foreach (products_all() as $p) {
+    $tw = array_filter(explode(' ', trim(product_search_text($p))), 'strlen');
+    $ok = true;
+    foreach ($words as $w) {
+      $len = mb_strlen($w); $max = $len >= 7 ? 2 : ($len >= 4 ? 1 : 0);
+      $found = false;
+      foreach ($tw as $t) {
+        if (mb_strpos($t, $w) === 0) { $found = true; break; }
+        if ($max && mb_strlen($t) >= $len - 1 && mb_levenshtein($w, mb_substr($t, 0, $len)) <= $max) { $found = true; break; }
+      }
+      if (!$found) { $ok = false; break; }
+    }
+    if ($ok) $ids[] = $p['id'];
+  }
+  return $ids;
+}
+function mb_levenshtein($a, $b) {
+  $a = mb_str_split($a); $b = mb_str_split($b);
+  $prev = range(0, count($b));
+  foreach ($a as $i => $ca) {
+    $cur = [$i + 1];
+    foreach ($b as $j => $cb) $cur[] = min($prev[$j + 1] + 1, $cur[$j] + 1, $prev[$j] + ($ca === $cb ? 0 : 1));
+    $prev = $cur;
+  }
+  return end($prev);
 }
 function search_log($q, $n) {
   $q = mb_substr(search_norm($q), 0, 60);
@@ -387,7 +463,7 @@ function products_public_json($ids) {
       'img' => $ph ? img_url($ph, 400) : null, 'brand' => $b['name'] ?? '', 'category' => $c['name'] ?? '',
       'compat' => compat_short($p, 3), 'kit' => $p['kit'], 'stock' => stock_label($p['stock']), 'attrs' => $attrs,
       'wb' => $p['wb_url'] ? '/go/wb/' . $p['id'] : '', 'ozon' => $p['ozon_url'] ? '/go/ozon/' . $p['id'] : '',
-      'oem' => $p['oem'],
+      'oem' => $p['oem'], 'price' => $p['price_from'] ? fmt_price($p['price_from']) : '',
     ];
   }
   return $out;

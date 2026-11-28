@@ -7,15 +7,15 @@ $attrsF = array_filter(attributes_all(), fn($a) => $a['filter'] && $a['type'] ==
 ?>
 <div class="wrap">
   <?= breadcrumbs([['Подбор', null]]) ?>
-  <div class="page-head"><h1>Подбор деталей</h1><p class="lead">Выберите автомобиль или укажите параметры детали — покажем подходящие позиции.</p></div>
+  <div class="page-head"><h1>Подбор деталей</h1><p class="lead">По машине, по размерам или по старому упору.</p></div>
 
   <section class="panel pick-block" aria-labelledby="pk1">
-    <div class="pick-block-h"><span class="num">1</span><div><h2 id="pk1">По автомобилю</h2><p class="muted">Модели зависят от марки, годы и кузова — от модели.</p></div></div>
+    <div class="pick-block-h"><span class="num">1</span><h2 id="pk1">По автомобилю</h2></div>
     <?php partial('picker', ['id' => 'pp', 'compact' => true]); ?>
   </section>
 
   <section class="panel pick-block" aria-labelledby="pk2">
-    <div class="pick-block-h"><span class="num">2</span><div><h2 id="pk2">По параметрам детали</h2><p class="muted">Если знаете длину и выталкивающую силу старого упора.</p></div></div>
+    <div class="pick-block-h"><span class="num">2</span><h2 id="pk2">По размерам детали</h2></div>
     <form class="picker picker-row" action="/catalog" method="get" data-param-form>
       <div class="field sel"><label for="pr-cat">Тип детали</label>
         <select id="pr-cat" data-cat-select>
@@ -37,13 +37,10 @@ $attrsF = array_filter(attributes_all(), fn($a) => $a['filter'] && $a['type'] ==
   <div class="section"><?php partial('measure'); ?></div>
 
   <section class="section" aria-labelledby="pk3">
-    <div class="section-head"><h2 id="pk3">Марки и модели в каталоге</h2></div>
-    <div class="makes">
-      <?php foreach (car_tree() as $mk): ?>
-        <div class="make panel" data-reveal>
-          <h3><a href="/avto/<?= h($mk['slug']) ?>"><?= h($mk['name']) ?></a></h3>
-          <ul><?php foreach ($mk['models'] as $m): ?><li><a href="/avto/<?= h($mk['slug']) ?>/<?= h($m['slug']) ?>"><?= h($m['name']) ?><small><?= h(years_label($m['yf'], $m['yt'])) ?></small></a></li><?php endforeach; ?></ul>
-        </div>
+    <div class="sec-h"><h2 id="pk3">Марки в каталоге</h2></div>
+    <div class="makes2">
+      <?php foreach (car_tree() as $mk): $n = count($mk['models']); ?>
+        <a class="make2" href="/avto/<?= h($mk['slug']) ?>"><b><?= h($mk['name']) ?></b><small><?= $n ?> <?= plural($n, 'модель', 'модели', 'моделей') ?></small><?= icon('chevron-r') ?></a>
       <?php endforeach; ?>
     </div>
   </section>
@@ -51,7 +48,7 @@ $attrsF = array_filter(attributes_all(), fn($a) => $a['filter'] && $a['type'] ==
   <section class="section">
     <div class="help panel">
       <div class="help-ic" aria-hidden="true"><?= icon('chat') ?></div>
-      <div class="help-copy"><h2>Нет вашей машины?</h2><p>Напишите марку, модель, год или VIN-номер — поищем деталь и проверим совместимость.</p></div>
+      <div class="help-copy"><h2>Нет вашей машины?</h2><p>Пришлите марку, год или VIN — подберём сами.</p></div>
       <div class="help-btns"><button class="btn btn-primary btn-lg" type="button" data-lead="pick" data-title="Помощь с подбором"><?= icon('car') ?>Помогите подобрать</button></div>
     </div>
   </section>

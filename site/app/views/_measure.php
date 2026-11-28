@@ -23,7 +23,7 @@ $start = (int)round(array_sum($lens) / count($lens) / 5) * 5;
     <div>
       <span class="quiz-badge"><?= icon('ruler') ?>Нет данных о машине?</span>
       <h2 id="ms-title">Подберите упор по старому</h2>
-      <p class="muted">Снимите старый упор и измерьте его <b>в выдвинутом положении</b> — от центра одного крепления до центра другого. Потяните за крепление на схеме или введите число.</p>
+      <p class="muted">Измерьте снятый упор <b>в выдвинутом виде</b> — от центра до центра креплений. Потяните крепление на схеме или введите длину.</p>
     </div>
   </div>
   <div class="ms-viz">
@@ -55,10 +55,10 @@ $start = (int)round(array_sum($lens) / count($lens) / 5) * 5;
     <label class="ms-range"><span class="sr">Длина упора, мм</span><input type="range" min="<?= $min ?>" max="<?= $max ?>" step="1" value="<?= $start ?>" data-ms-range></label>
     <div class="ms-inputs">
       <label class="field"><span class="lbl">Длина, мм</span><input type="number" inputmode="numeric" min="<?= $min ?>" max="<?= $max ?>" value="<?= $start ?>" data-ms-len></label>
-      <label class="field"><span class="lbl">Сила, Н <span class="opt">если указана на упоре</span></span><input type="number" inputmode="numeric" placeholder="например, 500" data-ms-force></label>
+      <label class="field"><span class="lbl">Сила, Н</span><input type="number" inputmode="numeric" placeholder="если указана" data-ms-force></label>
     </div>
   </div>
   <div class="ms-results" data-ms-results aria-live="polite"></div>
-  <p class="hint"><?= icon('info') ?>Длина и сила указаны по данным производителя. Если разница больше 10 мм, лучше уточнить у менеджера: упор может не подойти.</p>
+  <p class="hint"><?= icon('info') ?>Разница больше 10 мм — уточните у менеджера, упор может не подойти.</p>
   <script type="application/json" data-ms-data><?= json_encode($list, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?></script>
 </section>

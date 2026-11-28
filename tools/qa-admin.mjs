@@ -32,6 +32,9 @@ if (await page.locator('input[name=code]').count()) {
   await page.click('button[type=submit]');
   step('вход');
 }
+// обучение при первом входе: показываем один раз, пропускаем и проверяем, что больше не всплывает
+if (await page.locator('.a-tour').count()) { await shot('tour'); await page.click('[data-tour=skip]'); await page.waitForTimeout(500); step('обучение показано и пропущено'); }
+await page.reload(); if (await page.locator('.a-tour').count()) throw new Error('обучение показалось повторно');
 await page.waitForSelector('.a-stats'); await shot('dashboard');
 await page.goto(base + '/admin/products'); await shot('products');
 await page.click('text=LAP-10262');

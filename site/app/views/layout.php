@@ -40,7 +40,12 @@ $sections = [['/', 'Главная'], ['/catalog', 'Продукция'], ['/pod
 <meta property="og:image" content="<?= h($og) ?>">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="AVTO-M — автозапчасти с подбором по автомобилю">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<?= h($M['og_title'] ?? $title) ?>">
+<meta name="twitter:description" content="<?= h($desc) ?>">
+<meta name="application-name" content="AVTO-M">
+<meta name="apple-mobile-web-app-title" content="AVTO-M">
 <?php if ($s['yandex_verification']): ?><meta name="yandex-verification" content="<?= h($s['yandex_verification']) ?>">
 <?php endif; ?>
 <link rel="preload" href="/assets/fonts/onest-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -59,6 +64,7 @@ $sections = [['/', 'Главная'], ['/catalog', 'Продукция'], ['/pod
 <div class="preview-bar" role="status"><?= icon('info') ?> Предпросмотр: показан черновик. Посетители видят опубликованную версию. <a href="/admin">Вернуться в админку</a></div>
 <?php endif; ?>
 
+<div class="head" id="header" data-head>
 <header class="hd" id="top">
   <div class="wrap hd-top">
     <a class="logo" href="/" aria-label="AVTO-M — на главную"><img class="logo-img" src="<?= h($logo) ?>" width="220" height="68" alt="AVTO-M. Качество по доступной цене"></a>
@@ -76,23 +82,25 @@ $sections = [['/', 'Главная'], ['/catalog', 'Продукция'], ['/pod
     </div>
   </nav>
 </header>
-<div class="hbar" id="header">
-  <div class="wrap hbar-in">
-    <a class="hb-logo" href="/" aria-label="AVTO-M — на главную"><img src="<?= h($logo) ?>" width="220" height="68" alt="AVTO-M"></a>
-    <button class="hd-cat" type="button" aria-expanded="false" aria-controls="menu" data-menu-open><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Каталог продукции</span></button>
-    <form class="search" action="/search" method="get" role="search" data-search>
-      <label class="sr" for="q">Поиск по названию, артикулу или номеру</label>
-      <?= icon('search', 'search-i') ?>
-      <input id="q" name="q" type="search" placeholder="Название или артикул детали" autocomplete="off" value="<?= h($_GET['q'] ?? '') ?>" aria-autocomplete="list" aria-controls="suggest" enterkeyhint="search">
-      <button class="search-go" type="submit" aria-label="Найти"><?= icon('search') ?></button>
-      <div class="suggest" id="suggest" role="listbox" hidden></div>
-    </form>
-    <a class="hd-ic hd-ic-cmp" href="/compare" aria-label="Сравнение"><?= icon('compare') ?><span>Сравнение</span><b class="badge" data-count="compare" hidden>0</b></a>
-    <a class="hd-ic hd-ic-cart" href="/cart" aria-label="Корзина" data-cart-target><?= icon('bag') ?><span>Корзина</span><b class="badge" data-count="cart" hidden>0</b></a>
-    <a class="hb-btn hb-call" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click" aria-label="Позвонить: <?= h($s['phone']) ?>"><?= icon('phone') ?></a>
-    <button class="hb-btn hb-menu" type="button" aria-expanded="false" aria-controls="menu" aria-label="Меню" data-menu-open><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span></button>
-    <span class="garage" data-garage hidden></span>
+<div class="hbar">
+  <div class="wrap">
+    <div class="hbar-in">
+      <a class="hb-logo" href="/" aria-label="AVTO-M — на главную"><img src="<?= h($logo) ?>" width="220" height="68" alt="AVTO-M"></a>
+      <button class="hd-cat" type="button" aria-expanded="false" aria-controls="menu" data-menu-open><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Каталог продукции</span></button>
+      <form class="search" action="/search" method="get" role="search" data-search>
+        <label class="sr" for="q">Поиск по названию, артикулу или номеру</label>
+        <?= icon('search', 'search-i') ?>
+        <input id="q" name="q" type="search" placeholder="Поиск детали" data-ph-long="Название, артикул или номер детали" autocomplete="off" value="<?= h($_GET['q'] ?? '') ?>" aria-autocomplete="list" aria-controls="suggest" enterkeyhint="search">
+        <button class="search-go" type="submit" aria-label="Найти"><?= icon('search') ?></button>
+        <div class="suggest" id="suggest" role="listbox" hidden></div>
+      </form>
+      <a class="hd-ic hd-ic-cmp" href="/compare" aria-label="Сравнение"><?= icon('compare') ?><span>Сравнение</span><b class="badge" data-count="compare" hidden>0</b></a>
+      <a class="hd-ic hd-ic-cart" href="/cart" aria-label="Корзина" data-cart-target><?= icon('bag') ?><span>Корзина</span><b class="badge" data-count="cart" hidden>0</b></a>
+      <a class="hb-btn hb-call" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click" aria-label="Позвонить: <?= h($s['phone']) ?>"><?= icon('phone') ?></a>
+      <button class="hb-btn hb-menu" type="button" aria-expanded="false" aria-controls="menu" aria-label="Меню" data-menu-open><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span></button>
+    </div>
   </div>
+</div>
 </div>
 
 <main id="main" tabindex="-1">
@@ -100,52 +108,61 @@ $sections = [['/', 'Главная'], ['/catalog', 'Продукция'], ['/pod
 </main>
 
 <footer class="ft">
-  <div class="wrap ft-in">
-    <div class="ft-brand">
-      <img src="<?= h($logo) ?>" width="220" height="68" alt="AVTO-M — Качество по доступной цене" decoding="async" loading="lazy">
-      <p>Газовые упоры, расширительные бачки и другие автозапчасти с подбором по автомобилю. Покупка на Wildberries и Ozon или по заявке.</p>
-    </div>
-    <nav class="ft-col" aria-label="Разделы">
-      <a href="/">Главная</a>
-      <a href="/catalog">Продукция</a>
-      <?php foreach ($cats as $c): ?><a href="/catalog/<?= h($c['slug']) ?>"><?= h($c['name']) ?></a><?php endforeach; ?>
-      <a href="/podbor">Подбор по автомобилю</a>
-    </nav>
-    <nav class="ft-col" aria-label="Покупателям">
-      <a href="/about">О компании</a>
-      <a href="/partners">Преимущества</a>
-      <a href="/how-to-buy">Доставка и покупка</a>
-      <a href="/compare">Сравнение</a>
-      <a href="/cart">Корзина</a>
-      <a href="/karta-sajta">Карта сайта</a>
-    </nav>
-    <div class="ft-col ft-contacts">
-      <a class="ft-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= icon('phone') ?><?= h($s['phone']) ?></a>
-      <a href="mailto:<?= h($s['email']) ?>"><?= icon('mail') ?><?= h($s['email']) ?></a>
-      <span><?= icon('pin') ?><?= h($s['address']) ?></span>
-      <span><?= icon('clock') ?><?= h($s['hours']) ?></span>
-    </div>
-  </div>
-  <div class="ft-bottom">
-    <div class="wrap ft-bottom-in">
-      <p>© <?= date('Y') ?> AVTO-M · <?= h($s['org_name']) ?> · ИНН <?= h($s['inn']) ?> · ОГРНИП <?= h($s['ogrnip']) ?>. Информация на сайте не является публичной офертой. Wildberries и Ozon — товарные знаки их правообладателей.</p>
-      <nav aria-label="Документы">
-        <a href="/legal/privacy">Политика обработки данных</a>
-        <a href="/legal/consent">Согласие на обработку</a>
-        <a href="/legal/cookies">Cookie</a>
-        <a href="/legal/terms">Правовая информация</a>
-        <button type="button" class="linklike" data-cookie-settings>Настройки cookie</button>
-      </nav>
+  <div class="wrap">
+    <div class="ft-card">
+      <div class="ft-in">
+        <div class="ft-brand">
+          <img src="<?= h($logo) ?>" width="220" height="68" alt="AVTO-M — Качество по доступной цене" decoding="async" loading="lazy">
+          <p><?= h($s['footer_text']) ?></p>
+        </div>
+        <nav class="ft-col" aria-label="Каталог">
+          <p class="ft-h">Каталог</p>
+          <?php foreach ($cats as $c): ?><a href="/catalog/<?= h($c['slug']) ?>"><?= h($c['name']) ?></a><?php endforeach; ?>
+          <a href="/podbor">Подбор по автомобилю</a>
+          <a href="/catalog">Весь каталог</a>
+        </nav>
+        <nav class="ft-col" aria-label="Покупателям">
+          <p class="ft-h">Покупателям</p>
+          <a href="/about">О компании</a>
+          <a href="/partners">Автосервисам</a>
+          <a href="/how-to-buy">Как купить</a>
+          <a href="/contacts">Контакты</a>
+          <a href="/karta-sajta">Карта сайта</a>
+        </nav>
+        <div class="ft-col ft-contacts">
+          <p class="ft-h">Связаться</p>
+          <a class="ft-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= h($s['phone']) ?></a>
+          <a href="mailto:<?= h($s['email']) ?>"><?= h($s['email']) ?></a>
+          <span><?= h($s['address']) ?></span>
+          <span><?= h($s['hours']) ?></span>
+        </div>
+      </div>
+      <div class="ft-bottom">
+        <p>© <?= date('Y') ?> AVTO-M · <?= h($s['org_name']) ?> · ИНН <?= h($s['inn']) ?> · ОГРНИП <?= h($s['ogrnip']) ?>. Информация на сайте не является публичной офертой. Wildberries и Ozon — товарные знаки их правообладателей.</p>
+        <nav aria-label="Документы">
+          <a href="/legal/privacy">Политика обработки данных</a>
+          <a href="/legal/consent">Согласие на обработку</a>
+          <a href="/legal/cookies">Cookie</a>
+          <a href="/legal/terms">Правовая информация</a>
+          <button type="button" class="linklike" data-cookie-settings>Настройки cookie</button>
+        </nav>
+      </div>
     </div>
   </div>
 </footer>
 
-<nav class="tabbar" aria-label="Быстрые разделы">
-  <?php foreach ([['/', 'home', 'Главная', ['/']], ['/catalog', 'catalog', 'Каталог', ['/catalog', '/product', '/brand', '/search']], ['/podbor', 'car', 'Подбор', ['/podbor', '/avto']], ['/compare', 'compare', 'Сравнение', ['/compare']], ['/cart', 'bag', 'Корзина', ['/cart']]] as [$u, $ic, $t, $match]):
-    $on = false; foreach ($match as $m) if ($path === $m || ($m !== '/' && strpos($path, $m . '/') === 0)) $on = true; ?>
-    <a href="<?= $u ?>"<?= $on ? ' aria-current="page"' : '' ?><?= $u === '/cart' ? ' data-cart-target' : '' ?>><span class="tab-ic"><?= icon($ic) ?><?php if ($u === '/cart' || $u === '/compare'): ?><b class="badge" data-count="<?= $u === '/cart' ? 'cart' : 'compare' ?>" hidden>0</b><?php endif; ?></span><span><?= $t ?></span></a>
-  <?php endforeach; ?>
-</nav>
+<div class="dock">
+  <div class="cookie" id="cookie" hidden role="region" aria-label="Файлы cookie">
+    <p>Сайт использует cookie. Метрику включим только с вашего согласия. <a href="/legal/cookies">Подробнее</a> · <button type="button" class="linklike" data-cookie="necessary">Только нужные</button></p>
+    <button class="cookie-ok" type="button" data-cookie="all">Принять</button>
+  </div>
+  <nav class="tabbar" aria-label="Быстрые разделы">
+    <?php foreach ([['/', 'home', 'Главная', ['/']], ['/catalog', 'catalog', 'Каталог', ['/catalog', '/product', '/brand', '/search']], ['/podbor', 'car', 'Подбор', ['/podbor', '/avto']], ['/compare', 'compare', 'Сравнение', ['/compare']], ['/cart', 'bag', 'Корзина', ['/cart']]] as [$u, $ic, $t, $match]):
+      $on = false; foreach ($match as $m) if ($path === $m || ($m !== '/' && strpos($path, $m . '/') === 0)) $on = true; ?>
+      <a href="<?= $u ?>"<?= $on ? ' aria-current="page"' : '' ?><?= $u === '/cart' ? ' data-cart-target' : '' ?>><span class="tab-ic"><?= icon($ic) ?><?php if ($u === '/cart' || $u === '/compare'): ?><b class="badge" data-count="<?= $u === '/cart' ? 'cart' : 'compare' ?>" hidden>0</b><?php endif; ?></span><span><?= $t ?></span></a>
+    <?php endforeach; ?>
+  </nav>
+</div>
 
 <div class="drawer" id="menu" hidden>
   <div class="drawer-scrim" data-menu-close></div>
@@ -207,13 +224,6 @@ if (($pp['on'] ?? '0') === '1' && trim($pp['title'] ?? '') !== '' && ($force || 
 </dialog>
 <?php endif; ?>
 
-<div class="cookie" id="cookie" hidden role="dialog" aria-live="polite" aria-label="Файлы cookie">
-  <p>Мы используем cookie, чтобы сайт работал. Аналитику «Яндекс Метрики» включим только с вашего согласия. <a href="/legal/cookies">Подробнее</a></p>
-  <div class="cookie-btns">
-    <button class="btn btn-primary" type="button" data-cookie="all">Разрешить</button>
-    <button class="btn btn-soft" type="button" data-cookie="necessary">Только необходимые</button>
-  </div>
-</div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <script type="application/json" id="car-tree"><?= car_tree_json() ?></script>
 </body>

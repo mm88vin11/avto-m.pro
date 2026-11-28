@@ -2,14 +2,19 @@
 $c = content('about');
 meta('title', $c['seo_title']); meta('desc', $c['seo_desc']); meta('canonical', '/about');
 $s = site();
+$bset = site_img_srcset('about-building');
 ?>
 <div class="wrap">
   <?= breadcrumbs([['О компании', null]]) ?>
-  <div class="page-head"><h1><?= h($c['title']) ?></h1><p class="lead"><?= h($c['lead']) ?></p></div>
-  <div class="about-band" data-reveal>
-    <div class="about-copy"><p class="motto">«<?= h($s['tagline']) ?>»</p></div>
-    <div class="about-facts"><?php foreach ($c['facts'] as $f): ?><div class="fact"><b data-count-to="<?= h($f['value']) ?>"><?= h($f['value']) ?></b><span><?= h($f['label']) ?></span></div><?php endforeach; ?></div>
-  </div>
+  <section class="about2 about-hero">
+    <div class="about2-copy">
+      <h1><?= h($c['title']) ?></h1>
+      <p class="about2-motto"><?= h($s['tagline']) ?></p>
+      <p class="about2-text"><?= h($c['lead']) ?></p>
+      <?php if ($c['facts']): ?><ul class="about-facts2"><?php foreach ($c['facts'] as $f): ?><li><b><?= h($f['value']) ?></b><span><?= h($f['label']) ?></span></li><?php endforeach; ?></ul><?php endif; ?>
+    </div>
+    <div class="about2-pic"><img src="<?= h(site_img('about-building')) ?>"<?= $bset ? ' srcset="' . h($bset) . '" sizes="(max-width: 899px) 92vw, 640px"' : '' ?> width="1400" height="731" alt="Магазин AVTO-M" fetchpriority="high"></div>
+  </section>
   <div class="two-col">
     <article class="panel prose-panel"><div class="prose"><?= md($c['body']) ?></div></article>
     <aside class="panel side-contact">

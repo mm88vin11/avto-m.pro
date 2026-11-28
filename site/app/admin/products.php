@@ -261,10 +261,15 @@ a_head($title, '/products');
     </div><?php endif; ?>
   </div>
 
+  <nav class="a-steps-nav" aria-label="Разделы карточки товара">
+    <a href="#main"><span>1</span>Основное</a><a href="#photos"><span>2</span>Фото</a><a href="#mp"><span>3</span>Цена и ссылки</a><a href="#specs"><span>4</span>Характеристики</a><a href="#compat"><span>5</span>Автомобили</a><a href="#seo"><span>6</span>Поисковики</a>
+  </nav>
+
   <div class="a-edit-grid">
     <div class="a-edit-main">
-      <section class="a-card" id="main">
-        <h2>Карточка</h2>
+      <section class="a-card a-step" id="main">
+        <h2><span class="a-step-n">1</span>Основное</h2>
+        <p class="a-step-hint">Название и артикул видят покупатели в каталоге и в поиске.</p>
         <?= a_field('name', 'Название', $data['name'], ['required' => true, 'error' => $errors['name'] ?? '', 'attrs' => ' data-slug-src', 'placeholder' => 'Газовые упоры багажника LIFTAUTOPRO для Ford Focus II седан']) ?>
         <div class="a-row3">
           <?= a_field('sku', 'Артикул', $data['sku'], ['required' => true, 'error' => $errors['sku'] ?? '', 'placeholder' => 'LAP-10488']) ?>
@@ -279,9 +284,21 @@ a_head($title, '/products');
         </div>
       </section>
 
-      <section class="a-card" id="mp">
-        <h2>Где купить</h2>
-        <p class="a-muted">Кнопки на сайте ведут на эти страницы. Метки рекламы из ссылок убираются сами.</p>
+      <section class="a-card a-step" id="photos">
+        <h2><span class="a-step-n">2</span>Фото</h2>
+        <p class="a-step-hint">Первое фото — главное в каталоге. Можно загрузить сразу несколько.</p>
+        <div class="a-photos" data-photos>
+          <?php foreach ($data['photos'] as $i => $ph): $r = photo_row($ph['id']); if (!$r) continue; ?>
+            <div class="a-ph" draggable="true"><img src="<?= h(img_url($r, 400)) ?>" alt=""><input type="hidden" name="photos[<?= $i ?>][id]" value="<?= (int)$r['id'] ?>"><input class="a-ph-alt" name="photos[<?= $i ?>][alt]" value="<?= h($ph['alt']) ?>" placeholder="Подпись к фото" aria-label="Подпись к фото"><button type="button" class="a-ph-del" data-ph-del aria-label="Убрать фото"><?= a_icon('close') ?></button></div>
+          <?php endforeach; ?>
+        </div>
+        <label class="a-drop" data-ph-drop><input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden data-ph-input><?= a_icon('photo') ?><span><b>Добавить фото</b><small>Перетащите сюда или нажмите. JPG, PNG, WebP до 20 МБ — уменьшим и сожмём сами.</small></span></label>
+        <p class="a-hint">Порядок меняется перетаскиванием.</p>
+      </section>
+
+      <section class="a-card a-step" id="mp">
+        <h2><span class="a-step-n">3</span>Цена и где купить</h2>
+        <p class="a-step-hint">Вставьте ссылки на товар на Wildberries и Ozon — на сайте появятся кнопки. Метки рекламы из ссылок убираются сами.</p>
         <div class="a-row2">
           <?= a_field('wb_url', 'Ссылка на Wildberries', $data['wb_url'], ['type' => 'url', 'optional' => true, 'placeholder' => 'https://www.wildberries.ru/catalog/…/detail.aspx', 'error' => $errors['wb_url'] ?? '', 'attrs' => ' data-mp-url="wb"']) ?>
           <?= a_field('ozon_url', 'Ссылка на Ozon', $data['ozon_url'], ['type' => 'url', 'optional' => true, 'placeholder' => 'https://www.ozon.ru/product/…', 'error' => $errors['ozon_url'] ?? '', 'attrs' => ' data-mp-url="ozon"']) ?>
@@ -294,8 +311,8 @@ a_head($title, '/products');
         </div>
       </section>
 
-      <section class="a-card" id="specs">
-        <div class="a-card-head"><h2>Характеристики</h2><a href="/admin/attributes" class="a-link-sm">Добавить характеристику</a></div>
+      <section class="a-card a-step" id="specs">
+        <div class="a-card-head"><h2><span class="a-step-n">4</span>Характеристики</h2><a href="/admin/attributes" class="a-link-sm">Добавить характеристику</a></div>
         <div class="a-row3">
           <?php foreach (attributes_all() as $at): $v = $data['attrs'][$at['code']] ?? ''; ?>
             <?= a_field('attrs[' . $at['code'] . ']', $at['name'] . ($at['unit'] ? ', ' . $at['unit'] : ''), is_numeric($v) ? fmt_num($v) : $v, ['optional' => true, 'error' => $errors['attr_' . $at['code']] ?? '', 'attrs' => $at['type'] === 'number' ? ' inputmode="decimal"' : '']) ?>
@@ -303,9 +320,9 @@ a_head($title, '/products');
         </div>
       </section>
 
-      <section class="a-card" id="compat">
-        <div class="a-card-head"><h2>Совместимость</h2><a href="/admin/cars" class="a-link-sm">Справочник автомобилей</a></div>
-        <p class="a-muted">По этим строкам работает подбор. Пустой кузов или двигатель — подходит к любому (если в других строках товара они не указаны).</p>
+      <section class="a-card a-step" id="compat">
+        <div class="a-card-head"><h2><span class="a-step-n">5</span>К каким машинам подходит</h2><a href="/admin/cars" class="a-link-sm">Справочник автомобилей</a></div>
+        <p class="a-step-hint">По этим строкам работает подбор по автомобилю. Не отметили кузов или двигатель — значит, подходит к любому.</p>
         <?php if (!empty($errors['compat'])): ?><p class="a-err"><?= h($errors['compat']) ?></p><?php endif; ?>
         <div class="a-compat" data-compat>
           <?php foreach ($data['compat'] as $i => $c) a_compat_row($i, $c, $makes, $models, $bodies); ?>
@@ -315,9 +332,9 @@ a_head($title, '/products');
         <script type="application/json" data-models><?= json_encode(array_map(fn($m) => ['id' => (int)$m['id'], 'mk' => (int)$m['make_id'], 'n' => $m['name'], 'yf' => $m['year_from'], 'yt' => $m['year_to'], 'b' => list_split($m['bodies'])], $models), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script>
       </section>
 
-      <section class="a-card" id="seo">
-        <h2>Поисковики</h2>
-        <p class="a-muted">Можно не заполнять — заголовок и описание соберутся из названия, артикула и совместимости.</p>
+      <section class="a-card a-step a-step-opt" id="seo">
+        <h2><span class="a-step-n">6</span>Для Яндекса и Google <span class="a-opt">можно не заполнять</span></h2>
+        <p class="a-step-hint">Если пусто — заголовок и описание соберутся сами из названия, артикула и автомобилей.</p>
         <?= a_field('seo_title', 'Заголовок страницы', $data['seo_title'], ['optional' => true, 'attrs' => ' maxlength="90" data-count="70"']) ?>
         <?= a_field('seo_desc', 'Описание для поиска', $data['seo_desc'], ['type' => 'textarea', 'rows' => 2, 'optional' => true, 'attrs' => ' maxlength="250" data-count="160"']) ?>
         <div class="a-row2">
@@ -328,17 +345,6 @@ a_head($title, '/products');
     </div>
 
     <aside class="a-edit-side">
-      <section class="a-card" id="photos">
-        <h2>Фото</h2>
-        <div class="a-photos" data-photos>
-          <?php foreach ($data['photos'] as $i => $ph): $r = photo_row($ph['id']); if (!$r) continue; ?>
-            <div class="a-ph" draggable="true"><img src="<?= h(img_url($r, 400)) ?>" alt=""><input type="hidden" name="photos[<?= $i ?>][id]" value="<?= (int)$r['id'] ?>"><input class="a-ph-alt" name="photos[<?= $i ?>][alt]" value="<?= h($ph['alt']) ?>" placeholder="Подпись к фото" aria-label="Подпись к фото"><button type="button" class="a-ph-del" data-ph-del aria-label="Убрать фото"><?= a_icon('close') ?></button></div>
-          <?php endforeach; ?>
-        </div>
-        <label class="a-drop" data-ph-drop><input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden data-ph-input><?= a_icon('photo') ?><span><b>Добавить фото</b><small>Перетащите сюда или нажмите. JPG, PNG, WebP до 20 МБ — уменьшим и сожмём сами.</small></span></label>
-        <p class="a-hint">Первое фото — главное в каталоге. Порядок меняется перетаскиванием.</p>
-      </section>
-
       <section class="a-card a-sticky-actions">
         <h2>Публикация</h2>
         <?= a_check('published', 'Показывать на сайте', !empty($data['published']), 'Снимите, чтобы скрыть товар') ?>

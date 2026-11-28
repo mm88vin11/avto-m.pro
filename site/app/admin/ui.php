@@ -34,9 +34,9 @@ function a_head($title, $active = '') {
 <?php if ($u): ?>
 <header class="a-top">
   <button class="a-burger" type="button" data-a-menu aria-label="Меню"><?= a_icon('menu') ?></button>
-  <a class="a-logo" href="/admin"><span class="logo-img" aria-hidden="true"></span><span>Управление</span></a>
+  <a class="a-logo" href="/admin"><img class="logo-img" src="<?= h(site_img('logo')) ?>" alt="AVTO-M" width="220" height="68"><span>Управление</span></a>
   <div class="a-top-r">
-    <a class="a-btn a-btn-ghost" href="/" target="_blank" rel="noopener"><?= a_icon('external') ?><span>Открыть сайт</span></a>
+    <a class="a-btn a-btn-ghost" href="/" target="_blank" rel="noopener" data-tour-id="open-site"><?= a_icon('external') ?><span>Открыть сайт</span></a>
     <a class="a-user" href="/admin/account" title="Мой профиль"><span><?= h(mb_substr($u['name'], 0, 1)) ?></span><b><?= h($u['name']) ?></b></a>
   </div>
 </header>
@@ -53,6 +53,7 @@ function a_head($title, $active = '') {
   <form method="post" action="/admin/logout"><?= csrf_field() ?><button type="submit"><?= a_icon('arrow-left') ?><span>Выйти</span></button></form>
 </nav>
 <main class="a-main" id="main">
+<?php if (a_tour_due($u)): ?><script type="application/json" id="a-tour"><?= json_encode(a_tour_steps(), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) ?></script><?php endif; ?>
 <?php foreach (flash() as [$k, $m]): ?><div class="a-flash a-flash-<?= h($k) ?>" role="status"><?= a_icon($k === 'ok' ? 'check-circle' : 'alert') ?><span><?= $m ?></span></div><?php endforeach; ?>
 <?php else: ?>
 <main class="a-auth">
@@ -116,3 +117,28 @@ function a_require_post() {
   if (!csrf_ok()) { http_response_code(400); a_head('Ошибка'); echo '<div class="a-card"><h1>Страница устарела</h1><p>Обновите страницу и повторите действие.</p></div>'; a_foot(); exit; }
   return true;
 }
+
+/* ---------- обучение при первом входе ----------
+   Показывается каждому сотруднику один раз: после «Понятно» или «Пропустить» отметка пишется в базу
+   (настройка tour.<id пользователя>), поэтому обучение не всплывает снова ни на этом, ни на другом устройстве.
+   Пройти заново можно из «Инструкции» (ссылка с ?tour=1). */
+function a_tour_due($u) {
+  if (!$u) return false;
+  if (!empty($_GET['tour'])) return true;
+  return !setting_raw('tour.' . (int)$u['id']);
+}
+function a_tour_done($u) { if ($u) setting_save('tour.' . (int)$u['id'], now()); }
+function a_tour_steps() {
+  return [
+    ['', 'Добро пожаловать в управление сайтом', 'За минуту покажем, где что находится. Всё, что вы меняете здесь, сначала сохраняется черновиком — на сайт попадает только после кнопки «Опубликовать».'],
+    ['/admin', 'Сводка', 'Главная страница админки: новые заявки, черновики и подсказки, что ещё заполнить.'],
+    ['/admin/leads', 'Заявки', 'Сюда приходят заявки с сайта. Открывайте, звоните клиенту и меняйте статус: «Новая» → «В работе» → «Выполнена».'],
+    ['/admin/products', 'Товары', 'Фото, цены, ссылки на Wildberries и Ozon, характеристики и автомобили, к которым подходит деталь. Найти товар можно по артикулу.'],
+    ['/admin/pages', 'Страницы', 'Тексты всех страниц, баннеры главной и скорость их смены, порядок блоков. Кнопка «Предпросмотр» покажет страницу до публикации.'],
+    ['/admin/images', 'Картинки сайта', 'Логотип, значок во вкладке браузера, здание в «О компании», 3D-значки и картинки пустых страниц. Загрузите новую — сайт сам её уменьшит и сожмёт.'],
+    ['/admin/settings', 'Настройки', 'Телефон, адрес, часы работы, почта для заявок и номер Яндекс Метрики.'],
+    ['/admin/history', 'История правок', 'Любую правку видно здесь, и её можно вернуть. Ошибиться не страшно.'],
+    ['open-site', 'Открыть сайт', 'Проверьте, как всё выглядит для покупателей. Обучение можно пройти ещё раз в разделе «Инструкция».'],
+  ];
+}
+

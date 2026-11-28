@@ -1,7 +1,7 @@
 <?php
 if (!defined('AVTOM')) { http_response_code(404); exit; }
 
-const DB_SCHEMA_VERSION = 4;
+const DB_SCHEMA_VERSION = 5;
 
 function db() {
   static $pdo = null;
@@ -21,8 +21,9 @@ function db() {
       $pdo->beginTransaction();
       seed_all($pdo);
       $pdo->commit();
-    } elseif ($v < 4) {
-      seed_upgrade_2611(); // графика заказчика от 26.11: баннеры, чистые картинки плиток
+    } else {
+      if ($v < 4) seed_upgrade_2611(); // графика заказчика от 26.11: баннеры, чистые картинки плиток
+      if ($v < 5) seed_upgrade_2811(); // короче тексты главной, баннер раз в 3 секунды
     }
   }
   return $pdo;

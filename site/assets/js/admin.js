@@ -12,8 +12,72 @@
   var side = $('.a-side');
   d.addEventListener('click', function (e) {
     if (e.target.closest('[data-a-menu]')) side.classList.toggle('is-open');
-    else if (side && side.classList.contains('is-open') && !e.target.closest('.a-side')) side.classList.remove('is-open');
+    else if (side && side.classList.contains('is-open') && !e.target.closest('.a-side') && !e.target.closest('.a-tour')) side.classList.remove('is-open');
   });
+
+  // обучение при первом входе: подсвечиваем раздел меню и рассказываем, зачем он нужен
+  var tourData = $('#a-tour');
+  if (tourData) (function () {
+    var steps = []; try { steps = JSON.parse(tourData.textContent); } catch (x) { return; }
+    var i = 0, wide = function () { return matchMedia('(min-width: 900px)').matches; };
+    var wrap = d.createElement('div'); wrap.className = 'a-tour'; wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true'); wrap.setAttribute('aria-labelledby', 'a-tour-t');
+    wrap.innerHTML = '<div class="a-tour-spot" aria-hidden="true"></div><div class="a-tour-card"><div class="a-tour-top"><span class="a-tour-n"></span><button type="button" class="a-tour-skip" data-tour="skip">Пропустить</button></div><h2 id="a-tour-t"></h2><p></p><div class="a-tour-dots" aria-hidden="true"></div><div class="a-tour-btns"><button type="button" class="a-btn a-btn-ghost" data-tour="back">Назад</button><button type="button" class="a-btn a-btn-primary" data-tour="next">Дальше</button></div></div>';
+    d.body.appendChild(wrap);
+    var spot = $('.a-tour-spot', wrap), card = $('.a-tour-card', wrap);
+    $('.a-tour-dots', wrap).innerHTML = steps.map(function () { return '<i></i>'; }).join('');
+    function target(st) {
+      if (!st[0]) return null;
+      if (st[0] === 'open-site') return $('[data-tour-id="open-site"]');
+      return $('.a-side a[href="' + B + st[0] + '"]');
+    }
+    function place() {
+      var st = steps[i], t = target(st);
+      var needSide = !!t && !wide() && !!t.closest('.a-side');
+      if (side && needSide !== side.classList.contains('is-open')) { side.classList.toggle('is-open', needSide); if (needSide) { spot.style.opacity = 0; setTimeout(place, 420); } }
+      wrap.classList.toggle('has-spot', !!t);
+      if (!t) { spot.style.opacity = 0; card.className = 'a-tour-card is-center'; return; }
+      t.scrollIntoView({ block: 'nearest' });
+      var r = t.getBoundingClientRect(), pad = 6;
+      spot.style.opacity = 1;
+      spot.style.transform = 'translate(' + (r.left - pad) + 'px,' + (r.top - pad) + 'px)';
+      spot.style.width = (r.width + pad * 2) + 'px'; spot.style.height = (r.height + pad * 2) + 'px';
+      if (wide()) {
+        card.className = 'a-tour-card is-side';
+        var left = t.closest('.a-side') ? r.right + 18 : Math.max(16, r.right - 380);
+        var top = t.closest('.a-side') ? Math.min(Math.max(16, r.top - 20), innerHeight - card.offsetHeight - 16) : r.bottom + 16;
+        card.style.left = left + 'px'; card.style.top = top + 'px';
+      } else { card.className = 'a-tour-card is-sheet'; card.style.left = card.style.top = ''; }
+    }
+    function show(k) {
+      i = Math.max(0, Math.min(steps.length - 1, k));
+      var st = steps[i];
+      $('h2', card).textContent = st[1]; $('p', card).textContent = st[2];
+      $('.a-tour-n', card).textContent = (i + 1) + ' из ' + steps.length;
+      $$('.a-tour-dots i', wrap).forEach(function (x, n) { x.classList.toggle('is-on', n === i); });
+      $('[data-tour="back"]', card).hidden = i === 0;
+      $('[data-tour="next"]', card).textContent = i === steps.length - 1 ? 'Понятно, начнём' : (i === 0 ? 'Показать' : 'Дальше');
+      place();
+      $('[data-tour="next"]', card).focus({ preventScroll: true });
+    }
+    function done() {
+      wrap.classList.add('is-out'); if (side) side.classList.remove('is-open');
+      setTimeout(function () { wrap.remove(); }, 260);
+      post(B + '/admin/tour', {});
+    }
+    wrap.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-tour]'); if (!b) return;
+      var a = b.getAttribute('data-tour');
+      if (a === 'skip') done(); else if (a === 'back') show(i - 1); else if (i === steps.length - 1) done(); else show(i + 1);
+    });
+    d.addEventListener('keydown', function (e) {
+      if (!wrap.isConnected) return;
+      if (e.key === 'Escape') done();
+      if (e.key === 'ArrowRight') show(i + 1);
+      if (e.key === 'ArrowLeft') show(i - 1);
+    });
+    window.addEventListener('resize', function () { if (wrap.isConnected) place(); });
+    requestAnimationFrame(function () { wrap.classList.add('is-on'); show(0); });
+  })();
 
   // подтверждение опасных действий
   d.addEventListener('click', function (e) { var b = e.target.closest('[data-confirm]'); if (b && !confirm(b.getAttribute('data-confirm'))) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);

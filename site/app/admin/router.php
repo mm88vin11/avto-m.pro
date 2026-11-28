@@ -29,7 +29,7 @@ if (!users_exist()) {
   a_head('Первый запуск');
   ?>
   <form class="a-auth-box" method="post" action="/admin">
-    <span class="logo-img" aria-hidden="true"></span>
+    <img class="logo-img" src="<?= h(site_img('logo')) ?>" alt="AVTO-M" width="220" height="68">
     <h1>Первый запуск</h1>
     <p class="a-muted">Создайте учётную запись владельца. Код настройки лежит на хостинге в файле <code>app/data/setup-code.txt</code>.</p>
     <?php if ($err): ?><div class="a-flash a-flash-err"><?= a_icon('alert') ?><span><?= h($err) ?></span></div><?php endif; ?>
@@ -57,7 +57,7 @@ if (!admin_user()) {
   a_head('Вход');
   ?>
   <form class="a-auth-box" method="post" action="/admin/login">
-    <span class="logo-img" aria-hidden="true"></span>
+    <img class="logo-img" src="<?= h(site_img('logo')) ?>" alt="AVTO-M" width="220" height="68">
     <h1>Вход в панель управления</h1>
     <?php if ($err): ?><div class="a-flash a-flash-err"><?= a_icon('alert') ?><span><?= h($err) ?></span></div><?php endif; ?>
     <?= csrf_field() ?>
@@ -82,6 +82,7 @@ switch ($r0) {
   case 'categories': case 'brands': case 'cars': case 'attributes': require __DIR__ . '/refs.php'; break;
   case 'pages': require __DIR__ . '/pages.php'; break;
   case 'leads': require __DIR__ . '/leads.php'; break;
+  case 'tour': if ($isPost && csrf_ok()) a_tour_done(admin_user()); json_out(['ok' => true]);
   case 'settings': case 'users': case 'account': case 'backups': case 'history': case 'help': require __DIR__ . '/system.php'; break;
   default: http_response_code(404); a_head('Не найдено'); echo '<div class="a-card"><h1>Раздел не найден</h1><p><a href="/admin">На главную админки</a></p></div>'; a_foot();
 }

@@ -26,17 +26,17 @@ function api_route($name, $method) {
     case 'search':
       $qs = trim(mb_substr((string)($_GET['q'] ?? ''), 0, 80));
       if (mb_strlen($qs) < 2) json_out(['items' => [], 'total' => 0]);
-      $ids = search_ids($qs);
+      [$ids, $used, $kind] = search_resolve($qs);
       $items = products_public_json(array_slice($ids, 0, 6));
       $cats = [];
-      $qn = search_norm($qs);
+      $qn = search_norm($kind === 'fixed' ? $used : $qs);
       foreach (categories_visible() as $c) if (mb_strpos(search_norm($c['name']), $qn) !== false) $cats[] = ['name' => $c['name'], 'url' => '/catalog/' . $c['slug']];
       $models = [];
       foreach (car_tree() as $mk) foreach ($mk['models'] as $m) {
         $t = search_norm($mk['name'] . ' ' . $m['name']);
         if (strpos(' ' . $t, ' ' . explode(' ', $qn)[0]) !== false && count($models) < 3) $models[] = ['name' => $mk['name'] . ' ' . $m['name'], 'url' => '/avto/' . $mk['slug'] . '/' . $m['slug']];
       }
-      json_out(['items' => $items, 'total' => count($ids), 'cats' => $cats, 'models' => $models]);
+      json_out(['items' => $items, 'total' => count($ids), 'cats' => $cats, 'models' => $models, 'fixed' => $kind === 'fixed' ? mb_strtolower($used) : '', 'fuzzy' => $kind === 'fuzzy']);
 
     case 'products':
       $ids = array_slice(array_filter(array_map('intval', explode(',', (string)($_GET['ids'] ?? '')))), 0, 50);
