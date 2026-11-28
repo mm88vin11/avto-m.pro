@@ -80,7 +80,7 @@ function page_schema($key) {
 function arr_get($arr, $path) { foreach (explode('.', $path) as $k) { if (!is_array($arr) || !array_key_exists($k, $arr)) return null; $arr = $arr[$k]; } return $arr; }
 function arr_set(&$arr, $path, $v) { $ref = &$arr; foreach (explode('.', $path) as $k) { if (!isset($ref[$k]) || !is_array($ref[$k])) $ref[$k] = $ref[$k] ?? []; $ref = &$ref[$k]; } $ref = $v; }
 function fname($path) { $p = explode('.', $path); return 'c[' . implode('][', $p) . ']'; }
-const PAGE_ICONS = ['price' => 'Ценник', 'shield' => 'Щит', 'kit' => 'Коробка', 'chat' => 'Сообщение', 'car' => 'Машина', 'truck' => 'Доставка', 'wrench' => 'Ключ', 'check-circle' => 'Галочка', 'clock' => 'Часы', 'building' => 'Здание', 'gauge' => 'Датчик', 'sparkle' => 'Звёздочка'];
+const PAGE_ICONS = ['shield' => 'Щит с галочкой', 'truck' => 'Грузовик — доставка', 'kit' => 'Коробка — комплект', 'chat' => 'Сообщение', 'support' => 'Наушники — поддержка', 'price' => 'Ценник', 'car' => 'Машина', 'gauge' => 'Ползунки — подбор', 'wrench' => 'Шестерёнка с ключом', 'check-circle' => 'Гарантия', 'clock' => 'Заказ оформлен', 'building' => 'Метка на карте', 'payment' => 'Кошелёк — оплата', 'sparkle' => 'Избранное'];
 
 /* ---------- список ---------- */
 if ($key === '' || !isset($keys[$key])) {

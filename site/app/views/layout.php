@@ -15,7 +15,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 <head>
 <meta charset="utf-8">
 <script><?= JS_BOOT ?></script>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cut">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover">
 <title><?= h($title) ?></title>
 <meta name="description" content="<?= h($desc) ?>">
 <meta name="robots" content="<?= h($robots) ?>">
@@ -58,7 +58,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 
 <header class="hd" id="top">
   <div class="wrap hd-top">
-    <a class="logo" href="/" aria-label="AVTO-M — на главную"><span class="logo-img" role="img" aria-label="AVTO-M. Качество по доступной цене"></span></a>
+    <a class="logo" href="/" aria-label="AVTO-M — на главную"><img class="logo-img" src="/assets/img/logo.webp" srcset="/assets/img/logo.webp 1x, /assets/img/logo@2x.webp 2x" width="220" height="68" alt="AVTO-M. Качество по доступной цене" fetchpriority="high"></a>
     <p class="hd-slogan"><?= h($s['header_note']) ?></p>
     <span class="hd-info"><?= icon('pin') ?><span><?= h($s['address_short']) ?><small><?= h($s['region']) ?></small></span></span>
     <span class="hd-info"><?= icon('clock') ?><span><?= h($s['hours']) ?><small>Перед визитом позвоните</small></span></span>
@@ -125,7 +125,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 <footer class="ft">
   <div class="wrap ft-in">
     <div class="ft-brand">
-      <img src="/assets/img/logo-white.webp" width="200" height="68" alt="AVTO-M — Качество по доступной цене" decoding="async">
+      <img src="/assets/img/logo@2x.webp" width="220" height="68" alt="AVTO-M — Качество по доступной цене" decoding="async" loading="lazy">
       <p>Газовые упоры, расширительные бачки и другие автозапчасти с подбором по автомобилю. Покупка на Wildberries и Ozon или по заявке.</p>
     </div>
     <nav class="ft-col" aria-label="Разделы">
@@ -173,7 +173,7 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 
 <div class="drawer" id="drawer" hidden>
   <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Меню">
-    <div class="drawer-head"><span class="logo-img" aria-hidden="true"></span><button class="icon-btn" type="button" data-drawer-close aria-label="Закрыть меню"><?= icon('close') ?></button></div>
+    <div class="drawer-head"><img class="logo-img" src="/assets/img/logo@2x.webp" width="220" height="68" alt="" loading="lazy"><button class="icon-btn" type="button" data-drawer-close aria-label="Закрыть меню"><?= icon('close') ?></button></div>
     <nav class="drawer-nav">
       <a href="/catalog"><?= icon('catalog') ?>Каталог</a>
       <?php foreach ($cats as $c): ?><a class="sub" href="/catalog/<?= h($c['slug']) ?>"><?= h($c['name']) ?></a><?php endforeach; ?>

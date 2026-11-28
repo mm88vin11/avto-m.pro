@@ -42,9 +42,16 @@ function not_found() {
 function empty_art($name, $icon) {
   foreach (['webp', 'png'] as $ext) {
     $f = '/assets/img/empty/' . $name . '.' . $ext;
-    if (is_file(WEB_DIR . $f)) return '<img class="empty-art" src="' . h($f) . '?v=' . filemtime(WEB_DIR . $f) . '" alt="" width="240" height="180" loading="lazy">';
+    if (is_file(WEB_DIR . $f)) return '<img class="empty-art" src="' . h($f) . '?v=' . filemtime(WEB_DIR . $f) . '" alt="" width="240" height="240" loading="lazy">';
   }
   return '<div class="empty-ic" aria-hidden="true">' . icon($icon) . '</div>';
+}
+/** 3D-значок из assets/img/ui по имени значка из админки; если картинки нет — обычный контурный значок */
+function icon3d($name, $size = 48) {
+  static $map = ['shield' => 'shield', 'truck' => 'truck', 'kit' => 'box', 'chat' => 'chat', 'price' => 'tag', 'car' => 'car', 'filter' => 'sliders', 'wrench' => 'gear', 'pin' => 'location', 'check' => 'warranty', 'building' => 'location', 'clipboard' => 'order-confirmed', 'bag' => 'payment', 'route' => 'location', 'sparkle' => 'favorites', 'check-circle' => 'warranty', 'gauge' => 'sliders', 'clock' => 'order-confirmed'];
+  $f = '/assets/img/ui/' . ($map[$name] ?? $name) . '.webp';
+  if (is_file(WEB_DIR . $f)) return '<img class="i3d" src="' . h($f) . '?v=' . filemtime(WEB_DIR . $f) . '" alt="" width="' . (int)$size . '" height="' . (int)$size . '" loading="lazy" decoding="async">';
+  return icon(in_array($name, ['support', 'payment'], true) ? 'chat' : $name);
 }
 function icon($name, $cls = '') { return '<svg class="i ' . h($cls) . '" aria-hidden="true" focusable="false"><use href="#i-' . h($name) . '"/></svg>'; }
 

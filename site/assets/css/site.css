@@ -1060,7 +1060,7 @@ a.duo-card:hover { color: var(--ink); transform: translateY(-3px); box-shadow: 0
 .fgroup legend { font-size: 15px; }
 /* карточка подстраивает кнопки под свою ширину */
 .pc { container-type: inline-size; }
-@container (max-width: 250px) {
+@container (max-width: 190px) {
   .pc-btns { grid-template-columns: 1fr; }
   .pc-btns .btn:only-child { grid-column: auto; }
 }
@@ -1320,14 +1320,6 @@ h1, .page-head h1, .nf h1, .sec-h h2, .hs-head h2, .section-head h2, .sec-head h
 .cc:hover .cc-btn { filter: brightness(1.15); }
 .cc:hover .cc-btn .i { transform: translateX(3px); }
 @media (max-width: 459px) { .cc-btn { align-self: stretch; padding: 0 8px; font-size: 13.5px; } }
-/* пять карточек в три ряда — последняя растягивается и ложится горизонтально */
-@media (min-width: 760px) {
-  .cc-grid > .cc:last-child:nth-child(3n + 2) { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto 1fr; column-gap: 16px; }
-  .cc-grid > .cc:last-child:nth-child(3n + 2) .cc-pic { grid-column: 2; grid-row: 1 / span 3; margin: 0; aspect-ratio: auto; min-height: 170px; }
-  .cc-grid > .cc:last-child:nth-child(3n + 2) .cc-btn { align-self: end; justify-self: start; }
-}
-@media (max-width: 759px) { .cc-grid > .cc:last-child:nth-child(odd) { grid-column: 1 / -1; } .cc-grid > .cc:last-child:nth-child(odd) .cc-pic { aspect-ratio: 16 / 7; } }
-
 /* ---------- «О компании» на главной ---------- */
 .ab5 { display: grid; gap: 0; background: #fff; border-radius: 16px; box-shadow: 0 0 0 1px var(--line), var(--sh-1); overflow: hidden; }
 @media (min-width: 760px) { .ab5 { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); } }
@@ -1371,8 +1363,122 @@ h1, .page-head h1, .nf h1, .sec-h h2, .hs-head h2, .section-head h2, .sec-head h
   .bnr-dots { left: 14px; bottom: 12px; }
   .sec-h h2, .hs-head h2 { font-size: 22px; }
 }
-@media (max-width: 759px) {
-  .cc-grid > .cc:last-child:nth-child(odd) { display: grid; grid-template-columns: minmax(0, 1fr) 120px; grid-template-rows: auto auto 1fr; column-gap: 12px; }
-  .cc-grid > .cc:last-child:nth-child(odd) .cc-pic { grid-column: 2; grid-row: 1 / span 3; margin: 0; aspect-ratio: 1; }
-  .cc-grid > .cc:last-child:nth-child(odd) .cc-btn { align-self: end; justify-self: start; padding: 0 14px; }
+
+/* =================================================================
+   v7 · подача маркетплейса (как Ozon): компактные плитки, ровные карточки
+   с одинаковым числом строк, новый логотип и 3D-графика заказчика
+   ================================================================= */
+html, body { overflow-x: clip; }
+/* логотип — картинка, без маски */
+.logo { flex: none; display: block; line-height: 0; }
+.logo-img, .drawer-head .logo-img { display: block; width: 150px; height: auto; aspect-ratio: 220 / 68; background: none; -webkit-mask: none; mask: none; }
+@media (min-width: 760px) { .logo-img { width: 180px; } }
+@media (min-width: 1100px) { .logo-img { width: 206px; } }
+.drawer-head .logo-img { width: 140px; }
+.ft-brand img { width: 200px; height: auto; }
+@media (max-width: 759px) { .hd-top { padding-top: 8px; padding-bottom: 6px; } }
+
+/* 3D-значки */
+.i3d { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 8px rgba(11, 44, 114, .18)); }
+.sb-adv-ic { width: 46px; height: 46px; }
+.sb-adv b, .sb-adv small { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.sb-adv b { -webkit-line-clamp: 1; }
+.sb-adv small { -webkit-line-clamp: 2; min-height: 2.7em; }
+.adv-ic3d { width: 72px; height: 72px; background: none; border-radius: 0; margin-bottom: 12px; }
+.sb-help { padding-right: 104px; min-height: 0; }
+.sb-help-art { position: absolute; right: 8px; top: 12px; width: 96px; height: 96px; object-fit: contain; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .35)); z-index: 1; }
+.sb-help .btn { position: relative; z-index: 2; }
+@media (min-width: 1000px) { .sb-help { padding-right: 20px; padding-top: 18px; } .sb-help h2, .sb-help p { padding-right: 76px; } .sb-help p { padding-right: 0; } .sb-help-art { width: 84px; height: 84px; right: 6px; top: 6px; } }
+.empty-art { width: 220px; max-width: 64%; height: auto; aspect-ratio: 1; object-fit: contain; margin: -4px auto 6px; filter: drop-shadow(0 14px 18px rgba(11, 44, 114, .18)); }
+
+/* баннер чуть ниже — как у маркетплейса */
+@media (min-width: 700px) { .bnr .slide { min-height: 300px; padding: 30px 36px 60px; } .slide-obj { max-height: 270px; } }
+@media (min-width: 1240px) { .bnr .slide { min-height: 320px; padding: 34px 44px 62px; } .slide-title { font-size: 44px; } }
+
+/* ---------- плитки каталога на главной (компактно) ---------- */
+.cc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 600px) { .cc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .cc-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; } }
+.cc { gap: 2px; padding: 10px 10px 12px; border-radius: 16px; }
+.cc-pic { order: -1; aspect-ratio: 1 / .82; margin: 0 0 8px; border-radius: 12px; }
+.cc-pic img.is-cut { width: 84%; height: 84%; }
+.cc-pic > .i { width: 44px; height: 44px; }
+.cc-t { font-size: 15px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.5em; }
+.cc-n { font-size: 12.5px; line-height: 1.35; min-height: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.7em; }
+.cc-btn { align-self: stretch; height: 34px; margin-top: 10px; padding: 0 8px; font-size: 13.5px; border-radius: 9px; }
+@media (min-width: 1100px) { .cc-t { font-size: 15.5px; } }
+@media (max-width: 599px) {
+  /* как лента категорий на Ozon: прокрутка пальцем, плитки одной высоты */
+  .cc-grid { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 calc(var(--gut) * -1); padding: 2px var(--gut) 10px; scrollbar-width: none; }
+  .cc-grid::-webkit-scrollbar { display: none; }
+  .cc { flex: 0 0 148px; scroll-snap-align: start; }
+  .cc-n { display: none; }
+  .cc-btn { display: none; }
+  .cc-t { font-size: 14px; }
 }
+
+/* ---------- карточки товаров: одинаковые строки, плотная сетка ---------- */
+.grid { gap: 10px; }
+@media (min-width: 560px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 800px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; } }
+@media (min-width: 1100px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } .results .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1240px) { .page-home .grid, .page-brand .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } .results .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.pc { border-radius: 16px; }
+.pc-img { aspect-ratio: 1; margin: 6px 6px 0; border-radius: 12px; background: #f3f6fa; }
+.pc-img img { object-fit: contain; }
+.pc-img img[src*="-cut"], .pc-img picture img { object-fit: cover; }
+.pc-body { gap: 3px; padding: 10px 12px 12px; }
+.pc-title { font-size: 14px; line-height: 1.32; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 3.96em; }
+.pc-brand { font-size: 12.5px; }
+.pc-sku { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-rows { gap: 3px; margin: 4px 0 10px; font-size: 13px; }
+.pc-rows li { min-width: 0; }
+.pc-rows li > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pc-btns .btn { --h: 38px; font-size: 13.5px; }
+.pc-cart { height: 34px; font-size: 13.5px; }
+.pc-cmp { top: 12px; right: 12px; width: 34px; height: 34px; }
+/* телефон: товар одной строкой — фото слева, данные справа (одна карточка в ряд, кнопка запроса видна) */
+@media (max-width: 559px) {
+  .grid { grid-template-columns: 1fr; gap: 8px; }
+  .pc { display: grid; grid-template-columns: 116px minmax(0, 1fr); align-items: start; }
+  .pc-img { grid-row: 1 / span 2; width: 104px; height: 104px; aspect-ratio: auto; margin: 10px 0 10px 10px; }
+  .pc-body { padding: 10px 12px 12px 10px; }
+  .pc-title { -webkit-line-clamp: 3; min-height: 0; font-size: 14px; padding-right: 36px; }
+  .pc-rows { margin: 4px 0 8px; font-size: 12.5px; }
+  .pc-rows li:nth-child(n+4) { display: none; }
+  .pc-btns { grid-column: 1 / -1; }
+  .pc-cmp { top: 8px; right: 8px; width: 32px; height: 32px; }
+  .pc:hover { transform: none; }
+  .pc-row .pc-img { width: 104px; }
+}
+/* кнопки WB / Ozon — одна высота во всех карточках */
+.pc-btns .btn-wb, .pc-btns .btn-ozon { padding: 0 6px; }
+
+/* категории: заголовок не раздувается */
+.cat-head h1 { overflow-wrap: anywhere; }
+/* длинные слова в заголовках не вылезают за край на узких экранах */
+h1, h2, h3, .slide-title, .cc-t, .pc-title { overflow-wrap: break-word; hyphens: auto; }
+@media (max-width: 380px) { .slide-title { font-size: 25px; } .hd-cat { padding: 0 12px; } .hd-ic { min-width: 44px; padding: 0 8px; } }
+.bnr { grid-template-columns: minmax(0, 1fr); container-type: inline-size; }
+.slide-title { hyphens: manual; overflow-wrap: normal; font-size: min(34px, 8cqi); }
+@media (min-width: 700px) { .slide-title { font-size: min(44px, 4.4cqi); } }
+.slide-obj { width: 100%; height: auto; }
+@container (max-width: 190px) { .pc-btns { grid-template-columns: 1fr; } }
+.hm, .hm-main { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1000px) { .hm { grid-template-columns: 280px minmax(0, 1fr); } }
+@media (min-width: 1240px) { .hm { grid-template-columns: 290px minmax(0, 1fr); } }
+h1, h2, h3, .cc-t, .pc-title { hyphens: manual; }
+@media (max-width: 559px) {
+  .pc-btns .btn-primary[href]:first-child:not(:only-child) { display: none; }
+  .pc-btns .btn-line:last-child { grid-column: 1 / -1; }
+  .pc-btns .btn { --h: 38px; min-width: 0; }
+}
+.pc-img img { object-fit: cover; }
+.pc-img img.is-cut { object-fit: contain; }
+@container (max-width: 250px) {
+  .pc-btns .btn-primary[href]:first-child:not(:only-child) { display: none; }
+  .pc-btns .btn-line:last-child { grid-column: 1 / -1; }
+}
+.fitbox-state > div { min-width: 0; } .fitbox-state b, .fitbox-state small { overflow-wrap: anywhere; }
+.fitbox { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 559px) { .xpop { width: 100%; max-width: 100%; } .xpop-btns .btn { flex: 1 1 auto; } }

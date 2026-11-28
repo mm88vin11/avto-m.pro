@@ -42,11 +42,11 @@ $ab = $c['about']; $ap = !empty($ab['photo_id']) ? photo_row($ab['photo_id']) : 
     <?php if (!empty($blkOn['advantages'])): ?>
     <section class="sb-adv" aria-labelledby="sb-adv-t">
       <h2 class="sb-h" id="sb-adv-t">Преимущества</h2>
-      <ul><?php foreach ($c['advantages']['items'] as $a): ?><li><span class="sb-adv-ic"><?= icon($a['icon'] ?? 'check') ?></span><span><b><?= h($a['title']) ?></b><small><?= h($a['text']) ?></small></span></li><?php endforeach; ?></ul>
+      <ul><?php foreach ($c['advantages']['items'] as $a): ?><li><span class="sb-adv-ic"><?= icon3d($a['icon'] ?? 'check', 44) ?></span><span><b><?= h($a['title']) ?></b><small><?= h($a['text']) ?></small></span></li><?php endforeach; ?></ul>
     </section>
     <?php endif; ?>
     <section class="sb-help" aria-labelledby="sb-help-t">
-      <span class="sb-help-ic" aria-hidden="true"><?= icon('chat') ?></span>
+      <img class="sb-help-art" src="/assets/img/ui/support.webp" alt="" width="96" height="96" loading="lazy">
       <h2 id="sb-help-t">Есть вопросы?</h2>
       <p><?= h($c['help']['text']) ?></p>
       <a class="sb-help-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= h($s['phone']) ?></a>

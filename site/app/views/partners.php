@@ -7,7 +7,7 @@ meta('title', $c['seo_title']); meta('desc', $c['seo_desc']); meta('canonical', 
   <div class="page-head"><h1><?= h($c['title']) ?></h1><p class="lead"><?= h($c['lead']) ?></p></div>
   <div class="adv">
     <?php foreach ($c['cards'] as $i => $a): ?>
-      <div class="adv-item" data-reveal style="--d:<?= $i * 70 ?>ms"><span class="adv-ic"><?= icon($a['icon'] ?? 'check') ?></span><h2 class="h3"><?= h($a['title']) ?></h2><p><?= h($a['text']) ?></p></div>
+      <div class="adv-item" data-reveal style="--d:<?= $i * 70 ?>ms"><span class="adv-ic adv-ic3d"><?= icon3d($a['icon'] ?? 'check', 64) ?></span><h2 class="h3"><?= h($a['title']) ?></h2><p><?= h($a['text']) ?></p></div>
     <?php endforeach; ?>
   </div>
   <section class="section">

@@ -37,8 +37,8 @@ function seed_all(PDO $pdo) {
 
   /* --- категории (фото — вырезанный товар на прозрачном фоне для плиток каталога) --- */
   // плитки — детали на прозрачном фоне, обложки — фото-сцены (иллюстрации категорий, не фото конкретных товаров)
-  $cutStrut = $photo('gen2-tile-struts') ?: $photo('gen-banner-strut-pair');
-  $cutTank = $photo('gen-banner-tank') ?: $photo('tank-av11001');
+  $cutStrut = $photo('gen3-struts') ?: $photo('gen-banner-strut-pair');
+  $cutTank = $photo('gen3-tank') ?: $photo('gen-banner-tank');
   $coverTail = $photo('gen-cat-tailgate');
   $coverHood = $photo('gen-cat-hood');
   $photoBrackets = $photo('gen-cat-brackets');
@@ -145,12 +145,12 @@ function seed_all(PDO $pdo) {
 
   /* --- главная: картинки баннера и блоков --- */
   $home = content_defaults('home');
-  $car = $photo('gen2-banner-car');
+  $car = $photo('gen3-car');
   $imgs = ['' => $car, 'rasshiritelnye-bachki' => $cutTank, 'gazovye-upory-bagazhnika' => $cutStrut];
   foreach ($home['slides'] as &$sl) $sl['img_id'] = $imgs[$sl['cat']] ?? $car;
   unset($sl);
-  $home['cards']['params_img'] = $photo('gen2-card-params');
-  $home['cards']['lead_img'] = $photo('gen2-card-lead');
+  $home['cards']['params_img'] = $photo('gen3-card-params');
+  $home['cards']['lead_img'] = $photo('gen3-card-lead');
   $home['categories']['pick_img'] = $car;
   $home['about']['photo_id'] = $photo('gen-side-hood');
   $home['about']['photo2_id'] = $coverTail;
