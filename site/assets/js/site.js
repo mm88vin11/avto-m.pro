@@ -54,63 +54,43 @@
     clearTimeout(toastT); toastT = setTimeout(function () { toastEl.hidden = true; }, 3200);
   }
 
-  /* ---------- шапка ---------- */
-  var header = $('#header'), lastY = window.scrollY, mobileQ = window.matchMedia('(max-width: 999px)');
-  var menu = $('#menu'), menuBtn = $('[data-menu]');
-  var onScroll = function () {
-    if (!header) return;
-    var y = window.scrollY;
-    header.classList.toggle('is-scrolled', y > 8);
-    // телефон: шапка уходит вверх при прокрутке вниз и возвращается при прокрутке вверх
-    if (mobileQ.matches && !(menu && !menu.hidden)) {
-      if (y > lastY + 6 && y > 180) header.classList.add('is-hidden');
-      else if (y < lastY - 6 || y < 120) header.classList.remove('is-hidden');
-    } else header.classList.remove('is-hidden');
-    lastY = y;
-  };
+  /* ---------- шапка: тень, когда страница прокручена ---------- */
+  var header = $('#header');
+  var onScroll = function () { if (header) header.classList.toggle('is-scrolled', window.scrollY > 4); };
   window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
-  d.addEventListener('focusin', function (e) { if (header && header.contains(e.target)) header.classList.remove('is-hidden'); });
-  var megaBtn = $('[data-mega]'), mega = $('#mega');
-  function megaToggle(open) { if (!mega) return; mega.hidden = !open; megaBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); }
-  if (megaBtn) megaBtn.addEventListener('click', function (e) { e.stopPropagation(); megaToggle(mega.hidden); });
-  d.addEventListener('click', function (e) { if (mega && !mega.hidden && !e.target.closest('#mega')) megaToggle(false); });
 
-  /* ---------- меню на весь экран: круг раскрывается из кнопки ---------- */
-  var menuT;
-  function menuIsOpen() { return menu && !menu.hidden && !menu.classList.contains('is-closing'); }
-  function menuToggle(open) {
-    if (!menu || !menuBtn || open === menuIsOpen()) return;
+  /* ---------- боковое меню: на компьютере выезжает слева («Каталог продукции»), на телефоне справа (кнопка меню) ---------- */
+  var menu = $('#menu'), menuPanel = menu && $('.drawer-panel', menu), menuFrom = null, menuT;
+  function menuOpen() { return menu && !menu.hidden && menu.classList.contains('is-open'); }
+  function setMenu(open, from) {
+    if (!menu || open === menuOpen()) return;
     clearTimeout(menuT);
-    var bg = $('.menu-bg', menu);
     if (open) {
-      var r = menuBtn.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      var R = Math.ceil(Math.hypot(Math.max(cx, window.innerWidth - cx), Math.max(cy, window.innerHeight - cy))) + 2;
-      bg.style.left = (cx - R) + 'px'; bg.style.top = (cy - R) + 'px'; bg.style.width = bg.style.height = (2 * R) + 'px';
-      header.classList.remove('is-hidden');
-      menu.style.setProperty('--menu-top', Math.max(0, Math.round(header.getBoundingClientRect().bottom)) + 'px');
-      menu.classList.remove('is-closing');
-      menu.hidden = false; void menu.offsetWidth;
+      menuFrom = from || null;
+      menu.hidden = false;
+      void menu.offsetWidth;
       menu.classList.add('is-open');
       html.classList.add('menu-on');
+      setTimeout(function () { var c = $('.drawer-close', menu); if (c) c.focus({ preventScroll: true }); }, 60);
     } else {
-      menu.classList.remove('is-open'); menu.classList.add('is-closing');
+      menu.classList.remove('is-open');
       html.classList.remove('menu-on');
-      menuT = setTimeout(function () { menu.hidden = true; menu.classList.remove('is-closing'); }, reduce ? 0 : 520);
+      menuT = setTimeout(function () { menu.hidden = true; }, reduce ? 0 : 420);
+      if (menuFrom) menuFrom.focus({ preventScroll: true });
     }
-    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    menuBtn.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+    $$('[data-menu-open]').forEach(function (b) { b.setAttribute('aria-expanded', open ? 'true' : 'false'); });
   }
-  if (menuBtn) menuBtn.addEventListener('click', function () { menuToggle(!menuIsOpen()); });
+  $$('[data-menu-open]').forEach(function (b) { b.addEventListener('click', function () { setMenu(!menuOpen(), b); }); });
   if (menu) {
-    menu.addEventListener('click', function (e) { if (e.target.closest('a')) menuToggle(false); });
-    menu.addEventListener('keydown', function (e) { // фокус не уходит из открытого меню: кнопка меню → пункты → кнопка
+    menu.addEventListener('click', function (e) { if (e.target.closest('[data-menu-close]') || e.target.closest('a')) setMenu(false); });
+    menu.addEventListener('keydown', function (e) { // фокус остаётся внутри открытого меню
       if (e.key !== 'Tab') return;
-      var f = $$('a[href], button', menu), i = f.indexOf(d.activeElement);
-      if (e.shiftKey && i === 0) { e.preventDefault(); menuBtn.focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); menuBtn.focus(); }
+      var f = $$('a[href], button', menuPanel), i = f.indexOf(d.activeElement);
+      if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
     });
-    if (mobileQ.addEventListener) mobileQ.addEventListener('change', function () { if (!mobileQ.matches) menuToggle(false); });
   }
-  d.addEventListener('keydown', function (e) { if (e.key === 'Escape') { megaToggle(false); if (menuIsOpen()) { menuToggle(false); menuBtn.focus(); } closeFilters(); closeLightbox(); } });
+  d.addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (menuOpen()) setMenu(false); closeFilters(); closeLightbox(); } });
 
   /* ---------- поиск с подсказками ---------- */
   $$('[data-search]').forEach(function (form) {
@@ -581,61 +561,95 @@
   var io = 'IntersectionObserver' in window && !reduce ? new IntersectionObserver(function (es) {
     es.forEach(function (en) { if (!en.isIntersecting) return; en.target.classList.add('is-in'); io.unobserve(en.target); $$('[data-count-to]', en.target).forEach(countUp); });
   }, { rootMargin: '0px 0px -6% 0px', threshold: 0 }) : null;
+  // Появление при прокрутке. То, что видно сразу после загрузки, не прячем и не анимируем — первый экран не мигает.
   function reveal(root, instant) {
-    $$('[data-reveal], [data-split]', root).forEach(function (el) {
-      if (!io || instant) { el.classList.add('is-in'); return; }
+    var vh = window.innerHeight;
+    $$('[data-reveal]', root).forEach(function (el) {
+      if (!io || instant || el.getBoundingClientRect().top < vh) return;
+      el.classList.add('rv-wait');
       io.observe(el);
     });
   }
   reveal(d);
-  setTimeout(function () { $$('[data-reveal]:not(.is-in), [data-split]:not(.is-in)').forEach(function (el) { var r = el.getBoundingClientRect(); if (r.top < innerHeight) el.classList.add('is-in'); }); }, 1500);
 
 
-  /* ---------- баннер-слайдер на главной ---------- */
+  /* ---------- карусель баннеров на главной ----------
+     Лента слайдов двигается transform'ом. Полоски под баннером показывают, сколько слайдов и сколько осталось до следующего:
+     заполнение — CSS-анимация, по её окончании листаем дальше. Наведение, фокус, палец на баннере и скрытая вкладка ставят паузу. */
   var slider = $('[data-slider]');
-  if (slider) {
-    var slides = $$('.slide', slider), dotsB = $$('[data-slide]', slider), cur = 0, timer = null, MS = 6500;
-    var show = function (n) {
-      n = (n + slides.length) % slides.length; if (n === cur) return;
-      slides[cur].classList.remove('is-on'); slides[cur].setAttribute('aria-hidden', 'true');
-      $$('a', slides[cur]).forEach(function (a) { a.tabIndex = -1; });
-      cur = n;
-      slides[cur].classList.add('is-on'); slides[cur].removeAttribute('aria-hidden');
-      $$('a', slides[cur]).forEach(function (a) { a.removeAttribute('tabindex'); });
-      dotsB.forEach(function (b, i) { b.setAttribute('aria-selected', i === cur ? 'true' : 'false'); });
-      // перезапуск полоски прогресса
-      var i = $('[aria-selected="true"] i', slider); if (i) { i.style.animation = 'none'; void i.offsetWidth; i.style.animation = ''; }
-    };
-    var play = function () { stop(); if (reduce || slides.length < 2) return; slider.classList.add('is-auto'); slider.style.setProperty('--slide-ms', MS + 'ms'); timer = setInterval(function () { show(cur + 1); }, MS); };
-    var stop = function () { clearInterval(timer); timer = null; slider.classList.remove('is-auto'); };
-    dotsB.forEach(function (b) { b.addEventListener('click', function () { show(+b.getAttribute('data-slide')); play(); }); });
-    $$('[data-slide-step]', slider).forEach(function (b) { b.addEventListener('click', function () { show(cur + +b.getAttribute('data-slide-step')); play(); }); });
-    slider.addEventListener('mouseenter', stop); slider.addEventListener('mouseleave', play);
-    slider.addEventListener('focusin', stop); slider.addEventListener('focusout', play);
-    var sx = null;
-    slider.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
-    slider.addEventListener('touchend', function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) { show(cur + (dx < 0 ? 1 : -1)); play(); } sx = null; }, { passive: true });
-    d.addEventListener('visibilitychange', function () { if (d.hidden) stop(); else play(); });
-    play();
-  }
-
-  /* ---------- первый экран: лёгкий наклон и магнит ---------- */
-  var stage = $('[data-tilt]');
-  if (stage && !reduce && window.matchMedia('(hover: hover)').matches) {
-    var panel = stage.closest('.hero-panel'), raf;
-    panel.addEventListener('pointermove', function (e) {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(function () {
-        var r = panel.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-        stage.classList.add('is-tilting');
-        stage.style.transform = 'rotateY(' + (x * 6).toFixed(2) + 'deg) rotateX(' + (-y * 5).toFixed(2) + 'deg)';
+  if (slider) (function () {
+    var track = $('[data-slider-track]', slider), view = track.parentNode;
+    var slides = $$('.slide', track), bars = $$('[data-slide]', slider), n = slides.length, cur = 0;
+    if (n < 2) return;
+    var holds = {};
+    function hold(why, on) {
+      if (on) holds[why] = 1; else delete holds[why];
+      slider.classList.toggle('is-paused', Object.keys(holds).length > 0);
+    }
+    function show(i, instant) {
+      cur = (i + n) % n;
+      track.classList.toggle('is-instant', !!instant);
+      track.style.transform = 'translate3d(' + (-cur * 100) + '%, 0, 0)';
+      slides.forEach(function (s, k) {
+        var on = k === cur;
+        s.classList.toggle('is-on', on);
+        if (on) s.removeAttribute('aria-hidden'); else s.setAttribute('aria-hidden', 'true');
+        (s.matches('a') ? [s] : $$('a', s)).forEach(function (a) { if (on) a.removeAttribute('tabindex'); else a.tabIndex = -1; });
       });
+      bars.forEach(function (b, k) {
+        b.setAttribute('aria-selected', k === cur ? 'true' : 'false');
+        b.classList.toggle('is-done', k < cur);
+        if (k === cur) { var f = b.firstChild; f.style.animation = 'none'; void f.offsetWidth; f.style.animation = ''; }
+      });
+    }
+    bars.forEach(function (b) { b.addEventListener('click', function () { show(+b.getAttribute('data-slide')); }); });
+    $$('[data-slide-step]', slider).forEach(function (b) { b.addEventListener('click', function () { show(cur + +b.getAttribute('data-slide-step')); }); });
+    slider.addEventListener('animationend', function (e) { if (e.target.parentNode === bars[cur] && !reduce) show(cur + 1); });
+    slider.addEventListener('mouseenter', function () { hold('hover', true); });
+    slider.addEventListener('mouseleave', function () { hold('hover', false); });
+    slider.addEventListener('focusin', function () { hold('focus', true); });
+    slider.addEventListener('focusout', function () { hold('focus', false); });
+    d.addEventListener('visibilitychange', function () { hold('tab', d.hidden); });
+    // баннер за пределами экрана не листается
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { hold('away', !es[0].isIntersecting); }).observe(slider);
+
+    // свайп пальцем и перетаскивание мышью
+    var x0 = 0, y0 = 0, dx = 0, t0 = 0, drag = false, axis = '';
+    view.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0 || e.target.closest('.bnr-arrow')) return;
+      x0 = e.clientX; y0 = e.clientY; dx = 0; t0 = Date.now(); drag = true; axis = '';
+      hold('drag', true);
     });
-    panel.addEventListener('pointerleave', function () { stage.classList.remove('is-tilting'); stage.style.transform = ''; });
-    stage.style.transition = 'transform 600ms cubic-bezier(.16,1,.3,1)';
-  }
-  if (!reduce && window.matchMedia('(hover: hover)').matches) $$('[data-magnet]').forEach(function (b) {
-    b.addEventListener('pointermove', function (e) { var r = b.getBoundingClientRect(); var x = (e.clientX - r.left - r.width / 2) / r.width, y = (e.clientY - r.top - r.height / 2) / r.height; b.style.transform = 'translate(' + (x * 6).toFixed(1) + 'px,' + (y * 6).toFixed(1) + 'px)'; });
-    b.addEventListener('pointerleave', function () { b.style.transform = ''; });
-  });
+    view.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var mx = e.clientX - x0, my = e.clientY - y0;
+      if (!axis && Math.abs(mx) + Math.abs(my) > 8) {
+        axis = Math.abs(mx) > Math.abs(my) ? 'x' : 'y';
+        if (axis === 'x') { try { view.setPointerCapture(e.pointerId); } catch (err) {} track.classList.add('is-instant'); }
+      }
+      if (axis !== 'x') return;
+      dx = mx;
+      var edge = (cur === 0 && dx > 0) || (cur === n - 1 && dx < 0);
+      track.style.transform = 'translate3d(calc(' + (-cur * 100) + '% + ' + (edge ? dx / 3 : dx) + 'px), 0, 0)';
+    });
+    function release() {
+      if (!drag) return;
+      drag = false; hold('drag', false);
+      if (axis !== 'x') return;
+      var w = view.offsetWidth, fast = Math.abs(dx) / Math.max(1, Date.now() - t0) > 0.45;
+      var step = (Math.abs(dx) > w * 0.18 || (fast && Math.abs(dx) > 24)) ? (dx < 0 ? 1 : -1) : 0;
+      var to = Math.min(n - 1, Math.max(0, cur + step));
+      show(to);
+    }
+    view.addEventListener('pointerup', release);
+    view.addEventListener('pointercancel', release);
+    // после перетаскивания баннер не открывается как ссылка
+    view.addEventListener('click', function (e) { if (axis === 'x' && Math.abs(dx) > 8) { e.preventDefault(); e.stopPropagation(); } axis = ''; }, true);
+    view.addEventListener('dragstart', function (e) { e.preventDefault(); });
+    slider.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); show(cur + (e.key === 'ArrowRight' ? 1 : -1)); var b = bars[cur]; if (b && e.target.closest('[role=tablist]')) b.focus(); }
+    });
+    show(0, true);
+    slider.classList.add('is-ready');
+  })();
 })();

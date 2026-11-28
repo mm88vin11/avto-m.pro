@@ -15,6 +15,7 @@ function a_nav() {
     ['/attributes', 'filter', 'Фильтры', null],
     ['/brands', 'shield', 'Марки деталей', null],
     ['/pages', 'clipboard', 'Страницы', null],
+    ['/images', 'photo', 'Картинки сайта', null],
     ['/leads', 'chat', 'Заявки', $new ? ['new', $new] : null],
     ['/settings', 'wrench', 'Настройки', null],
   ];

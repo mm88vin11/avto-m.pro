@@ -312,30 +312,6 @@
     anim.onfinish = function () { if (fly.parentNode) fly.parentNode.removeChild(fly); target.classList.remove('is-bump'); void target.offsetWidth; target.classList.add('is-bump'); };
   });
 
-  // плавный переход фото из карточки на страницу товара
-  d.addEventListener('click', function (e) {
-    var a = e.target.closest('.pc a[href*="/product/"], .rc[href*="/product/"]'); if (!a) return;
-    var card = a.closest('.pc') || a, img = $('img', card);
-    $$('img').forEach(function (x) { if (x.style.viewTransitionName) x.style.viewTransitionName = ''; });
-    if (img) img.style.viewTransitionName = 'prod-photo';
-  });
-  var main = $('.gal-slide.is-on img'); if (main) main.style.viewTransitionName = 'prod-photo';
-  window.addEventListener('pageshow', function () { $$('.pc img, .rc img').forEach(function (x) { x.style.viewTransitionName = ''; }); });
-
-  // деталь в баннере чуть следует за курсором
-  var bnr = $('.bnr2');
-  if (bnr && !reduce && window.matchMedia('(hover: hover)').matches) {
-    var raf;
-    bnr.addEventListener('pointermove', function (e) {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(function () {
-        var r = bnr.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-        $$('[data-parallax]', bnr).forEach(function (im) { im.style.translate = (x * -16).toFixed(1) + 'px ' + (y * -12).toFixed(1) + 'px'; });
-      });
-    });
-    bnr.addEventListener('pointerleave', function () { $$('[data-parallax]', bnr).forEach(function (im) { im.style.translate = ''; }); });
-  }
-
   // «Вы смотрели»: запоминаем товар на его странице, показываем на главной и в карточке
   var KEY = 'avtom-recent', list = [];
   try { list = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (x) {}

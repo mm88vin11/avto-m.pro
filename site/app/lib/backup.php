@@ -14,8 +14,11 @@ function backup_create($withPhotos = true) {
   $z = new ZipArchive();
   if ($z->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) { @unlink($tmpDb); throw new RuntimeException('Не удалось создать архив.'); }
   $z->addFile($tmpDb, 'data/avtom.sqlite');
-  if ($withPhotos) foreach (glob(uploads_dir() . '/*') as $f) $z->addFile($f, 'uploads/p/' . basename($f));
-  $z->addFromString('README.txt', "Резервная копия сайта AVTO-M от " . date('d.m.Y H:i') . ".\nВосстановление: data/avtom.sqlite → app/data/avtom.sqlite, uploads/p → uploads/p (см. docs/DEPLOY.md, раздел «Резервные копии»).\n");
+  if ($withPhotos) {
+    foreach (glob(uploads_dir() . '/*') as $f) $z->addFile($f, 'uploads/p/' . basename($f));
+    foreach (glob(site_images_dir() . '/*') as $f) $z->addFile($f, 'uploads/site/' . basename($f));
+  }
+  $z->addFromString('README.txt', "Резервная копия сайта AVTO-M от " . date('d.m.Y H:i') . ".\nВосстановление: data/avtom.sqlite → app/data/avtom.sqlite, uploads/p и uploads/site → в те же папки (см. docs/DEPLOY.md, раздел «Резервные копии»).\n");
   $z->close();
   @unlink($tmpDb);
   backup_prune();

@@ -3,7 +3,9 @@ if (!defined('AVTOM')) { http_response_code(404); exit; }
 
 $GLOBALS['META'] = [];
 
-const JS_BOOT = "document.documentElement.classList.add('js');setTimeout(function(){if(!window.__avtom)document.documentElement.classList.remove('js')},2500);";
+// Встроенный скрипт в <head>. Страница всегда открывается с начала, в том числе при перезагрузке:
+// браузер сам прокрутку не восстанавливает. Для «Назад» место запоминаем сами и возвращаем до первой отрисовки.
+const JS_BOOT = "document.documentElement.classList.add('js');try{history.scrollRestoration='manual';var n=performance.getEntriesByType('navigation')[0],k='y:'+location.pathname+location.search;if(n&&n.type==='back_forward'){var y=+sessionStorage.getItem(k);if(y)addEventListener('DOMContentLoaded',function(){scrollTo(0,y)})}addEventListener('pagehide',function(){sessionStorage.setItem(k,Math.round(scrollY))})}catch(e){}";
 function js_boot_hash() { return "'sha256-" . base64_encode(hash('sha256', JS_BOOT, true)) . "'"; }
 
 function site_headers() {
@@ -42,20 +44,17 @@ function not_found() {
   exit;
 }
 
-/** Иконка из спрайта */
-/** Иллюстрация пустого состояния: assets/img/empty/{name}.webp или .png, если файл положили; иначе значок. */
+/** Картинка пустого состояния (корзина, сравнение, поиск, 404) — меняется в админке: «Картинки сайта» */
 function empty_art($name, $icon) {
-  foreach (['webp', 'png'] as $ext) {
-    $f = '/assets/img/empty/' . $name . '.' . $ext;
-    if (is_file(WEB_DIR . $f)) return '<img class="empty-art" src="' . h($f) . '?v=' . filemtime(WEB_DIR . $f) . '" alt="" width="240" height="240" loading="lazy">';
-  }
+  $u = site_img('empty-' . $name);
+  if ($u) return '<img class="empty-art" src="' . h($u) . '" alt="" width="240" height="240" loading="lazy" decoding="async">';
   return '<div class="empty-ic" aria-hidden="true">' . icon($icon) . '</div>';
 }
-/** 3D-значок из assets/img/ui по имени значка из админки; если картинки нет — обычный контурный значок */
+/** 3D-значок по имени значка из админки (картинки меняются в «Картинках сайта»); если картинки нет — контурный значок */
 function icon3d($name, $size = 48) {
   static $map = ['shield' => 'shield', 'truck' => 'truck', 'kit' => 'box', 'chat' => 'chat', 'price' => 'tag', 'car' => 'car', 'filter' => 'sliders', 'wrench' => 'gear', 'pin' => 'location', 'check' => 'warranty', 'building' => 'location', 'clipboard' => 'order-confirmed', 'bag' => 'payment', 'route' => 'location', 'sparkle' => 'favorites', 'check-circle' => 'warranty', 'gauge' => 'sliders', 'clock' => 'order-confirmed'];
-  $f = '/assets/img/ui/' . ($map[$name] ?? $name) . '.webp';
-  if (is_file(WEB_DIR . $f)) return '<img class="i3d" src="' . h($f) . '?v=' . filemtime(WEB_DIR . $f) . '" alt="" width="' . (int)$size . '" height="' . (int)$size . '" loading="lazy" decoding="async">';
+  $u = site_img('ui-' . ($map[$name] ?? $name));
+  if ($u) return '<img class="i3d" src="' . h($u) . '" alt="" width="' . (int)$size . '" height="' . (int)$size . '" loading="lazy" decoding="async">';
   return icon(in_array($name, ['support', 'payment'], true) ? 'chat' : $name);
 }
 function icon($name, $cls = '') { return '<svg class="i ' . h($cls) . '" aria-hidden="true" focusable="false"><use href="#i-' . h($name) . '"/></svg>'; }
@@ -126,7 +125,7 @@ function org_jsonld() {
   $s = site();
   return [
     '@context' => 'https://schema.org', '@type' => 'AutoPartsStore', '@id' => site_url('/#org'), 'name' => $s['name'],
-    'slogan' => $s['tagline'], 'url' => site_url('/'), 'logo' => site_url('/assets/icons/icon-512.png'), 'image' => site_url('/assets/img/og-default.jpg'),
+    'slogan' => $s['tagline'], 'url' => site_url('/'), 'logo' => site_url(site_icon(512)), 'image' => site_url(site_img('og')),
     'telephone' => preg_replace('~[^\d+]~', '', $s['phone']), 'email' => $s['email'],
     'address' => ['@type' => 'PostalAddress', 'addressCountry' => 'RU', 'addressRegion' => $s['region'], 'addressLocality' => $s['city'], 'streetAddress' => $s['street']],
     'openingHoursSpecification' => [['@type' => 'OpeningHoursSpecification', 'dayOfWeek' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 'opens' => $s['hours_open'], 'closes' => $s['hours_close']]],

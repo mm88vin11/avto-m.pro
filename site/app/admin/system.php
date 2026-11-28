@@ -132,7 +132,7 @@ if ($sec === 'backups') {
 
 /* ================= история правок ================= */
 if ($sec === 'history') {
-  $names = ['product' => 'Товар', 'content' => 'Страница', 'category' => 'Категория', 'brand' => 'Марка', 'site' => 'Настройки', 'cars' => 'Автомобили', 'attributes' => 'Характеристики'];
+  $names = ['product' => 'Товар', 'content' => 'Страница', 'category' => 'Категория', 'brand' => 'Марка', 'site' => 'Настройки', 'cars' => 'Автомобили', 'attributes' => 'Характеристики', 'site_image' => 'Картинка сайта'];
   $rows = q_all('SELECT v.id, v.entity, v.entity_id, v.action, v.user_name, v.note, v.created_at, p.name AS pname FROM versions v LEFT JOIN products p ON v.entity = \'product\' AND p.id = CAST(v.entity_id AS INTEGER) ORDER BY v.id DESC LIMIT 200');
   $ck = content_keys();
   if (a_require_post() && ($_POST['action'] ?? '') === 'restore_product') {
@@ -154,7 +154,7 @@ if ($sec === 'history') {
     <?php foreach ($rows as $r):
       $what = $names[$r['entity']] ?? $r['entity'];
       $label = $r['entity'] === 'product' ? ($r['pname'] ?: json_decode(q_val('SELECT data FROM versions WHERE id = ?', [$r['id']]), true)['name'] ?? '') : ($r['entity'] === 'content' ? ($ck[$r['entity_id']] ?? $r['entity_id']) : '');
-      $link = $r['entity'] === 'product' && $r['pname'] ? '/admin/products/' . (int)$r['entity_id'] : ($r['entity'] === 'content' ? '/admin/pages/' . $r['entity_id'] : null); ?>
+      $link = $r['entity'] === 'product' && $r['pname'] ? '/admin/products/' . (int)$r['entity_id'] : ($r['entity'] === 'content' ? '/admin/pages/' . $r['entity_id'] : null); if ($r['entity'] === 'site_image') { $label = site_image_slot($r['entity_id'])[0] ?? $r['entity_id']; $link = '/admin/images'; } ?>
       <li><div><b><?= h($what) ?><?= $label ? ' «' . ($link ? '<a href="' . h($link) . '">' . h($label) . '</a>' : h($label)) . '»' : '' ?> — <?= h(mb_strtolower($r['note'] ?: $r['action'])) ?></b><small><?= h(ru_date($r['created_at'])) ?> · <?= h($r['user_name']) ?></small></div>
         <?php if ($r['entity'] === 'product' && $r['action'] === 'delete'): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="restore_product"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><button class="a-btn a-btn-soft a-btn-sm">Восстановить</button></form><?php endif; ?></li>
     <?php endforeach; ?>

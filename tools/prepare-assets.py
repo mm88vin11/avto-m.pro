@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Готовит статические ассеты из assets-src/: логотипы, фавиконки, превью для соцсетей, фото для начального наполнения.
-Запуск из корня репозитория: python3 tools/prepare-assets.py  (нужен Pillow)."""
+Запуск из корня репозитория: python3 tools/prepare-assets.py  (нужен Pillow).
+Значок сайта, превью ссылки, 3D-значки и плитки теперь из графики заказчика от 26.11 — после этого скрипта
+запустите tools/cut-sheets.py и tools/prepare-2611.py, иначе они вернутся к прежним."""
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 

@@ -1,7 +1,7 @@
 <?php
 /**
- * Главная: структура утверждённой презентации + блоки концепта заказчика (IMG_1789).
- * Баннер-слайдер → «Ваш автомобиль» → каталог плитками → подбор/заявка → товары → признаки износа → почему мы → марки → о компании → вопросы.
+ * Главная: слева каталог, фото, преимущества и «Есть вопросы?»; справа карусель баннеров, плитки каталога и «О компании».
+ * Ниже — блоки в порядке из админки (Страницы → Главная → «Порядок и видимость блоков»).
  */
 $c = content('home');
 $s = site();
@@ -17,7 +17,7 @@ $catPhoto = function ($cat) use ($all) {
   if (!$ph) foreach ($all as $p) if ($p['category_id'] == $cat['id'] && $p['photos']) return $p['photos'][0];
   return $ph;
 };
-$slides = array_values(array_filter($c['slides'], fn($x) => trim($x['title'] ?? '') !== ''));
+$slides = array_values(array_filter($c['slides'], fn($x) => !empty($x['banner_id']) || trim($x['title'] ?? '') !== ''));
 $have = array_column($c['blocks'], 'id');
 foreach (array_keys(home_block_names()) as $bn) if (!in_array($bn, $have, true)) $c['blocks'][] = ['id' => $bn, 'on' => !in_array($bn, ['quiz', 'howto'], true)];
 ?>
@@ -46,7 +46,7 @@ $ab = $c['about']; $ap = !empty($ab['photo_id']) ? photo_row($ab['photo_id']) : 
     </section>
     <?php endif; ?>
     <section class="sb-help" aria-labelledby="sb-help-t">
-      <img class="sb-help-art" src="/assets/img/ui/support.webp" alt="" width="96" height="96" loading="lazy">
+      <img class="sb-help-art" src="<?= h(site_img('ui-support')) ?>" alt="" width="96" height="96" loading="lazy">
       <h2 id="sb-help-t">Есть вопросы?</h2>
       <p><?= h($c['help']['text']) ?></p>
       <a class="sb-help-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= h($s['phone']) ?></a>
@@ -55,37 +55,53 @@ $ab = $c['about']; $ap = !empty($ab['photo_id']) ? photo_row($ab['photo_id']) : 
   </aside>
 
   <div class="hm-main">
-  <?php if ($slides): ?>
-  <div class="bnr" aria-roledescription="карусель" aria-label="Баннер" data-slider>
-    <?php foreach ($slides as $i => $sl):
-      $bg = !empty($sl['bg_id']) ? photo_row($sl['bg_id']) : null;
-      $bgm = !empty($sl['bg_m_id']) ? photo_row($sl['bg_m_id']) : null;
-      $img = !empty($sl['img_id']) ? photo_row($sl['img_id']) : null;
-      if (!$img && !empty($sl['cat']) && isset($catBySlug[$sl['cat']])) $img = $catPhoto($catBySlug[$sl['cat']]);
-      $chips = array_values(array_filter(array_map('trim', preg_split("~\r?\n~", (string)($sl['chips'] ?? ''))), 'strlen'));
-      $theme = in_array($sl['theme'] ?? '', ['blue', 'light', 'navy', 'white'], true) ? $sl['theme'] : 'blue';
-    ?>
-    <div class="slide t-<?= $theme ?><?= $i ? '' : ' is-on' ?>" role="group" aria-roledescription="слайд" aria-label="<?= $i + 1 ?> из <?= count($slides) ?>"<?= $i ? ' aria-hidden="true"' : '' ?>>
-      <?php if ($bg): ?><picture class="slide-bgp"><?php if ($bgm): ?><source media="(max-width: 699px)" srcset="<?= h(img_srcset($bgm)) ?>" sizes="100vw"><?php endif; ?><img class="slide-bg" src="<?= h(img_url($bg, 1400)) ?>" srcset="<?= h(img_srcset($bg)) ?>" sizes="(max-width: 1240px) 100vw, 900px" alt="" <?= $i ? 'loading="lazy"' : 'fetchpriority="high"' ?>></picture><?php else: ?><span class="slide-rays" aria-hidden="true"></span><?php endif; ?>
-      <div class="slide-copy">
-        <?= $i === 0 ? '<h1 class="slide-title">' : '<p class="slide-title">' ?><span class="ln"><span><?= h($sl['title']) ?></span></span><?php if (!empty($sl['sub'])): ?><span class="ln slide-sub"><span><?= h($sl['sub']) ?></span></span><?php endif; ?><?= $i === 0 ? '</h1>' : '</p>' ?>
-        <?php if (!empty($sl['text'])): ?><p class="slide-text"><?= h($sl['text']) ?></p><?php endif; ?>
-        <?php if ($chips): ?><ul class="slide-chips"><?php foreach (array_slice($chips, 0, 3) as $ch): ?><li><?= icon('check') ?><?= h($ch) ?></li><?php endforeach; ?></ul><?php endif; ?>
-        <div class="slide-btns">
-          <?php if (!empty($sl['btn'])): ?><a class="btn slide-btn" href="<?= h($sl['url']) ?>"<?= $i ? ' tabindex="-1"' : '' ?>><?= h($sl['btn']) ?><?= icon('chevron-r') ?></a><?php endif; ?>
-          <?php if (!empty($sl['btn2'])): ?><a class="btn slide-btn2" href="<?= h($sl['url2'] ?: '/catalog') ?>"<?= $i ? ' tabindex="-1"' : '' ?>><?= h($sl['btn2']) ?></a><?php endif; ?>
+  <?php if ($slides): $n = count($slides); $allBanners = !array_filter($slides, fn($x) => empty($x['banner_id'])); ?>
+  <?php if (!empty($slides[0]['banner_id'])): ?><h1 class="sr"><?= h($c['seo_h1'] ?: 'Автозапчасти с подбором по автомобилю') ?></h1><?php endif; ?>
+  <div class="bnr<?= $allBanners ? ' is-banners' : '' ?>" role="region" aria-roledescription="карусель" aria-label="Предложения магазина" data-slider>
+    <div class="bnr-view">
+      <div class="bnr-track" data-slider-track aria-live="off">
+      <?php foreach ($slides as $i => $sl):
+        $label = ($i + 1) . ' из ' . $n;
+        $banner = !empty($sl['banner_id']) ? photo_row($sl['banner_id']) : null;
+        if ($banner):
+          $bm = !empty($sl['banner_m_id']) ? photo_row($sl['banner_m_id']) : null; ?>
+        <a class="slide slide-banner<?= $i ? '' : ' is-on' ?>" href="<?= h($sl['url'] ?: '/catalog') ?>" role="group" aria-roledescription="слайд" aria-label="<?= $label ?>"<?= $i ? ' aria-hidden="true" tabindex="-1"' : '' ?>>
+          <picture>
+            <?php if ($bm): ?><source media="(max-width: 699px)" srcset="<?= h(img_srcset($bm)) ?>" sizes="100vw"><?php endif; ?>
+            <img src="<?= h(img_url($banner, 1400)) ?>" srcset="<?= h(img_srcset($banner)) ?>" sizes="(max-width: 999px) 100vw, (max-width: 1239px) 66vw, 920px" width="<?= (int)$banner['w'] ?>" height="<?= (int)$banner['h'] ?>" alt="<?= h($sl['title']) ?>"<?= $i ? ' loading="lazy" decoding="async"' : ' fetchpriority="high"' ?>>
+          </picture>
+        </a>
+        <?php continue; endif;
+        $bg = !empty($sl['bg_id']) ? photo_row($sl['bg_id']) : null;
+        $bgm = !empty($sl['bg_m_id']) ? photo_row($sl['bg_m_id']) : null;
+        $img = !empty($sl['img_id']) ? photo_row($sl['img_id']) : null;
+        if (!$img && !empty($sl['cat']) && isset($catBySlug[$sl['cat']])) $img = $catPhoto($catBySlug[$sl['cat']]);
+        $chips = array_values(array_filter(array_map('trim', preg_split("~\r?\n~", (string)($sl['chips'] ?? ''))), 'strlen'));
+        $theme = in_array($sl['theme'] ?? '', ['blue', 'light', 'navy', 'white'], true) ? $sl['theme'] : 'blue'; ?>
+        <div class="slide t-<?= $theme ?><?= $i ? '' : ' is-on' ?>" role="group" aria-roledescription="слайд" aria-label="<?= $label ?>"<?= $i ? ' aria-hidden="true"' : '' ?>>
+          <?php if ($bg): ?><picture class="slide-bgp"><?php if ($bgm): ?><source media="(max-width: 699px)" srcset="<?= h(img_srcset($bgm)) ?>" sizes="100vw"><?php endif; ?><img class="slide-bg" src="<?= h(img_url($bg, 1400)) ?>" srcset="<?= h(img_srcset($bg)) ?>" sizes="(max-width: 1240px) 100vw, 900px" alt=""<?= $i ? ' loading="lazy"' : ' fetchpriority="high"' ?>></picture><?php else: ?><span class="slide-rays" aria-hidden="true"></span><?php endif; ?>
+          <div class="slide-copy">
+            <?= $i === 0 ? '<h1 class="slide-title">' : '<p class="slide-title">' ?><span class="ln"><span><?= h($sl['title']) ?></span></span><?php if (!empty($sl['sub'])): ?><span class="ln slide-sub"><span><?= h($sl['sub']) ?></span></span><?php endif; ?><?= $i === 0 ? '</h1>' : '</p>' ?>
+            <?php if (!empty($sl['text'])): ?><p class="slide-text"><?= h($sl['text']) ?></p><?php endif; ?>
+            <?php if ($chips): ?><ul class="slide-chips"><?php foreach (array_slice($chips, 0, 3) as $ch): ?><li><?= icon('check') ?><?= h($ch) ?></li><?php endforeach; ?></ul><?php endif; ?>
+            <div class="slide-btns">
+              <?php if (!empty($sl['btn'])): ?><a class="btn slide-btn" href="<?= h($sl['url']) ?>"<?= $i ? ' tabindex="-1"' : '' ?>><?= h($sl['btn']) ?><?= icon('chevron-r') ?></a><?php endif; ?>
+              <?php if (!empty($sl['btn2'])): ?><a class="btn slide-btn2" href="<?= h($sl['url2'] ?: '/catalog') ?>"<?= $i ? ' tabindex="-1"' : '' ?>><?= h($sl['btn2']) ?></a><?php endif; ?>
+            </div>
+          </div>
+          <?php if ($img): ?><div class="slide-art" aria-hidden="true"><img class="slide-obj<?= !empty($img['alpha']) ? ' is-cut' : '' ?>" src="<?= h(img_url($img, 800)) ?>" srcset="<?= h(img_url($img, 800)) ?> 800w, <?= h(img_url($img, 1400)) ?> 1400w" sizes="(max-width: 699px) 80vw, 480px" alt=""<?= $i ? ' loading="lazy"' : ' fetchpriority="high"' ?>></div><?php endif; ?>
         </div>
+      <?php endforeach; ?>
       </div>
-      <?php if ($img): ?>
-      <div class="slide-art" aria-hidden="true">
-        <img class="slide-obj<?= !empty($img['alpha']) ? ' is-cut' : '' ?>" src="<?= h(img_url($img, 800)) ?>" srcset="<?= h(img_url($img, 800)) ?> 800w, <?= h(img_url($img, 1400)) ?> 1400w" sizes="(max-width: 699px) 80vw, 480px" alt="" <?= $i ? 'loading="lazy"' : 'fetchpriority="high"' ?> data-parallax>
-      </div>
+      <?php if ($n > 1): ?>
+      <button class="bnr-arrow bnr-prev" type="button" data-slide-step="-1" aria-label="Предыдущий слайд"><?= icon('arrow-left') ?></button>
+      <button class="bnr-arrow bnr-next" type="button" data-slide-step="1" aria-label="Следующий слайд"><?= icon('arrow') ?></button>
       <?php endif; ?>
     </div>
-    <?php endforeach; ?>
-    <?php if (count($slides) > 1): ?>
-    <div class="bnr-dots" role="tablist" aria-label="Слайды"><?php foreach ($slides as $i => $sl): ?><button type="button" role="tab" aria-selected="<?= $i ? 'false' : 'true' ?>" aria-label="<?= h($sl['title']) ?>" data-slide="<?= $i ?>"><i></i></button><?php endforeach; ?></div>
-    <div class="bnr-arrows"><button type="button" data-slide-step="-1" aria-label="Предыдущий слайд"><?= icon('arrow-left') ?></button><button type="button" data-slide-step="1" aria-label="Следующий слайд"><?= icon('arrow') ?></button></div>
+    <?php if ($n > 1): ?>
+    <div class="bnr-bars" role="tablist" aria-label="Слайды">
+      <?php foreach ($slides as $i => $sl): ?><button type="button" role="tab" aria-selected="<?= $i ? 'false' : 'true' ?>" aria-label="<?= h(($i + 1) . '. ' . $sl['title']) ?>" data-slide="<?= $i ?>"><i></i></button><?php endforeach; ?>
+    </div>
     <?php endif; ?>
   </div>
   <?php endif; ?>

@@ -251,10 +251,11 @@ a.a-stat:hover { color: var(--ink); box-shadow: 0 10px 30px -14px rgba(10, 31, 7
 .a-drop .i { width: 28px; height: 28px; color: var(--pri); }
 .a-drop span { display: flex; flex-direction: column; }
 .a-drop small { color: var(--muted); font-size: 13px; }
-.a-photo-pick { display: flex; gap: 12px; align-items: center; }
+.a-photo-pick { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; min-width: 0; }
 .a-photo-prev { flex: none; display: grid; place-items: center; width: 96px; height: 96px; border-radius: 14px; overflow: hidden; background: var(--bg); color: var(--muted); }
-.a-photo-prev img { width: 100%; height: 100%; object-fit: cover; }
-.a-photo-btns { display: flex; flex-direction: column; gap: 6px; }
+.a-photo-prev img { width: 100%; height: 100%; object-fit: contain; background: repeating-conic-gradient(#eef2f8 0 25%, #fff 0 50%) 0 0 / 14px 14px; }
+.a-photo-btns { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.a-photo-btns .a-btn { white-space: nowrap; }
 .a-compat { display: grid; gap: 10px; margin-bottom: 12px; }
 .a-crow { position: relative; display: grid; gap: 0 12px; grid-template-columns: 1fr 1fr; padding: 14px 52px 4px 14px; border-radius: 14px; background: var(--bg); animation: flashIn .35s var(--ease); }
 @media (min-width: 900px) { .a-crow { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; } .a-crow .a-bodies { grid-column: 1 / -1; order: 9; } }
@@ -311,3 +312,17 @@ a.a-stat:hover { color: var(--ink); box-shadow: 0 10px 30px -14px rgba(10, 31, 7
 .a-auth-box .a-center { margin-top: 12px; font-size: 13px; }
 .a-toast { position: fixed; left: 50%; bottom: 24px; z-index: 90; transform: translateX(-50%); padding: 12px 18px; border-radius: 14px; background: var(--ink); color: #fff; font-weight: 600; box-shadow: 0 20px 50px -20px rgba(0, 0, 0, .5); animation: flashIn .3s var(--ease); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; } }
+
+/* ---------- картинки сайта ---------- */
+.a-img-where ul { margin: 10px 0 12px; padding-left: 18px; display: grid; gap: 6px; }
+.a-img-grid { display: grid; gap: 12px; margin-top: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.a-img-slot { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px 14px; padding: 12px; border-radius: 14px; box-shadow: inset 0 0 0 1px var(--line); scroll-margin-top: 80px; }
+.a-img-slot:target { box-shadow: inset 0 0 0 2px var(--pri); }
+.a-img-prev { display: grid; place-items: center; width: 96px; height: 96px; border-radius: 12px; overflow: hidden; background: repeating-conic-gradient(#eef2f8 0 25%, #fff 0 50%) 0 0 / 16px 16px; }
+.a-img-prev img { max-width: 88%; max-height: 88%; object-fit: contain; }
+.a-img-og img, .a-img-logo img { max-width: 94%; }
+.a-img-info { display: grid; align-content: start; gap: 4px; min-width: 0; }
+.a-img-info small { color: var(--muted); font-size: 13px; line-height: 1.35; }
+.a-img-info .a-pill { justify-self: start; }
+.a-img-btns { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
+.a-btn[hidden] { display: none; }

@@ -22,7 +22,7 @@ $hasMp = $p['wb_url'] || $p['ozon_url'];
   <button class="pc-cmp" type="button" data-compare="<?= (int)$p['id'] ?>" aria-pressed="false" aria-label="Добавить к сравнению"><?= icon('compare') ?></button>
   <div class="pc-body">
     <h3 class="pc-title"><a href="<?= h($url) ?>"><?= h($p['name']) ?></a></h3>
-    <?php if ($b): ?><a class="pc-brand" href="/brand/<?= h($b['slug']) ?>"><?= h($b['name']) ?></a><?php endif; ?>
+    <?php if ($b): ?><a class="pc-brand" href="/brand/<?= h($b['slug']) ?>"><?= h($b['name']) ?></a><?php else: ?><span class="pc-brand" aria-hidden="true"></span><?php endif; ?>
     <p class="pc-sku">Артикул: <?= h($p['sku']) ?></p>
     <ul class="pc-rows">
       <?php if ($match === 'yes'): ?><li class="ok"><?= icon('check-circle') ?><span>Подходит к вашему автомобилю</span></li>

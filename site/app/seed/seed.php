@@ -37,11 +37,11 @@ function seed_all(PDO $pdo) {
 
   /* --- категории (фото — вырезанный товар на прозрачном фоне для плиток каталога) --- */
   // плитки — детали на прозрачном фоне, обложки — фото-сцены (иллюстрации категорий, не фото конкретных товаров)
-  $cutStrut = $photo('gen3-struts') ?: $photo('gen-banner-strut-pair');
-  $cutTank = $photo('gen3-tank') ?: $photo('gen-banner-tank');
-  $coverTail = $photo('gen-cat-tailgate');
-  $coverHood = $photo('gen-cat-hood');
-  $photoBrackets = $photo('gen-cat-brackets');
+  $cutStrut = $photo('tile-struts') ?: $photo('art-strut-pair');
+  $cutTank = $photo('tile-tank') ?: $photo('art-tank');
+  $coverTail = $photo('cover-tailgate');
+  $coverHood = $photo('cover-hood');
+  $photoBrackets = $photo('cover-brackets');
   $catStrut = $ins('categories', ['slug' => 'gazovye-upory-bagazhnika', 'name' => 'Газовые упоры багажника', 'h1' => 'Газовые упоры крышки багажника',
     'intro' => 'Продаются комплектом из двух штук. Подбор по марке, модели, году выпуска и кузову.',
     'description' => "Газовый упор поднимает крышку багажника плавно и без усилий, держит её открытой и не даёт резко захлопнуться. Если крышка перестала держаться или опускается сама — упоры пора менять, причём сразу оба.\n\nЧтобы подобрать упоры, важен кузов: у седана, хэтчбека и универсала одной модели упоры разной длины и силы. Проверьте оригинальный номер или выберите автомобиль в подборе.",
@@ -145,19 +145,84 @@ function seed_all(PDO $pdo) {
 
   /* --- главная: картинки баннера и блоков --- */
   $home = content_defaults('home');
-  $car = $photo('gen3-car');
-  $imgs = ['' => $car, 'rasshiritelnye-bachki' => $cutTank, 'gazovye-upory-bagazhnika' => $cutStrut];
-  foreach ($home['slides'] as &$sl) $sl['img_id'] = $imgs[$sl['cat']] ?? $car;
-  unset($sl);
-  $home['cards']['params_img'] = $photo('gen3-card-params');
-  $home['cards']['lead_img'] = $photo('gen3-card-lead');
+  $car = $photo('tile-car');
+  $home['slides'] = seed_banner_slides($photo);
+  $home['cards']['params_img'] = $photo('tile-params');
+  $home['cards']['lead_img'] = $photo('tile-lead');
   $home['categories']['pick_img'] = $car;
-  $home['about']['photo_id'] = $photo('gen-side-hood');
+  $home['about']['photo_id'] = $photo('photo-side-hood');
   $home['about']['photo2_id'] = $coverTail;
-  $home['signs']['photo_id'] = $photo('gen2-cover-hood') ?: $coverHood;
-  $tanksCover = $photo('gen2-cover-tanks');
+  $home['signs']['photo_id'] = $photo('photo-hood') ?: $coverHood;
+  $tanksCover = $photo('cover-tanks');
   $pop = content_defaults('popup'); $pop['img_id'] = $home['cards']['lead_img'];
   $pdo->prepare('REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, ?)')->execute(['content.popup', json_encode($pop, JSON_UNESCAPED_UNICODE), $t]);
   if ($tanksCover) $pdo->prepare('UPDATE categories SET cover_id = ? WHERE slug = ?')->execute([$tanksCover, 'rasshiritelnye-bachki']);
   $pdo->prepare('REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, ?)')->execute(['content.home', json_encode($home, JSON_UNESCAPED_UNICODE), $t]);
+}
+
+/** Баннеры главной: готовые картинки заказчика, весь баннер — ссылка. Подпись — текст с баннера (для поиска и экранного диктора). */
+function seed_banner_slides($photo) {
+  $out = [];
+  foreach ([
+    ['banner-1', 'На твою машину — автозапчасти. Подобрать по авто', '/podbor'],
+    ['banner-2', 'Газовые упоры. Перейти в каталог', '/catalog/gazovye-upory-bagazhnika'],
+    ['banner-3', 'Расширительные бачки. Перейти в каталог', '/catalog/rasshiritelnye-bachki'],
+  ] as [$file, $title, $url]) {
+    $id = $photo($file);
+    if ($id) $out[] = ['theme' => 'navy', 'title' => $title, 'sub' => '', 'text' => '', 'chips' => '', 'btn' => '', 'url' => $url, 'btn2' => '', 'url2' => '', 'cat' => '', 'bg_id' => null, 'bg_m_id' => null, 'img_id' => null, 'banner_id' => $id, 'banner_m_id' => null];
+  }
+  return $out;
+}
+
+/**
+ * Обновление уже работающего сайта до графики от 26.11:
+ * новые картинки плиток заменяют старые везде, где стояли старые (категории, блоки главной, окно, черновики),
+ * баннеры заказчика встают в карусель (вместо стартовых слайдов; если слайды меняли в админке — добавляются перед ними).
+ */
+function seed_upgrade_2611() {
+  $photo = function ($name) {
+    foreach (['png', 'jpg'] as $ext) {
+      $f = APP_DIR . '/seed/photos/' . $name . '.' . $ext;
+      if (is_file($f)) { try { return image_import($f, basename($f)); } catch (Throwable $e) { log_err('upgrade photo ' . $name . ': ' . $e->getMessage()); } }
+    }
+    return null;
+  };
+  $swap = [];
+  // прежние картинки в базе записаны под старыми именами файлов
+  foreach (['gen3-struts' => 'tile-struts', 'gen3-tank' => 'tile-tank', 'gen3-car' => 'tile-car', 'gen3-card-params' => 'tile-params', 'gen3-card-lead' => 'tile-lead'] as $was => $name) {
+    $old = array_map('intval', array_column(q_all('SELECT id FROM photos WHERE orig_name = ?', [$was . '.png']), 'id'));
+    if (!$old) continue;
+    $new = $photo($name);
+    if ($new) foreach ($old as $o) $swap[$o] = $new;
+  }
+  if ($swap) {
+    foreach ($swap as $o => $n) {
+      q('UPDATE categories SET photo_id = ? WHERE photo_id = ?', [$n, $o]);
+      q('UPDATE categories SET cover_id = ? WHERE cover_id = ?', [$n, $o]);
+    }
+    $walk = function ($v) use (&$walk, $swap) {
+      if (!is_array($v)) return $v;
+      foreach ($v as $k => $x) {
+        if (is_array($x)) $v[$k] = $walk($x);
+        elseif (is_int($x) && isset($swap[$x]) && preg_match('~(_id|_img)$~', (string)$k)) $v[$k] = $swap[$x];
+      }
+      return $v;
+    };
+    foreach (q_all("SELECT key, value FROM settings WHERE key LIKE 'content.%'") as $r) {
+      $d = json_decode($r['value'], true);
+      if (is_array($d)) setting_save($r['key'], $walk($d));
+    }
+    foreach (q_all("SELECT entity_id, data FROM drafts WHERE entity = 'content'") as $r) {
+      $d = json_decode($r['data'], true);
+      if (is_array($d)) q("UPDATE drafts SET data = ? WHERE entity = 'content' AND entity_id = ?", [json_encode($walk($d), JSON_UNESCAPED_UNICODE), $r['entity_id']]);
+    }
+  }
+  $home = setting_raw('content.home') ?: content_defaults('home');
+  $banners = seed_banner_slides($photo);
+  if ($banners) {
+    $titles = array_map(fn($x) => $x['title'] ?? '', $home['slides'] ?? []);
+    $stock = $titles === ['Автозапчасти', 'Расширительные бачки', 'Газовые упоры'];
+    $home['slides'] = $stock ? $banners : array_merge($banners, $home['slides'] ?? []);
+    setting_save('content.home', $home);
+  }
 }

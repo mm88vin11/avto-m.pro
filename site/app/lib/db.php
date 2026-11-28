@@ -1,7 +1,7 @@
 <?php
 if (!defined('AVTOM')) { http_response_code(404); exit; }
 
-const DB_SCHEMA_VERSION = 3;
+const DB_SCHEMA_VERSION = 4;
 
 function db() {
   static $pdo = null;
@@ -16,11 +16,13 @@ function db() {
   $v = (int)$pdo->query('PRAGMA user_version')->fetchColumn();
   if ($v < DB_SCHEMA_VERSION) {
     db_migrate($pdo, $v);
+    require_once APP_DIR . '/seed/seed.php';
     if ($v === 0) {
-      require_once APP_DIR . '/seed/seed.php';
       $pdo->beginTransaction();
       seed_all($pdo);
       $pdo->commit();
+    } elseif ($v < 4) {
+      seed_upgrade_2611(); // графика заказчика от 26.11: баннеры, чистые картинки плиток
     }
   }
   return $pdo;

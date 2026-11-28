@@ -8,7 +8,7 @@ if (defined('AVTOM_BOOTED')) return;
 define('AVTOM_BOOTED', 1);
 define('APP_DIR', dirname(__DIR__));
 define('WEB_DIR', dirname(APP_DIR));
-define('APP_VERSION', '1.8.0');
+define('APP_VERSION', '1.9.0');
 
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
@@ -68,6 +68,7 @@ require __DIR__ . '/db.php';
 require __DIR__ . '/content.php';
 require __DIR__ . '/catalog.php';
 require __DIR__ . '/images.php';
+require __DIR__ . '/site_images.php';
 require __DIR__ . '/auth.php';
 require __DIR__ . '/mail.php';
 require __DIR__ . '/leads.php';

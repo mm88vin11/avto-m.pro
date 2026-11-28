@@ -38,9 +38,9 @@ function webmanifest() {
     'name' => 'AVTO-M — автозапчасти', 'short_name' => 'AVTO-M', 'lang' => 'ru', 'start_url' => '/', 'display' => 'standalone',
     'background_color' => '#f1f4f9', 'theme_color' => '#0a1f4d',
     'icons' => [
-      ['src' => '/assets/icons/icon-192.png', 'sizes' => '192x192', 'type' => 'image/png'],
-      ['src' => '/assets/icons/icon-512.png', 'sizes' => '512x512', 'type' => 'image/png'],
-      ['src' => '/assets/icons/icon-maskable-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable'],
+      ['src' => site_icon(192), 'sizes' => '192x192', 'type' => 'image/png'],
+      ['src' => site_icon(512), 'sizes' => '512x512', 'type' => 'image/png'],
+      ['src' => site_icon('maskable'), 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable'],
     ],
   ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 }

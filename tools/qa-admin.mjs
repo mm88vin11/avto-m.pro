@@ -76,7 +76,10 @@ step('разделы открываются');
 await page.goto(base + '/admin/pages/home');
 const t = page.locator('input[name="c[slides][0][title]"]'); const old = await t.inputValue();
 await t.fill(old + ' ✓'); await page.click('button[value=publish]'); await page.waitForSelector('.a-flash-ok');
-await ap.goto(base + '/'); console.log('  заголовок на сайте:', await ap.locator('h1.slide-title').textContent());
+await ap.goto(base + '/');
+// у готового баннера заголовок слайда — подпись картинки, у слайда без баннера — видимый заголовок
+const first = ap.locator('.bnr .slide').first();
+console.log('  первый слайд на сайте:', await first.evaluate(el => (el.querySelector('img[alt]') && el.classList.contains('slide-banner')) ? el.querySelector('img').alt : el.querySelector('.slide-title').textContent));
 await page.goto(base + '/admin/pages/home'); await page.fill('input[name="c[slides][0][title]"]', old); await page.click('button[value=publish]');
 step('страница опубликована и возвращена');
 // телефон

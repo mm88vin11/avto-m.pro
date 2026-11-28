@@ -78,6 +78,7 @@ switch ($r0) {
   case '': case 'login': require __DIR__ . '/dashboard.php'; break;
   case 'products': require __DIR__ . '/products.php'; break;
   case 'upload': require __DIR__ . '/upload.php'; break;
+  case 'images': require __DIR__ . '/images.php'; break;
   case 'categories': case 'brands': case 'cars': case 'attributes': require __DIR__ . '/refs.php'; break;
   case 'pages': require __DIR__ . '/pages.php'; break;
   case 'leads': require __DIR__ . '/leads.php'; break;
