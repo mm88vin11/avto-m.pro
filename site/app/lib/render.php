@@ -14,8 +14,13 @@ function site_headers() {
   header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()');
   header("Content-Security-Policy: default-src 'self'; script-src 'self' " . js_boot_hash() . " https://mc.yandex.ru https://yastatic.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru https://mc.yandex.com; font-src 'self'; connect-src 'self' https://mc.yandex.ru https://mc.yandex.com; frame-src https://yandex.ru https://mc.yandex.ru https://mc.yandex.com; frame-ancestors 'self'; form-action 'self'; base-uri 'self'; object-src 'none'");
   if (is_https()) header('Strict-Transport-Security: max-age=31536000');
-  if (preview_mode()) header('X-Robots-Tag: noindex, nofollow');
+  if (preview_mode() || subfolder_noindex()) header('X-Robots-Tag: noindex, nofollow');
 }
+/**
+ * Копия сайта в подпапке чужого домена (например, домен-студии.ру/avto-m) не индексируется,
+ * чтобы поисковики не считали её дублем avto-m.pro. Включить индексацию: 'index_in_subfolder' => true в config.php.
+ */
+function subfolder_noindex() { return BASE !== '' && !cfg('index_in_subfolder'); }
 
 function meta($k, $v = null) { if ($v === null) return $GLOBALS['META'][$k] ?? null; $GLOBALS['META'][$k] = $v; }
 function jsonld($data) { $GLOBALS['META']['jsonld'][] = $data; }

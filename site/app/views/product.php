@@ -159,7 +159,7 @@ jsonld($ld);
       <?php if ($b): $facts = json_decode($b['facts'] ?: '[]', true); ?>
       <section class="panel pp-sec pp-brand" aria-labelledby="sec-brand">
         <h2 id="sec-brand">О производителе <?= h($b['name']) ?></h2>
-        <?php if ($facts): ?><div class="brand-facts brand-facts-row"><?php foreach ($facts as [$k, $v]): ?><span><small><?= h($k) ?></small><b><?= h($v) ?></b></span><?php endforeach; ?></div><?php endif; ?>
+        <?php if ($facts): ?><div class="brand-facts brand-facts-row"><?php foreach ($facts as [$k, $v]): ?><span><small><?= h($k) ?></small><b><?= h(preg_replace("~ (°|мм|Н|лет|год|мл)\b~u", "\u{00A0}$1", $v)) ?></b></span><?php endforeach; ?></div><?php endif; ?>
         <p><?= h(md_plain($b['description'], 260)) ?></p>
         <a class="link-arrow" href="/brand/<?= h($b['slug']) ?>">Подробнее о марке<?= icon('arrow') ?></a>
       </section>

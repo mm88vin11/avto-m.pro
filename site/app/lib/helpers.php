@@ -8,7 +8,7 @@ function site_url($path = '') { return rtrim(cfg('site_url'), '/') . $path; }
 function asset($path) {
   $f = WEB_DIR . '/assets/' . $path;
   $v = is_file($f) ? substr(md5((string)filemtime($f)), 0, 8) : APP_VERSION;
-  return '/assets/' . $path . '?v=' . $v;
+  return '/assets/' . $path . '?v=' . $v; // подпапку добавит base_filter()
 }
 function json_out($data, $code = 200) {
   http_response_code($code);
@@ -17,7 +17,44 @@ function json_out($data, $code = 200) {
   echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
   exit;
 }
-function redirect($to, $code = 302) { header('Location: ' . $to, true, $code); exit; }
+function redirect($to, $code = 302) { header('Location: ' . base_url($to), true, $code); exit; }
+/** Адрес от корня сайта с учётом подпапки: '/catalog' → '/avto-m/catalog' */
+function base_url($u) {
+  $u = (string)$u;
+  if (BASE === '' || $u === '' || $u[0] !== '/' || (isset($u[1]) && $u[1] === '/')) return $u;
+  if ($u === BASE || strpos($u, BASE . '/') === 0 || strpos($u, BASE . '?') === 0) return $u;
+  return BASE . $u;
+}
+/**
+ * Фильтр вывода для сайта в подпапке: адреса от корня в HTML (href, src, action, srcset, data-*, url() в стилях)
+ * и в ответах JSON получают подпапку. Файлы (выгрузки, копии) не трогает.
+ */
+function base_filter($buf) {
+  if (BASE === '' || $buf === '') return $buf;
+  $type = 'text/html';
+  foreach (headers_list() as $hd) if (stripos($hd, 'content-type:') === 0) $type = strtolower(trim(substr($hd, 13)));
+  $b = BASE;
+  if (strpos($type, 'text/html') === 0) {
+    $buf = preg_replace_callback('~(\s(?:href|src|action|formaction|poster|content|data-(?!base=)[a-z0-9-]+)=)(["\'])/(?!/)~i', fn($m) => $m[1] . $m[2] . $b . '/', $buf);
+    $buf = preg_replace_callback('~(\s(?:srcset|imagesrcset)=)(["\'])([^"\']*)\2~i', fn($m) => $m[1] . $m[2] . preg_replace('~(^|,\s*)/(?!/)~', '$1' . $b . '/', $m[3]) . $m[2], $buf);
+    $buf = preg_replace('~url\((["\']?)/(?!/)~', 'url($1' . $b . '/', $buf);
+    // адреса внутри встроенных данных JSON (<script type="application/json">)
+    $buf = preg_replace_callback('~(<script type="application/json"[^>]*>)(.*?)(</script>)~s', fn($m) => $m[1] . base_json($m[2]) . $m[3], $buf);
+    // повтор подпапки, если адрес уже был с ней
+    $buf = str_replace(['"' . $b . $b . '/', "'" . $b . $b . '/'], ['"' . $b . '/', "'" . $b . '/'], $buf);
+    return $buf;
+  }
+  if (strpos($type, 'application/json') === 0) return base_json($buf);
+  return $buf;
+}
+function base_json($s) {
+  $b = BASE;
+  $eb = str_replace('/', '\\/', $b); // та же подпапка в JSON с экранированными косыми: \/avto-m
+  $nb = preg_quote(ltrim($b, '/'), '~');
+  return preg_replace_callback('~((?::|\[|,)\s*")(\\\\?/)(?!\\\\?/)(?!' . $nb . '(?:\\\\?/|"))~', function ($m) use ($b, $eb) {
+    return $m[1] . ($m[2] === '/' ? $b : $eb) . $m[2];
+  }, $s);
+}
 function client_ip() { return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'; }
 function ip_hash() { return substr(hash('sha256', client_ip() . '|' . secret_salt()), 0, 16); }
 function secret_salt() {

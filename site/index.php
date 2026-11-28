@@ -2,6 +2,7 @@
 /** AVTO-M · единая точка входа: витрина, API, служебные файлы и панель управления. */
 require __DIR__ . '/app/lib/bootstrap.php';
 require APP_DIR . '/lib/render.php';
+ob_start('base_filter'); // сайт в подпапке: адреса от корня получают подпапку (в корне домена ничего не меняет)
 
 $path = rawurldecode(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/');
 if ($path !== '/' && substr($path, -1) === '/') redirect(rtrim($path, '/') . (($qs = $_SERVER['QUERY_STRING'] ?? '') ? '?' . $qs : ''), 301);

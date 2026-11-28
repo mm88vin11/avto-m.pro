@@ -6,12 +6,12 @@ $title = $M['title'] ?? ($s['name'] . ' — ' . $s['tagline']);
 $desc = $M['desc'] ?? content('home')['seo_desc'];
 $canon = $M['canonical'] ?? null;
 $og = $M['og_image'] ?? site_url('/assets/img/og-default.jpg');
-$robots = preview_mode() ? 'noindex, nofollow' : ($M['robots'] ?? 'index, follow, max-image-preview:large');
+$robots = (preview_mode() || subfolder_noindex()) ? 'noindex, nofollow' : ($M['robots'] ?? 'index, follow, max-image-preview:large');
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $cats = categories_visible();
 $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') === 0)) ? ' aria-current="page"' : '';
 ?><!doctype html>
-<html lang="ru">
+<html lang="ru" data-base="<?= h(BASE) ?>">
 <head>
 <meta charset="utf-8">
 <script><?= JS_BOOT ?></script>
@@ -66,7 +66,6 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
       <a class="hd-phone" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= icon('phone') ?><b><?= h($s['phone']) ?></b></a>
       <a class="hd-mail" href="mailto:<?= h($s['email']) ?>"><?= icon('mail') ?><?= h($s['email']) ?></a>
     </div>
-    <a class="hd-ic hd-ic-call" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click" aria-label="Позвонить"><?= icon('phone') ?></a>
   </div>
   <nav class="hd-nav" aria-label="Основное меню">
     <div class="wrap hd-nav-in">
@@ -82,16 +81,19 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
 </header>
 <div class="hbar" id="header">
   <div class="wrap hbar-in">
+    <a class="hb-logo" href="/" aria-label="AVTO-M — на главную"><img src="/assets/img/logo.webp" srcset="/assets/img/logo.webp 1x, /assets/img/logo@2x.webp 2x" width="220" height="68" alt="AVTO-M"></a>
     <button class="hd-cat" type="button" aria-expanded="false" aria-controls="mega" data-mega><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span>Каталог продукции</span></button>
     <form class="search" action="/search" method="get" role="search" data-search>
       <label class="sr" for="q">Поиск по названию, артикулу или номеру</label>
       <?= icon('search', 'search-i') ?>
-      <input id="q" name="q" type="search" placeholder="Поиск по названию, артикулу или номеру детали" autocomplete="off" value="<?= h($_GET['q'] ?? '') ?>" aria-autocomplete="list" aria-controls="suggest" enterkeyhint="search">
+      <input id="q" name="q" type="search" placeholder="Название или артикул детали" autocomplete="off" value="<?= h($_GET['q'] ?? '') ?>" aria-autocomplete="list" aria-controls="suggest" enterkeyhint="search">
       <button class="search-go" type="submit" aria-label="Найти"><?= icon('search') ?></button>
       <div class="suggest" id="suggest" role="listbox" hidden></div>
     </form>
     <a class="hd-ic hd-ic-cmp" href="/compare" aria-label="Сравнение"><?= icon('compare') ?><span>Сравнение</span><b class="badge" data-count="compare" hidden>0</b></a>
+    <a class="hd-ic hd-ic-call hb-call" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click" aria-label="Позвонить: <?= h($s['phone']) ?>"><?= icon('phone') ?></a>
     <a class="hd-ic hd-ic-cart" href="/cart" aria-label="Корзина" data-cart-target><?= icon('bag') ?><span>Корзина</span><b class="badge" data-count="cart" hidden>0</b></a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Открыть меню" data-menu><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span></button>
     <span class="garage" data-garage hidden></span>
   </div>
   <div class="mega" id="mega" hidden>
@@ -163,31 +165,37 @@ $navActive = fn($p) => ($path === $p || ($p !== '/' && strpos($path, $p . '/') =
   </div>
 </footer>
 
-<nav class="tabbar" aria-label="Быстрое меню">
-  <a href="/"<?= $navActive('/') ?>><?= icon('home') ?><span>Главная</span></a>
-  <a href="/catalog"<?= $navActive('/catalog') ?>><?= icon('catalog') ?><span>Каталог</span></a>
-  <a href="/podbor"<?= $navActive('/podbor') ?>><?= icon('car') ?><span>Подбор</span></a>
-  <a href="/cart"<?= $navActive('/cart') ?>><?= icon('bag') ?><span>Корзина</span><b class="badge" data-count="cart" hidden>0</b></a>
-  <button type="button" data-drawer aria-controls="drawer" aria-expanded="false"><?= icon('menu') ?><span>Ещё</span></button>
-</nav>
-
-<div class="drawer" id="drawer" hidden>
-  <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Меню">
-    <div class="drawer-head"><img class="logo-img" src="/assets/img/logo@2x.webp" width="220" height="68" alt="" loading="lazy"><button class="icon-btn" type="button" data-drawer-close aria-label="Закрыть меню"><?= icon('close') ?></button></div>
-    <nav class="drawer-nav">
-      <a href="/catalog"><?= icon('catalog') ?>Каталог</a>
-      <?php foreach ($cats as $c): ?><a class="sub" href="/catalog/<?= h($c['slug']) ?>"><?= h($c['name']) ?></a><?php endforeach; ?>
-      <a href="/podbor"><?= icon('car') ?>Подбор по автомобилю</a>
-      <a href="/cart"><?= icon('bag') ?>Корзина <b class="badge" data-count="cart" hidden>0</b></a>
-      <a href="/compare"><?= icon('compare') ?>Сравнение <b class="badge" data-count="compare" hidden>0</b></a>
-      <a href="/how-to-buy"><?= icon('bag') ?>Как купить</a>
-      <a href="/about"><?= icon('building') ?>О компании</a>
-      <a href="/partners"><?= icon('wrench') ?>Сотрудничество</a>
-      <a href="/contacts"><?= icon('pin') ?>Контакты</a>
-    </nav>
-    <div class="drawer-contacts">
-      <a class="btn btn-primary btn-block" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= icon('phone') ?><?= h($s['phone']) ?></a>
-      <p><?= h($s['hours']) ?><br><?= h($s['address_short']) ?></p>
+<div class="menu" id="menu" hidden>
+  <div class="menu-bg" aria-hidden="true"></div>
+  <div class="menu-in" role="dialog" aria-modal="true" aria-label="Меню сайта">
+    <div class="wrap menu-grid">
+      <nav class="menu-main" aria-label="Разделы">
+        <a class="menu-a" href="/"<?= $navActive('/') ?>><span>Главная</span><?= icon('arrow') ?></a>
+        <a class="menu-a" href="/catalog"<?= $navActive('/catalog') ?>><span>Каталог</span><?= icon('arrow') ?></a>
+        <a class="menu-a" href="/podbor"<?= $navActive('/podbor') ?>><span>Подбор по авто</span><?= icon('arrow') ?></a>
+        <a class="menu-a" href="/about"<?= $navActive('/about') ?>><span>О компании</span><?= icon('arrow') ?></a>
+        <a class="menu-a" href="/partners"<?= $navActive('/partners') ?>><span>Автосервисам</span><?= icon('arrow') ?></a>
+        <a class="menu-a" href="/how-to-buy"<?= $navActive('/how-to-buy') ?>><span>Как купить</span><?= icon('arrow') ?></a>
+        <a class="menu-a" href="/contacts"<?= $navActive('/contacts') ?>><span>Контакты</span><?= icon('arrow') ?></a>
+      </nav>
+      <div class="menu-side">
+        <p class="menu-h">Каталог</p>
+        <div class="menu-cats">
+          <?php foreach ($cats as $c): $ph = photo_row($c['photo_id']); ?>
+            <a class="menu-cat" href="/catalog/<?= h($c['slug']) ?>"><span class="menu-cat-img"><?php if ($ph): ?><img src="<?= h(img_url($ph, 400)) ?>" alt="" loading="lazy" decoding="async"><?php endif; ?></span><span class="menu-cat-t"><?= h($c['name']) ?><small><?= (int)$c['cnt'] ?> <?= plural($c['cnt'], 'товар', 'товара', 'товаров') ?></small></span></a>
+          <?php endforeach; ?>
+        </div>
+        <div class="menu-quick">
+          <a href="/compare"><?= icon('compare') ?>Сравнение<b class="badge" data-count="compare" hidden>0</b></a>
+          <a href="/cart"><?= icon('bag') ?>Корзина<b class="badge" data-count="cart" hidden>0</b></a>
+        </div>
+        <div class="menu-contacts">
+          <a class="btn btn-primary btn-lg btn-block" href="<?= h(phone_href($s['phone'])) ?>" data-goal="phone_click"><?= icon('phone') ?><?= h($s['phone']) ?></a>
+          <a class="menu-mail" href="mailto:<?= h($s['email']) ?>"><?= icon('mail') ?><?= h($s['email']) ?></a>
+          <p><?= icon('clock') ?><span><?= h($s['hours']) ?></span></p>
+          <p><?= icon('pin') ?><span><?= h($s['address_short']) ?>, <?= h($s['region']) ?></span></p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

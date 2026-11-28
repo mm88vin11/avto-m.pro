@@ -10,7 +10,7 @@ function session_start_admin() {
   ini_set('session.use_only_cookies', '1');
   ini_set('session.gc_maxlifetime', '43200');
   session_name('avtom_admin');
-  session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => is_https(), 'httponly' => true, 'samesite' => 'Lax']);
+  session_set_cookie_params(['lifetime' => 0, 'path' => BASE . '/', 'secure' => is_https(), 'httponly' => true, 'samesite' => 'Lax']);
   session_start();
   if (isset($_SESSION['seen']) && time() - $_SESSION['seen'] > 12 * 3600) { $_SESSION = []; session_regenerate_id(true); }
   $_SESSION['seen'] = time();

@@ -26,7 +26,7 @@ function a_head($title, $active = '') {
   header('Content-Type: text/html; charset=utf-8');
   $u = admin_user();
   ?><!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title><?= h($title) ?> · Админка AVTO-M</title>
+<html lang="ru" data-base="<?= h(BASE) ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title><?= h($title) ?> · Админка AVTO-M</title>
 <meta name="robots" content="noindex, nofollow"><link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="<?= asset('css/admin.css') ?>"><script src="<?= asset('js/admin.js') ?>" defer></script></head>
 <body class="adm" data-csrf="<?= h(csrf_token()) ?>">
 <?php require APP_DIR . '/views/_icons.php'; ?>

@@ -3,6 +3,7 @@
   'use strict';
   window.__avtom = true;
   var d = document, html = d.documentElement, body = d.body;
+  var B = html.getAttribute('data-base') || ''; // подпапка сайта ('' — корень домена)
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var $ = function (s, r) { return (r || d).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || d).querySelectorAll(s)); };
@@ -54,18 +55,62 @@
   }
 
   /* ---------- шапка ---------- */
-  var header = $('#header');
-  var onScroll = function () { if (header) header.classList.toggle('is-scrolled', window.scrollY > 8); };
+  var header = $('#header'), lastY = window.scrollY, mobileQ = window.matchMedia('(max-width: 999px)');
+  var menu = $('#menu'), menuBtn = $('[data-menu]');
+  var onScroll = function () {
+    if (!header) return;
+    var y = window.scrollY;
+    header.classList.toggle('is-scrolled', y > 8);
+    // телефон: шапка уходит вверх при прокрутке вниз и возвращается при прокрутке вверх
+    if (mobileQ.matches && !(menu && !menu.hidden)) {
+      if (y > lastY + 6 && y > 180) header.classList.add('is-hidden');
+      else if (y < lastY - 6 || y < 120) header.classList.remove('is-hidden');
+    } else header.classList.remove('is-hidden');
+    lastY = y;
+  };
   window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  d.addEventListener('focusin', function (e) { if (header && header.contains(e.target)) header.classList.remove('is-hidden'); });
   var megaBtn = $('[data-mega]'), mega = $('#mega');
   function megaToggle(open) { if (!mega) return; mega.hidden = !open; megaBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); }
   if (megaBtn) megaBtn.addEventListener('click', function (e) { e.stopPropagation(); megaToggle(mega.hidden); });
   d.addEventListener('click', function (e) { if (mega && !mega.hidden && !e.target.closest('#mega')) megaToggle(false); });
-  var drawer = $('#drawer'), drawerBtn = $('[data-drawer]');
-  function drawerToggle(open) { if (!drawer) return; drawer.hidden = !open; if (drawerBtn) drawerBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); body.style.overflow = open ? 'hidden' : ''; if (open) { var f = $('a, button', drawer); if (f) f.focus(); } }
-  if (drawerBtn) drawerBtn.addEventListener('click', function () { drawerToggle(true); });
-  if (drawer) drawer.addEventListener('click', function (e) { if (e.target === drawer || e.target.closest('[data-drawer-close]')) drawerToggle(false); });
-  d.addEventListener('keydown', function (e) { if (e.key === 'Escape') { megaToggle(false); drawerToggle(false); closeFilters(); closeLightbox(); } });
+
+  /* ---------- меню на весь экран: круг раскрывается из кнопки ---------- */
+  var menuT;
+  function menuIsOpen() { return menu && !menu.hidden && !menu.classList.contains('is-closing'); }
+  function menuToggle(open) {
+    if (!menu || !menuBtn || open === menuIsOpen()) return;
+    clearTimeout(menuT);
+    var bg = $('.menu-bg', menu);
+    if (open) {
+      var r = menuBtn.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      var R = Math.ceil(Math.hypot(Math.max(cx, window.innerWidth - cx), Math.max(cy, window.innerHeight - cy))) + 2;
+      bg.style.left = (cx - R) + 'px'; bg.style.top = (cy - R) + 'px'; bg.style.width = bg.style.height = (2 * R) + 'px';
+      header.classList.remove('is-hidden');
+      menu.style.setProperty('--menu-top', Math.max(0, Math.round(header.getBoundingClientRect().bottom)) + 'px');
+      menu.classList.remove('is-closing');
+      menu.hidden = false; void menu.offsetWidth;
+      menu.classList.add('is-open');
+      html.classList.add('menu-on');
+    } else {
+      menu.classList.remove('is-open'); menu.classList.add('is-closing');
+      html.classList.remove('menu-on');
+      menuT = setTimeout(function () { menu.hidden = true; menu.classList.remove('is-closing'); }, reduce ? 0 : 520);
+    }
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    menuBtn.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+  }
+  if (menuBtn) menuBtn.addEventListener('click', function () { menuToggle(!menuIsOpen()); });
+  if (menu) {
+    menu.addEventListener('click', function (e) { if (e.target.closest('a')) menuToggle(false); });
+    menu.addEventListener('keydown', function (e) { // фокус не уходит из открытого меню: кнопка меню → пункты → кнопка
+      if (e.key !== 'Tab') return;
+      var f = $$('a[href], button', menu), i = f.indexOf(d.activeElement);
+      if (e.shiftKey && i === 0) { e.preventDefault(); menuBtn.focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); menuBtn.focus(); }
+    });
+    if (mobileQ.addEventListener) mobileQ.addEventListener('change', function () { if (!mobileQ.matches) menuToggle(false); });
+  }
+  d.addEventListener('keydown', function (e) { if (e.key === 'Escape') { megaToggle(false); if (menuIsOpen()) { menuToggle(false); menuBtn.focus(); } closeFilters(); closeLightbox(); } });
 
   /* ---------- поиск с подсказками ---------- */
   $$('[data-search]').forEach(function (form) {
@@ -77,7 +122,7 @@
       if (r.models && r.models.length) { h += '<p class="sg-h">Автомобили</p>'; r.models.forEach(function (m) { h += '<a class="sg-item" role="option" href="' + m.url + '"><span class="sg-ph" style="display:grid;place-items:center;color:#0a5cff">' + icon('car') + '</span><span><b>' + mark(m.name, q) + '</b><small>Все детали для модели</small></span></a>'; }); }
       if (r.items.length) { h += '<p class="sg-h">Товары</p>'; r.items.forEach(function (p) { h += '<a class="sg-item" role="option" href="' + p.url + '">' + (p.img ? '<img src="' + p.img + '" alt="" width="48" height="48">' : '<span class="sg-ph"></span>') + '<span><b>' + mark(p.name, q) + '</b><small>' + esc(p.sku) + ' · ' + esc(p.compat) + '</small></span></a>'; }); }
       if (!r.items.length && !(r.models || []).length) h = '<p class="sg-empty">Ничего не нашли. Попробуйте артикул, номер детали или модель автомобиля.</p>';
-      else if (r.total > r.items.length) h += '<a class="sg-all" href="/search?q=' + encodeURIComponent(q) + '">Показать все — ' + r.total + icon('arrow') + '</a>';
+      else if (r.total > r.items.length) h += '<a class="sg-all" href="' + B + '/search?q=' + encodeURIComponent(q) + '">Показать все — ' + r.total + icon('arrow') + '</a>';
       box.innerHTML = h; box.hidden = false; input.setAttribute('aria-expanded', 'true');
     }
     input.addEventListener('input', function () {
@@ -85,7 +130,7 @@
       if (q.length < 2) { hide(); return; }
       timer = setTimeout(function () {
         if (ctrl) ctrl.abort(); ctrl = window.AbortController ? new AbortController() : null;
-        fetch('/api/search?q=' + encodeURIComponent(q), ctrl ? { signal: ctrl.signal } : {}).then(function (r) { return r.json(); }).then(function (r) { render(r, q); }).catch(function () {});
+        fetch(B + '/api/search?q=' + encodeURIComponent(q), ctrl ? { signal: ctrl.signal } : {}).then(function (r) { return r.json(); }).then(function (r) { render(r, q); }).catch(function () {});
       }, 180);
     });
     input.addEventListener('keydown', function (e) {
@@ -153,7 +198,7 @@
       if (!c || !c.label) { g.hidden = true; return; }
       g.hidden = false;
       g.className = 'garage';
-      g.innerHTML = '<a href="/catalog?' + carQuery(c) + '" title="Показать детали для моей машины">' + icon('car') + '<span>' + esc(c.label) + '</span></a><button type="button" aria-label="Забыть автомобиль" data-garage-clear>' + icon('close') + '</button>';
+      g.innerHTML = '<a href="' + B + '/catalog?' + carQuery(c) + '" title="Показать детали для моей машины">' + icon('car') + '<span>' + esc(c.label) + '</span></a><button type="button" aria-label="Забыть автомобиль" data-garage-clear>' + icon('close') + '</button>';
     });
   }
   renderGarage();
@@ -179,14 +224,14 @@
     if (b) {
       var id = +b.getAttribute('data-cart');
       if (inCart(id)) { cart = cart.filter(function (x) { return x.id !== id; }); toast('Убрали из корзины'); }
-      else { cart.push({ id: id, qty: 1 }); toast('Добавили в корзину', ['Открыть', '/cart']); }
+      else { cart.push({ id: id, qty: 1 }); toast('Добавили в корзину', ['Открыть', B + '/cart']); }
       store.set('avtom-cart', cart); counts('cart'); return;
     }
     var c = e.target.closest('[data-compare]');
     if (c) {
       var cid = +c.getAttribute('data-compare'), i = cmp.indexOf(cid);
       if (i >= 0) { cmp.splice(i, 1); toast('Убрали из сравнения'); }
-      else { if (cmp.length >= 6) cmp.shift(); cmp.push(cid); toast('Добавили к сравнению', ['Сравнить', '/compare']); }
+      else { if (cmp.length >= 6) cmp.shift(); cmp.push(cid); toast('Добавили к сравнению', ['Сравнить', B + '/compare']); }
       store.set('avtom-cmp', cmp); counts('cmp');
     }
   });
@@ -239,7 +284,7 @@
       if (car && car.make) { data.car_make = car.make; data.car_model = car.model; data.car_year = car.year; data.car_body = car.body; data.car_engine = car.engine; }
       try { var u = JSON.parse(sessionStorage.getItem('avtom-utm') || '{}'); for (var k in u) data[k] = u[k]; } catch (x) {}
       btn.classList.add('is-loading'); btn.disabled = true;
-      fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(data) })
+      fetch(B + '/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(data) })
         .then(function (r) { return r.json(); })
         .then(function (r) {
           btn.classList.remove('is-loading'); btn.disabled = false;
@@ -283,7 +328,7 @@
     var itemsBox = $('[data-items]', form);
     form.elements.items.value = JSON.stringify(ids.map(function (i) { return { id: i, qty: 1 }; }));
     itemsBox.hidden = !ids.length; itemsBox.innerHTML = '';
-    if (ids.length) fetch('/api/products?ids=' + ids.join(',')).then(function (r) { return r.json(); }).then(function (r) { itemsBox.innerHTML = itemsHtml(r.items); });
+    if (ids.length) fetch(B + '/api/products?ids=' + ids.join(',')).then(function (r) { return r.json(); }).then(function (r) { itemsBox.innerHTML = itemsHtml(r.items); });
     var car = store.get('avtom-car', null), ct = $('[data-car-text]', form);
     if (ct && car && car.label && !ct.value) ct.value = car.label;
     if (modal.showModal) modal.showModal(); else modal.setAttribute('open', '');
@@ -341,8 +386,8 @@
     $$('[data-picker]', form).forEach(pickerInit);
     var applyBtn = $('[data-apply] span', form), t;
     function liveCount() {
-      var q = cleanQuery(form), cat = location.pathname.split('/')[2] || '';
-      fetch('/api/count?' + q + (cat ? '&cat=' + encodeURIComponent(cat) : '')).then(function (r) { return r.json(); }).then(function (r) { applyBtn.textContent = 'Показать ' + r.n + ' ' + plural(r.n, 'товар', 'товара', 'товаров'); });
+      var q = cleanQuery(form), cat = location.pathname.slice(B.length).split('/')[2] || '';
+      fetch(B + '/api/count?' + q + (cat ? '&cat=' + encodeURIComponent(cat) : '')).then(function (r) { return r.json(); }).then(function (r) { applyBtn.textContent = 'Показать ' + r.n + ' ' + plural(r.n, 'товар', 'товара', 'товаров'); });
     }
     function load(url, push) {
       var res = $('[data-results]', root); if (res) res.setAttribute('aria-busy', 'true');
@@ -369,7 +414,7 @@
     form.addEventListener('submit', function (e) { e.preventDefault(); closeFilters(); load(form.action + (cleanQuery(form) ? '?' + cleanQuery(form) : ''), true); });
     root.addEventListener('click', function (e) {
       var a = e.target.closest('.active-chips a, .viewsw a, .carbar a, .empty a');
-      if (a && a.href.indexOf(location.origin + '/catalog') === 0) { e.preventDefault(); if (a.closest('.carbar')) { store.set('avtom-car', null); renderGarage(); } load(a.href, true); }
+      if (a && a.href.indexOf(location.origin + B + '/catalog') === 0) { e.preventDefault(); if (a.closest('.carbar')) { store.set('avtom-car', null); renderGarage(); } load(a.href, true); }
     });
     var sort = $('[data-sort]', root); if (sort) sort.addEventListener('change', function () { load(sort.value, true); });
   }
@@ -432,7 +477,7 @@
       var r = match(car), label = car.label || '';
       fit.setAttribute('data-state', r);
       var txt = { yes: ['Подходит к вашему автомобилю', label], check: ['Модель подходит — уточните кузов или двигатель', label + '. Напишите менеджеру, проверим по VIN-номеру.'], no: ['Не подходит к вашему автомобилю', label + '. Посмотрите подбор для своей машины.'] }[r];
-      fState.innerHTML = '<span class="fitbox-ic">' + icon(r === 'yes' ? 'check-circle' : (r === 'check' ? 'alert' : 'close')) + '</span><div><b>' + esc(txt[0]) + '</b><small>' + esc(txt[1]) + (r === 'no' && car.make ? ' <a href="/catalog?' + carQuery(car) + '">Подобрать</a>' : '') + '</small></div>';
+      fState.innerHTML = '<span class="fitbox-ic">' + icon(r === 'yes' ? 'check-circle' : (r === 'check' ? 'alert' : 'close')) + '</span><div><b>' + esc(txt[0]) + '</b><small>' + esc(txt[1]) + (r === 'no' && car.make ? ' <a href="' + B + '/catalog?' + carQuery(car) + '">Подобрать</a>' : '') + '</small></div>';
       fOpen.innerHTML = icon('car') + 'Другой автомобиль'; fOpen.hidden = false; fForm.hidden = true;
     }
     fOpen.addEventListener('click', function () { fForm.hidden = false; fOpen.hidden = true; var m = $('[data-pk="make"]', fForm); if (m) m.focus(); });
@@ -456,7 +501,7 @@
     var box = $('[data-cart-items]'); if (!box) return;
     var empty = $('[data-cart-empty]'), formBox = $('[data-cart-form]');
     if (!cart.length) { box.innerHTML = ''; empty.hidden = false; formBox.hidden = true; return; }
-    fetch('/api/products?ids=' + cart.map(function (x) { return x.id; }).join(',')).then(function (r) { return r.json(); }).then(function (r) {
+    fetch(B + '/api/products?ids=' + cart.map(function (x) { return x.id; }).join(',')).then(function (r) { return r.json(); }).then(function (r) {
       var byId = {}; r.items.forEach(function (p) { byId[p.id] = p; });
       cart = cart.filter(function (x) { return byId[x.id]; }); store.set('avtom-cart', cart); counts();
       if (!cart.length) { renderCart(); return; }
@@ -492,7 +537,7 @@
   var cmpBox = $('[data-compare-page]');
   function renderCompare() {
     if (!cmp.length) { cmpBox.innerHTML = ''; $('[data-compare-empty]').hidden = false; $('[data-diff-toggle]').hidden = true; return; }
-    fetch('/api/products?ids=' + cmp.join(',')).then(function (r) { return r.json(); }).then(function (r) {
+    fetch(B + '/api/products?ids=' + cmp.join(',')).then(function (r) { return r.json(); }).then(function (r) {
       var items = r.items; if (!items.length) { cmp = []; store.set('avtom-cmp', cmp); counts(); renderCompare(); return; }
       var rows = [['Производитель', function (p) { return p.brand; }], ['Категория', function (p) { return p.category; }], ['Артикул', function (p) { return p.sku; }], ['Совместимость', function (p) { return p.compat; }]];
       r.attrs.forEach(function (a) { rows.push([a, function (p) { var v = ''; p.attrs.forEach(function (x) { if (x[0] === a) v = x[1]; }); return v || '—'; }]); });
@@ -535,7 +580,7 @@
   }
   var io = 'IntersectionObserver' in window && !reduce ? new IntersectionObserver(function (es) {
     es.forEach(function (en) { if (!en.isIntersecting) return; en.target.classList.add('is-in'); io.unobserve(en.target); $$('[data-count-to]', en.target).forEach(countUp); });
-  }, { rootMargin: '0px 0px -8% 0px', threshold: .08 }) : null;
+  }, { rootMargin: '0px 0px -6% 0px', threshold: 0 }) : null;
   function reveal(root, instant) {
     $$('[data-reveal], [data-split]', root).forEach(function (el) {
       if (!io || instant) { el.classList.add('is-in'); return; }

@@ -16,7 +16,8 @@ page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
 page.on('pageerror', e => errors.push(String(e)));
 for (const p of paths) {
   await page.goto(base + p, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(400);
+  await page.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 500) { window.scrollTo(0, y); await new Promise(r => setTimeout(r, 60)); } window.scrollTo(0, 0); });
+  await page.waitForTimeout(500);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   const name = (p.replace(/[^a-z0-9]+/gi, '_') || 'home').slice(0, 60);
   await page.screenshot({ path: `${out}/${w}-${name}.png`, fullPage: true });

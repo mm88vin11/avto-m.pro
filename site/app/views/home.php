@@ -190,7 +190,7 @@ case 'brands': $brands = array_filter(brands_all(), fn($b) => $b['cnt'] > 0); if
       <a class="brand-card" href="/brand/<?= h($b['slug']) ?>" data-reveal>
         <span class="brand-mark"><?php if ($logo): ?><img src="<?= h(img_url($logo, 400)) ?>" alt="<?= h($b['name']) ?>" loading="lazy"><?php else: ?><?= h($b['name']) ?><?php endif; ?></span>
         <span class="brand-tag"><?= h($b['tagline']) ?></span>
-        <?php if ($facts): ?><span class="brand-facts"><?php foreach (array_slice($facts, 0, 4) as [$k, $v]): ?><span><small><?= h($k) ?></small><b><?= h($v) ?></b></span><?php endforeach; ?></span><?php endif; ?>
+        <?php if ($facts): ?><span class="brand-facts"><?php foreach (array_slice($facts, 0, 4) as [$k, $v]): ?><span><small><?= h($k) ?></small><b><?= h(preg_replace("~ (°|мм|Н|лет|год|мл)\b~u", "\u{00A0}$1", $v)) ?></b></span><?php endforeach; ?></span><?php endif; ?>
         <span class="link-arrow"><?= (int)$b['cnt'] ?> <?= plural($b['cnt'], 'товар', 'товара', 'товаров') ?><?= icon('arrow') ?></span>
       </a>
     <?php endforeach; ?>

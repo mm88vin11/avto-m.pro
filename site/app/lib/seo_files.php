@@ -4,7 +4,7 @@ if (!defined('AVTOM')) { http_response_code(404); exit; }
 function robots_txt() {
   header('Content-Type: text/plain; charset=utf-8');
   echo "User-agent: *\n";
-  foreach (['/admin', '/api/', '/go/', '/cart', '/compare', '/search', '/cron', '/*?*sort=', '/*?*view=', '/*?*preview='] as $d) echo "Disallow: $d\n";
+  foreach (['/admin', '/api/', '/go/', '/cart', '/compare', '/search', '/cron', '/*?*sort=', '/*?*view=', '/*?*preview='] as $d) echo 'Disallow: ' . BASE . $d . "\n";
   echo "Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&from\n";
   echo "\nSitemap: " . site_url('/sitemap.xml') . "\n";
 }
@@ -34,7 +34,7 @@ function sitemap_xml() {
 
 function webmanifest() {
   header('Content-Type: application/manifest+json; charset=utf-8');
-  echo json_encode([
+  echo base_json(json_encode([
     'name' => 'AVTO-M — автозапчасти', 'short_name' => 'AVTO-M', 'lang' => 'ru', 'start_url' => '/', 'display' => 'standalone',
     'background_color' => '#f1f4f9', 'theme_color' => '#0a1f4d',
     'icons' => [
@@ -42,5 +42,5 @@ function webmanifest() {
       ['src' => '/assets/icons/icon-512.png', 'sizes' => '512x512', 'type' => 'image/png'],
       ['src' => '/assets/icons/icon-maskable-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable'],
     ],
-  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 }

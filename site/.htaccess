@@ -1,16 +1,20 @@
 # AVTO-M · Apache (рег.ру). Всё, кроме существующих файлов, идёт в index.php.
+# Работает и в корне домена (avto-m.pro), и в подпапке (домен.ру/avto-m) — адреса здесь относительные.
 Options -Indexes -MultiViews
 DirectoryIndex index.php
 AddDefaultCharset utf-8
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /
 
   # 1. HTTPS и адрес без www. Включайте после выпуска SSL-сертификата (см. docs/DEPLOY.md, шаг 4).
-  RewriteCond %{HTTPS} off
-  RewriteCond %{HTTP:X-Forwarded-Proto} !https
-  RewriteRule ^ https://avto-m.pro%{REQUEST_URI} [L,R=301]
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{ENV:HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteCond %{HTTP:PORT} !=443
+  RewriteCond %{SERVER_PORT} !=443
+  RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
   RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
   RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
 
@@ -22,7 +26,7 @@ AddDefaultCharset utf-8
   # 3. Существующие файлы отдаём напрямую, остальное — в index.php
   RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule ^(assets|uploads)/ - [L]
-  RewriteCond %{REQUEST_URI} !^/favicon\.ico$
+  RewriteRule ^(favicon\.ico|index\.php)$ - [L]
   RewriteRule ^ index.php [L,QSA]
 </IfModule>
 
@@ -48,6 +52,11 @@ AddDefaultCharset utf-8
 </IfModule>
 
 <IfModule mod_headers.c>
+  # Свои заголовки безопасности сайт ставит сам (PHP). Если папка лежит внутри другого сайта,
+  # снимаем унаследованные от него политики — иначе не откроется карта на странице «Контакты».
+  Header always unset Content-Security-Policy
+  Header always unset Permissions-Policy
+  Header always unset X-Frame-Options
   Header always set X-Content-Type-Options "nosniff"
   <FilesMatch "\.(css|js|woff2)$">
     Header set Cache-Control "public, max-age=31536000, immutable"

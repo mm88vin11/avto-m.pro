@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var d = document, $ = function (s, r) { return (r || d).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || d).querySelectorAll(s)); };
-  var csrf = d.body.getAttribute('data-csrf');
+  var csrf = d.body.getAttribute('data-csrf'), B = d.documentElement.getAttribute('data-base') || '';
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
   var toastEl = $('#a-toast'), tt;
   function toast(m) { if (!toastEl) return; toastEl.textContent = m; toastEl.hidden = false; clearTimeout(tt); tt = setTimeout(function () { toastEl.hidden = true; }, 2600); }
@@ -74,7 +74,7 @@
     list.addEventListener('mousedown', function (e) { var h = e.target.closest('.a-drag'); var row = e.target.closest('li, [data-rep-row]'); if (h && row) row.setAttribute('draggable', 'true'); });
   }
   $$('[data-sortable]').forEach(function (list) {
-    var table = list.getAttribute('data-sortable'), base = { products: '/admin/products/order' }[table] || ('/admin/' + ({ makes: 'cars', models: 'cars' }[table] || table) + '/order');
+    var table = list.getAttribute('data-sortable'), base = { products: B + '/admin/products/order' }[table] || (B + '/admin/' + ({ makes: 'cars', models: 'cars' }[table] || table) + '/order');
     $$('li[data-id]', list).forEach(function (li) { li.setAttribute('draggable', 'true'); });
     sortable(list, function () {
       var ids = $$('li[data-id]', list).map(function (li) { return li.getAttribute('data-id'); });
@@ -129,7 +129,7 @@
   d.addEventListener('click', function (e) { var b = e.target.closest('[data-crow-del]'); if (b) { b.closest('[data-crow]').remove(); d.querySelector('[data-dirty-guard]').dispatchEvent(new Event('change')); } });
 
   // загрузка фото
-  function upload(file) { var fd = new FormData(); fd.append('photo', file); return post('/admin/upload', fd); }
+  function upload(file) { var fd = new FormData(); fd.append('photo', file); return post(B + '/admin/upload', fd); }
   var phBox = $('[data-photos]'), phInput = $('[data-ph-input]'), phDrop = $('[data-ph-drop]');
   function renum() { $$('.a-ph', phBox).forEach(function (el, i) { $$('input', el).forEach(function (inp) { inp.name = inp.name.replace(/photos\[[^\]]*\]/, 'photos[' + i + ']'); }); }); }
   function addFiles(files) {

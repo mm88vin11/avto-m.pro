@@ -1,7 +1,7 @@
 /* AVTO-M · интерактивы: квиз «Подбор за 30 секунд» и «Подберите упор по старому». Без библиотек. */
 (function () {
   'use strict';
-  var d = document;
+  var d = document, B = d.documentElement.getAttribute('data-base') || '';
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var $ = function (s, r) { return (r || d).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || d).querySelectorAll(s)); };
@@ -148,7 +148,7 @@
         var h = back(hasBodies() ? 'body' : 'model') + '<div class="q-done"><span class="q-check" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="m15 27 7 7 15-16"/></svg></span><div><p class="q-step">Готово</p><h3 class="q-h">' + (list.length === 1 ? 'Подходит 1 деталь' : 'Подходят ' + list.length + ' ' + plural(list.length, 'деталь', 'детали', 'деталей')) + '</h3><p class="q-sub">для ' + esc(car) + '. Машину запомнили — в каталоге отметим совместимость.</p></div></div>';
         if (bodiesDiffer) h += '<p class="q-note q-note-warn">' + icon('alert') + 'Упоры для разных кузовов отличаются. Выберите свой в карточке или сверьте длину.</p>';
         h += '<div class="q-results">' + list.map(miniCard).join('') + '</div>';
-        h += '<div class="q-actions"><a class="btn btn-soft" href="/catalog/' + esc(st.cat) + '?' + q + '">Открыть в каталоге' + icon('arrow') + '</a><button type="button" class="linklike" data-q-go="start">Подобрать другую деталь</button></div>';
+        h += '<div class="q-actions"><a class="btn btn-soft" href="' + B + '/catalog/' + esc(st.cat) + '?' + q + '">Открыть в каталоге' + icon('arrow') + '</a><button type="button" class="linklike" data-q-go="start">Подобрать другую деталь</button></div>';
         return h;
       }
     };
@@ -297,7 +297,7 @@
     if (b.getAttribute('aria-pressed') !== 'true') return; // убрали из корзины — без анимации
     var card = b.closest('[data-product]');
     var src = (card && $('img', card)) || $('.gal-slide.is-on img') || $('.q-card img');
-    var target = [$('.hd-ic-cart'), $('.tabbar a[href="/cart"]')].filter(visible)[0];
+    var target = [$('.hd-ic-cart')].filter(visible)[0];
     if (!src || !target || !src.animate) return;
     var r1 = src.getBoundingClientRect(), r2 = target.getBoundingClientRect();
     var fly = d.createElement('img'); fly.className = 'fly'; fly.src = src.currentSrc || src.src; fly.alt = '';
@@ -314,7 +314,7 @@
 
   // плавный переход фото из карточки на страницу товара
   d.addEventListener('click', function (e) {
-    var a = e.target.closest('.pc a[href^="/product/"], .rc[href^="/product/"]'); if (!a) return;
+    var a = e.target.closest('.pc a[href*="/product/"], .rc[href*="/product/"]'); if (!a) return;
     var card = a.closest('.pc') || a, img = $('img', card);
     $$('img').forEach(function (x) { if (x.style.viewTransitionName) x.style.viewTransitionName = ''; });
     if (img) img.style.viewTransitionName = 'prod-photo';

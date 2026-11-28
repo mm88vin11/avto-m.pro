@@ -113,7 +113,7 @@ if ($sec === 'backups') {
     $f = basename((string)($_GET['f'] ?? ''));
     $path = backups_dir() . '/' . $f;
     if (!preg_match('~^avtom-[\d-]+(-db)?\.zip$~', $f) || !is_file($path)) redirect('/admin/backups');
-    header('Content-Type: application/zip'); header('Content-Disposition: attachment; filename="' . $f . '"'); header('Content-Length: ' . filesize($path)); readfile($path); exit;
+    while (ob_get_level()) ob_end_clean(); header('Content-Type: application/zip'); header('Content-Disposition: attachment; filename="' . $f . '"'); header('Content-Length: ' . filesize($path)); readfile($path); exit;
   }
   if (a_require_post()) {
     try { $n = backup_create(($_POST['what'] ?? '') !== 'db'); flash('Копия создана: ' . h($n)); } catch (Throwable $e) { flash('Не получилось: ' . h($e->getMessage()), 'err'); }

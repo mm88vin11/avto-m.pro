@@ -15,7 +15,7 @@ jsonld(['@context' => 'https://schema.org', '@type' => 'Brand', 'name' => $b['na
       <h1 class="brand-h1"><?= h($b['tagline']) ?></h1>
       <?php if ($b['country']): ?><p class="muted">Страна производства: <?= h($b['country']) ?></p><?php endif; ?>
     </div>
-    <?php if ($facts): ?><div class="brand-facts brand-facts-big"><?php foreach ($facts as [$k, $v]): ?><span><small><?= h($k) ?></small><b><?= h($v) ?></b></span><?php endforeach; ?></div><?php endif; ?>
+    <?php if ($facts): ?><div class="brand-facts brand-facts-big"><?php foreach ($facts as [$k, $v]): ?><span><small><?= h($k) ?></small><b><?= h(preg_replace("~ (°|мм|Н|лет|год|мл)\b~u", "\u{00A0}$1", $v)) ?></b></span><?php endforeach; ?></div><?php endif; ?>
   </div>
   <article class="panel prose-panel narrow"><div class="prose"><?= md($b['description']) ?></div></article>
   <?php if ($items): ?>
